@@ -108,7 +108,6 @@ Config = _Files('CONFIG')
 Data = _Files('DATA')
 
 
-
 class CacheDir:
     def __init__(self, dirname, size_limit=0):
         self.dirname = os.path.join(vars['XDG_CACHE_HOME'], dirname)
