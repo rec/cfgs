@@ -2,150 +2,139 @@
 
 import os
 
-__all__ = ['Cache', 'Config', 'Data', 'DEFAULT_FORMAT', 'FORMATS', 'VARS']
-
-FORMATS = 'configparser', 'ini', 'json', 'toml', 'yaml'
-DEFAULT_FORMAT = os.environ.get('CFGS_FORMAT', 'json')
-assert DEFAULT_FORMAT in FORMATS
-
-_VARS = {
-    'XDG_CACHE_HOME': '$HOME/.cache',
-    'XDG_CONFIG_DIRS': '/etc/xdg',
-    'XDG_CONFIG_HOME': '$HOME/.config',
-    'XDG_DATA_DIRS': '/usr/local/share/:/usr/share/',
-    'XDG_DATA_HOME': '$HOME/.local/share',
-    'XDG_RUNTIME_DIR': ''}
+__all__ = ['Cfgs']
 
 
-def _split_path(k, v):
-    v = os.path.expandvars(os.environ.get(k) or v)
-    return tuple(v.split(':')) if k.endswith('_DIRS') else v
+class Cfgs:
+    FORMATS = 'configparser', 'ini', 'json', 'toml', 'yaml'
+    DEFAULT_FORMAT = 'json'
 
+    def __init__(self, name, cache_size=0, default_format=None, formats=None):
+        self.formats = formats or (
+            os.environ.get('CFGS_FORMATS', '').split(':') or
+            self.FORMATS)
 
-VARS = {k: _split_path(k, v) for k, v in _VARS.items()}
-globals().update(VARS)
-__all__.extend(VARS)
+        self.default_format = default_format or (
+            os.environ.get('CFGS_DEFAULT_FORMAT', '').split(':') or
+            self.DEFAULT_FORMAT)
+
+        assert self.default_format in self.formats
+        self.name = name
+        self.cache_size = cache_size
+        self.xdg = _XDG()
+
+        self.cache = _Cache(self)
+        self.config = _Directory(self, 'CONFIG')
+        self.data = _Directory(self, 'DATA')
 
 
 class _XDG:
-    class Directory:
-        def __init__(self, category):
-            assert category in ('DATA', 'CONFIG')
-            self.category = category
-            prefix = 'XDG_' + category
-            self.home = VARS[prefix + '_HOME']
-            self.dirs = (self.home,) + VARS[prefix + '_DIRS']
+    DEFAULTS = {
+        'XDG_CACHE_HOME': '$HOME/.cache',
+        'XDG_CONFIG_DIRS': '/etc/xdg',
+        'XDG_CONFIG_HOME': '$HOME/.config',
+        'XDG_DATA_DIRS': '/usr/local/share/:/usr/share/',
+        'XDG_DATA_HOME': '$HOME/.local/share',
+        'XDG_RUNTIME_DIR': ''}
 
-        def find_all(self, filename):
-            for p in self.dirs:
-                full_path = os.path.join(p, filename)
-                try:
-                    yield open(full_path) and full_path
-                except:
-                    pass
+    def __init__(self):
+        for k, v in _XDG.DEFAULTS.items():
+            v = os.path.expandvars(os.environ.get(k) or v)
+            v = tuple(v.split(':')) if k.endswith('_DIRS') else v
+            setattr(self, k, v)
 
-        def File(self, filename, format=None):
-            return _XDG.File(self.full_path(filename), format)
 
-        def full_path(self, filename):
-            return os.path.join(self.home, filename)
+class _Directory:
+    def __init__(self, cfgs, category):
+        def path(directory):
+            home = getattr(cfgs.xdg, 'XDG_%s_%s' % (category, directory))
+            return os.path.join(home, cfgs.name)
 
-    class File:
-        def __init__(self, filename, format=None):
-            self.filename = filename
-            _makedirs(os.path.basename(self.filename))
-            self._set_format(format)
-            self.read()
+        self.cfgs = cfgs
+        self.home = path('HOME')
+        self.dirs = path('DIRS')
 
-        def __del__(self):
-            self.write()
-
-        def read(self):
+    def all_files(self, filename):
+        """
+        Yield all filenames matching the argument in either the home
+        directory or the search directories
+        """
+        for p in (self.home,) + self.dirs:
+            full_path = os.path.join(p, filename)
             try:
-                with open(self.filename) as fp:
-                    self.data = self._read(fp)
-            except FileNotFoundError:
-                self.data = {}
-            return self.data
+                yield open(full_path) and full_path
+            except:
+                pass
 
-        def write(self):
-            with open(self.filename, 'w') as fp:
-                self._write(fp, self.data)
+    def file(self, filename=None, format=None):
+        filename = self.path_to(filename or self.cfgs.name)
+        return _File(self.cfgs, filename, format)
 
-        def _set_format(self, format):
-            if not format:
-                matches = (f for f in FORMATS if self.filename.endswith('.' + f))
-                format = next(matches, DEFAULT_FORMAT)
-
-            if format not in FORMATS:
-                raise ValueError('Do not understand format ' + format)
-
-            if format in ('ini', 'configparser'):
-                try:
-                    configparser = __import__('configparser')
-                except ModuleNotFoundError:
-                    configparser = __import__('ConfigParser')
-
-                def read(fp):
-                    data = configparser.SafeConfigParser()
-                    data.readfp(fp)
-                    return data
-
-                def write(fp, data):
-                    data.write(fp)
-
-                self._read, self._write = read, write
-
-            else:
-                parser = __import__(format)
-                self._read = parser.load
-                self._write = parser.dump
+    def path_to(self, filename):
+        return os.path.join(self.home, filename)
 
 
-Config = _XDG.Directory('CONFIG')
-Data = _XDG.Directory('DATA')
+class _File:
+    def __init__(self, cfgs, filename, format):
+        self.filename = filename
+        _makedirs(os.path.basename(self.filename))
+        self._read, self._write = _reader_writer(cfgs, self.filename, format)
+        self.read()
+
+    def __del__(self):
+        try:
+            self.write()
+        except:
+            pass
+
+    def read(self):
+        try:
+            with open(self.filename) as fp:
+                self.data = self._read(fp)
+        except FileNotFoundError:
+            self.data = {}
+        return self.data
+
+    def write(self):
+        with open(self.filename, 'w') as fp:
+            self._write(fp, self.data)
 
 
-class Cache:
-    def __init__(self, dirname, size_limit=0):
-        self.dirname = os.path.join(vars['XDG_CACHE_HOME'], dirname)
-        _makedirs(self.dirname)
-        self.size_limit = size_limit
-        self._prune()
+class _Cache:
+    def __init__(self, dirname, cache_size):
+        self.dirname = dirname
+        self.cache_size = cache_size
+        self._prune(0)
 
-    def open(self, filename, size_guess=0, binary=False):
-        """
-        Open a file from the cache, pruning the cache if it's a new file.
+    def open(self, filename, size_guess, binary):
+        if self.cache_size and '/' in filename:
+            raise ValueError('Cache pruning does not work with subdirectories')
 
-        If the file does exist, return it opened for read, otherwise
-        return it opened for write.
-
-        Arguments:
-           filename: pathname of the file relative to the cache directory
-           size_guess: A guess as to the size of the file, in bytes
-           binary: If true, the file is opened in binary mode
-
-        """
         bin = 'b' if binary else ''
+        _makedirs(self.dirname)
+
         full = os.path.join(self.dirname, filename)
         if os.path.exists(full):
             return open(full, 'r' + bin)
 
-        self.prune(size_guess)
+        self._prune(size_guess)
         return open(full, 'w' + bin)
 
-    def _prune(self, size_guess=0):
-        if not self.size_limit:
+    def _prune(self, size_guess):
+        if not self.cache_size:
             return
 
         info = {f: os.stat(f) for f in os.listdir(self.dirname)}
-        size = sum(s.st_size for f, s in info.items()) + size_guess
-        if size > self.size_limit:
-            for f, s in sorted(info.items(), key=lambda x: x[0].st_mtime):
-                os.remove(f)
-                size -= s.st_size
-                if size <= self.size_limit:
-                    return
+        required_size = sum(s.st_size for f, s in info.items()) + size_guess
+        if required_size <= self.cache_size:
+            return
+
+        # Delete oldest items first
+        for f, s in sorted(info.items(), key=lambda x: x[0].st_mtime):
+            os.remove(f)
+            required_size -= s.st_size
+            if required_size <= self.cache_size:
+                return
 
 
 def _makedirs(f):  # For Python 2 compatibility
@@ -153,3 +142,31 @@ def _makedirs(f):  # For Python 2 compatibility
         os.makedirs(f)
     except:
         pass
+
+
+def _reader_writer(cfgs, filename, format):
+    if not format:
+        matches = (f for f in cfgs.formats if filename.endswith('.' + f))
+        format = next(matches, cfgs.default_format)
+
+    if format not in cfgs.formats:
+        raise ValueError('Do not understand format ' + format)
+
+    if format not in ('ini', 'configparser'):
+        parser = __import__(format)
+        return parser.load, parser.dump
+
+    try:
+        configparser = __import__('configparser')
+    except ModuleNotFoundError:
+        configparser = __import__('ConfigParser')
+
+    def read(fp):
+        data = configparser.SafeConfigParser()
+        data.readfp(fp)
+        return data
+
+    def write(fp, data):
+        data.write(fp)
+
+    return read, write
