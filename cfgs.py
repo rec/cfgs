@@ -16,7 +16,8 @@ class Cfgs:
         self.formats = formats or getenv('CFGS_FORMATS') or self.FORMATS
         if isinstance(self.formats, str):
             self.formats = self.formats.split(':')
-        assert self.format in self.formats
+        if self.format not in self.formats:
+            raise ValueError('Format %s not in %s' % (self.format, self.formats))
 
         self.cache = _Cache(self)
         self.config = _Directory(self, 'CONFIG')
@@ -66,13 +67,14 @@ class _Directory:
         self.cfgs = cfgs
         self.home = cfgs._path(category, 'HOME')
         self.dirs = cfgs._path(category, 'DIRS')
+        self.dirs.insert(0, self.home)
 
     def all_files(self, filename=None):
         """
         Yield all filenames matching the argument in either the home
         directory or the search directories
         """
-        for p in (self.home,) + self.dirs:
+        for p in self.dirs:
             full_path = self.path_to(filename, p)
             try:
                 yield open(full_path) and full_path
@@ -92,17 +94,18 @@ class _File:
     def __init__(self, cfgs, filename, format):
         self.filename = filename
         _makedirs(os.path.dirname(self.filename))
-        self._read, self._write = _reader_writer(cfgs, self.filename, format)
+        rwc = _reader_writer(cfgs, self.filename, format)
+        self._read, self._write, self._create = rwc
         self.read()
 
     def __setitem__(self, k, v):
-        self._data[k] = v
+        self.data[k] = v
 
     def __getitem__(self, k):
-        return self._data[k]
+        return self.data[k]
 
     def __delitem__(self, k):
-        del self._data[k]
+        del self.data[k]
 
     def __enter__(self):
         return self
@@ -111,19 +114,19 @@ class _File:
         self.write()
 
     def update(self, a=(), **kwds):
-        return self._data.update(a, **kwds)
+        return self.data.update(a, **kwds)
 
     def read(self):
         try:
             with open(self.filename) as fp:
-                self._data = self._read(fp)
+                self.data = self._read(fp)
         except FileNotFoundError:
-            self._data = {}
-        return self._data
+            self.data = self._create()
+        return self.data
 
     def write(self):
         with open(self.filename, 'w') as fp:
-            self._write(self._data, fp)
+            self._write(self.data, fp)
 
 
 class _Cache:
@@ -180,7 +183,7 @@ def _reader_writer(cfgs, filename, format):
 
     if format not in ('ini', 'configparser'):
         parser = __import__(format)
-        return parser.load, parser.dump
+        return parser.load, parser.dump, dict
 
     try:
         configparser = __import__('configparser')
@@ -195,4 +198,4 @@ def _reader_writer(cfgs, filename, format):
     def write(data, fp):
         data.write(fp)
 
-    return read, write
+    return read, write, configparser.SafeConfigParser
