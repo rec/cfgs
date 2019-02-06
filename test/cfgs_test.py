@@ -1,17 +1,15 @@
+import cfgs, json
 from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
-import cfgs
 
 
 class TestCase(FakeTestCase):
     ENV = {}
     VARS = {'$HOME': '/usr/fake'}
-    CACHE_SIZE = 0
 
     def setUp(self):
         self.setUpPyfakefs()
         cfgs.expandvars, self._expandvars = self.expandvars, cfgs.expandvars
         cfgs.getenv, self._getenv = self.ENV.get, cfgs.getenv
-        self.cfgs = cfgs.Cfgs('test', self.CACHE_SIZE)
 
     def tearDown(self):
         cfgs.expandvars, cfgs.getenv = self._expandvars, self._getenv
@@ -39,3 +37,16 @@ class XDGTest(TestCase):
         self.assertEqual(x.data_dirs, '/usr/local/share/:/usr/share/')
         self.assertEqual(x.data_home, '/usr/fake/.local/share')
         self.assertEqual(x.runtime_dir, '')
+
+
+class ConfigTest(TestCase):
+    def test_simple(self):
+        with cfgs.Cfgs('test').config.file() as f:
+            f['foo'] = 'bar'
+            f['baz'] = [2, 3, 4]
+            del f['foo']
+            f.update(zip='zap')
+
+        expected = {'baz': [2, 3, 4], 'zip': 'zap'}
+        actual = json.load(open('/usr/fake/.config/test/test.json'))
+        self.assertEqual(actual, expected)

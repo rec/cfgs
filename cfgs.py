@@ -83,33 +83,47 @@ class _Directory:
         return _File(self.cfgs, self.path_to(filename), format)
 
     def path_to(self, filename=None, base=None):
-        return os.path.join(base or self.home, filename or self.cfgs.name)
+        if not filename:
+            filename = '%s.%s' % (self.cfgs.name, self.cfgs.format)
+        return os.path.join(base or self.home, filename)
 
 
 class _File:
     def __init__(self, cfgs, filename, format):
         self.filename = filename
-        _makedirs(os.path.basename(self.filename))
+        _makedirs(os.path.dirname(self.filename))
         self._read, self._write = _reader_writer(cfgs, self.filename, format)
         self.read()
 
-    def __del__(self):
-        try:
-            self.write()
-        except:
-            pass
+    def __setitem__(self, k, v):
+        self._data[k] = v
+
+    def __getitem__(self, k):
+        return self._data[k]
+
+    def __delitem__(self, k):
+        del self._data[k]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.write()
+
+    def update(self, a=(), **kwds):
+        return self._data.update(a, **kwds)
 
     def read(self):
         try:
             with open(self.filename) as fp:
-                self.data = self._read(fp)
+                self._data = self._read(fp)
         except FileNotFoundError:
-            self.data = {}
-        return self.data
+            self._data = {}
+        return self._data
 
     def write(self):
         with open(self.filename, 'w') as fp:
-            self._write(fp, self.data)
+            self._write(self._data, fp)
 
 
 class _Cache:
@@ -178,7 +192,7 @@ def _reader_writer(cfgs, filename, format):
         data.readfp(fp)
         return data
 
-    def write(fp, data):
+    def write(data, fp):
         data.write(fp)
 
     return read, write
