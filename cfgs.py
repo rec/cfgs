@@ -11,9 +11,8 @@ expandvars = os.path.expandvars
 class Cfgs:
     DEFAULT_FORMAT = 'json'
 
-    def __init__(self, name, cache_size=0, format=DEFAULT_FORMAT):
+    def __init__(self, name, format=DEFAULT_FORMAT):
         self.name = name
-        self.cache_size = cache_size
 
         def path(attrname):
             path = getattr(XDG, attrname)
@@ -21,8 +20,7 @@ class Cfgs:
                 return [os.path.join(i, self.name) for i in path.split(':')]
             return os.path.join(path, self.name)
 
-        self.cache = _Cache(
-            path('XDG_CACHE_HOME'), cache_size)
+        self.cache = _Cache(path('XDG_CACHE_HOME'))
         self.config = _Directory(
             path('XDG_CONFIG_HOME'), path('XDG_CONFIG_DIRS'), format)
         self.data = _Directory(
@@ -162,17 +160,26 @@ class _File:
 
 
 class _Cache:
+    def __init__(self, dirname):
+        self.dirname = dirname
+
+    def directory(self, name='cache', cache_size=0):
+        name = os.path.join(self.dirname, name)
+        return _CacheDirectory(name, cache_size)
+
+
+class _CacheDirectory:
     def __init__(self, dirname, cache_size):
         self.dirname = dirname
         self.cache_size = cache_size
+        _makedirs(self.dirname)
         self._prune(0)
 
-    def open(self, filename, size_guess, binary):
+    def open(self, filename, size_guess=0, binary=False):
         if '/' in filename:
             raise ValueError('Subdirectories are not allowed in caches')
 
         bin = 'b' if binary else ''
-        _makedirs(self.dirname)
 
         full = os.path.join(self.dirname, filename)
         if os.path.exists(full):
@@ -185,14 +192,15 @@ class _Cache:
         if not self.cache_size:
             return
 
-        info = {f: os.stat(f) for f in os.listdir(self.dirname)}
+        files = os.listdir(self.dirname)
+        info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
         required_size = sum(s.st_size for f, s in info.items()) + size_guess
         if required_size <= self.cache_size:
             return
 
         # Delete oldest items first
-        for f, s in sorted(info.items(), key=lambda x: x[0].st_mtime):
-            os.remove(f)
+        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
+            os.remove(os.path.join(self.dirname, f))
             required_size -= s.st_size
             if required_size <= self.cache_size:
                 return

@@ -113,3 +113,66 @@ class AllFilesTest(TestCase):
         actual = list(cfg.config.all_files('wombat.json'))
         expected = ['/etc/xdg/test/wombat.json']
         self.assertEqual(actual, expected)
+
+
+class CacheTest(TestCase):
+    FILE_CONTENTS = (
+            ('one', '1'),
+            ('two', '22'),
+            ('three', '333'),
+            ('four', '4444'),
+            ('five', '55555'),
+            ('six', '666666'))
+    EXPECTED = [f for (f, c) in FILE_CONTENTS]
+
+    def test_cache1(self):
+        cache, listdir = self._create_cache(0, False)
+        self.assertEqual(listdir, self.EXPECTED + ['seven'])
+
+    def test_cache2(self):
+        cache, listdir = self._create_cache(0, True)
+        self.assertEqual(listdir, self.EXPECTED + ['seven'])
+
+    def test_cache3(self):
+        cache, listdir = self._create_cache(21, False)
+        self.assertEqual(listdir, self.EXPECTED + ['seven'])
+        with cache.open('eight') as f:
+            f.write('88888888')
+        expected = ['five', 'six', 'seven', 'eight']
+        self.assertEqual(self.fs.listdir(cache.dirname), expected)
+
+    def test_cache4(self):
+        cache, listdir = self._create_cache(21, True)
+        expected = ['five', 'six', 'seven']
+        self.assertEqual(listdir, expected)
+        with cache.open('eight', size_guess=8) as f:
+            f.write('88888888')
+        expected = ['six', 'seven', 'eight']
+        self.assertEqual(self.fs.listdir(cache.dirname), expected)
+
+        with cache.open('twenty-three', size_guess=21) as f:
+            f.write('L' * 23)
+        expected = ['twenty-three']
+        self.assertEqual(self.fs.listdir(cache.dirname), expected)
+
+    def _create_cache(self, cache_size=0, use_size_guess=True):
+        c = cfgs.Cfgs('test')
+        cache = c.cache.directory(cache_size=cache_size)
+
+        for file, contents in self.FILE_CONTENTS:
+            size_guess = len(contents) if use_size_guess else 0
+            with cache.open(file, size_guess=size_guess) as f:
+                f.write(contents)
+
+        for file, contents in self.FILE_CONTENTS:
+            self.assertEqual(cache.open(file).read(), contents)
+
+        self.assertEqual(cache.dirname, '/usr/fake/.cache/test/cache')
+        self.assertEqual(self.fs.listdir(cache.dirname), self.EXPECTED)
+        with self.assertRaises(ValueError):
+            cache.open('foo/bar')
+
+        size_guess = 7 if use_size_guess else 0
+        with cache.open('seven', size_guess=size_guess) as f:
+            f.write('7777777')
+        return cache, self.fs.listdir(cache.dirname)
