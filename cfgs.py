@@ -1,31 +1,30 @@
-# See https://0x46.net/thoughts/2019/02/01/dotfile-madness/
-
-__all__ = ['Cfgs']
-
-import os
+import copy, os
 
 getenv = os.environ.get
 expandvars = os.path.expandvars
+__all__ = ['Project', 'XDG']
 
 
-class Cfgs:
+class Project:
     DEFAULT_FORMAT = 'json'
 
     def __init__(self, name, format=DEFAULT_FORMAT):
         self.name = name
-        xdg = XDG()
+        self.xdg = XDG()
 
         def path(attrname):
-            path = getattr(xdg, attrname)
+            path = getattr(self.xdg, attrname)
             if attrname.endswith('DIRS'):
                 return [os.path.join(i, self.name) for i in path.split(':')]
             return os.path.join(path, self.name)
 
-        self.cache = _Cache(path('XDG_CACHE_HOME'))
-        self.config = _Directory(
-            path('XDG_CONFIG_HOME'), path('XDG_CONFIG_DIRS'), format)
-        self.data = _Directory(
-            path('XDG_DATA_HOME'), path('XDG_DATA_DIRS'), format)
+        self.cache = Cache(path('XDG_CACHE_HOME'))
+
+        h, d = path('XDG_CONFIG_HOME'), path('XDG_CONFIG_DIRS')
+        self.config = Directory(h, d, format)
+
+        h, d = path('XDG_DATA_HOME'), path('XDG_DATA_DIRS')
+        self.data = Directory(h, d, format)
 
 
 class XDG:
@@ -44,7 +43,7 @@ class XDG:
             setattr(self, k, getenv(k) or expandvars(v))
 
 
-class _Directory:
+class Directory:
     def __init__(self, home, dirs, format):
         self.home = home
         self.dirs = dirs
@@ -60,7 +59,7 @@ class _Directory:
             full_path = os.path.join(p, filename)
             try:
                 yield open(full_path) and full_path
-            except FileNotFoundError:
+            except IOError:
                 pass
 
     def open(self, filename=None, format=None):
@@ -68,10 +67,10 @@ class _Directory:
             basename = os.path.basename(self.home)
             filename = '%s.%s' % (basename, format or self.format)
         fullname = os.path.join(self.home, filename)
-        return _File(fullname, format, self.format)
+        return File(fullname, format, self.format)
 
 
-class _File:
+class File:
     FROM_SUFFIX = {
         '.cfg': 'configparser',
         '.ini': 'configparser',
@@ -91,8 +90,18 @@ class _File:
     def __init__(self, filename, format, default_format):
         self.filename = filename
         _makedirs(os.path.dirname(self.filename))
-        self._read, self._write, self._create = self._reader_writer(
-            format, default_format)
+        if not format:
+            ext = os.path.splitext(self.filename)[1]
+            format = self.FROM_SUFFIX.get(ext) or default_format
+
+        if format not in self.FORMATS:
+            raise ValueError('Do not understand format ' + format)
+
+        if format == 'configparser':
+            self._parser = _ConfigParser()
+        else:
+            self._parser = _Parser(format)
+
         self.read()
 
     def update(self, a=(), **kwds):
@@ -101,14 +110,20 @@ class _File:
     def read(self):
         try:
             with open(self.filename) as fp:
-                self.data = self._read(fp)
-        except FileNotFoundError:
-            self.data = self._create()
+                self.data = self._parser.read(fp)
+        except IOError:
+            self.data = self._parser.create()
         return self.data
 
     def write(self):
         with open(self.filename, 'w') as fp:
-            self._write(self.data, fp)
+            self._parser.write(self.data, fp)
+
+    def as_dict(self):
+        return self._parser.as_dict(self.data)
+
+    def clear(self):
+        self.data.clear()
 
     def __setitem__(self, k, v):
         self.data[k] = v
@@ -125,45 +140,49 @@ class _File:
     def __exit__(self, *args):
         self.write()
 
-    def _reader_writer(self, format, default_format):
-        print('XXX 3', format, default_format)
-        if not format:
-            ext = os.path.splitext(self.filename)[1]
-            format = self.FROM_SUFFIX.get(ext) or default_format
 
-        if format not in self.FORMATS:
-            raise ValueError('Do not understand format ' + format)
+class _Parser:
+    def __init__(self, format):
+        parser = __import__(format)
+        self.read, self.write = parser.load, parser.dump
 
-        if format != 'configparser':
-            parser = __import__(format)
-            return parser.load, parser.dump, dict
+    def create(self):
+        return {}
 
+    def as_dict(self, data):
+        return copy.deepcopy(data)
+
+
+class _ConfigParser:
+    def __init__(self):
         try:
             configparser = __import__('configparser')
-        except ModuleNotFoundError:
+        except ImportError:
             configparser = __import__('ConfigParser')
+        self.create = configparser.SafeConfigParser
 
-        def read(fp):
-            data = configparser.SafeConfigParser()
-            data.readfp(fp)
-            return data
+    def read(self, fp):
+        data = self.create()
+        data.readfp(fp)
+        return data
 
-        def write(data, fp):
-            data.write(fp)
+    def write(self, data, fp):
+        data.write(fp)
 
-        return read, write, configparser.SafeConfigParser
+    def as_dict(self, data):
+        return {k: dict(v) for k, v in data.items()}
 
 
-class _Cache:
+class Cache:
     def __init__(self, dirname):
         self.dirname = dirname
 
     def directory(self, name='cache', cache_size=0):
         name = os.path.join(self.dirname, name)
-        return _CacheDirectory(name, cache_size)
+        return CacheDirectory(name, cache_size)
 
 
-class _CacheDirectory:
+class CacheDirectory:
     def __init__(self, dirname, cache_size):
         self.dirname = dirname
         self.cache_size = cache_size
