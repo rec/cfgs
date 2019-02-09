@@ -17,4 +17,4 @@ install:
 
 script:
 - flake8
-- python setup.py coverage
+- python -m unittest test.cfgs_test

@@ -1,4 +1,4 @@
-import cfgs, json
+import cfgs, json, platform
 from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
 
 
@@ -45,8 +45,7 @@ class XDGTest(TestCase):
 
 class ConfigTest(TestCase):
     def test_simple(self):
-        with cfgs.Cfgs('test').config.open() as f:
-            print('XXXX', f.filename)
+        with cfgs.Project('test').config.open() as f:
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
@@ -57,45 +56,51 @@ class ConfigTest(TestCase):
         self.assertEqual(actual, expected)
 
     def test_read_write(self):
-        with cfgs.Cfgs('test').config.open() as f:
+        with cfgs.Project('test').config.open() as f:
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
             f.update(zip='zap')
 
-        with cfgs.Cfgs('test').config.open() as f:
+        with cfgs.Project('test').config.open() as f:
             self.assertEqual(f['zip'], 'zap')
-            self.assertEqual(f.data, {'baz': [2, 3, 4], 'zip': 'zap'})
+            self.assertEqual(f.as_dict(), {'baz': [2, 3, 4], 'zip': 'zap'})
+            f.clear()
+            self.assertEqual(f.as_dict(), {})
 
     def test_bad_format(self):
-        c = cfgs.Cfgs('test', format='wombat')
+        c = cfgs.Project('test', format='wombat')
         with self.assertRaises(ValueError):
             c.config.open()
 
-    def test_guess_format(self):
-        with cfgs.Cfgs('test').data.open('special.yml') as f:
-            f['foo'] = 'bar'
-            f['baz'] = [2, 3, 4]
-            del f['foo']
-            f.update(zip='zap')
+    if platform.python_version_tuple()[0] != '2':
+        def test_guess_format(self):
+            with cfgs.Project('test').data.open('special.yml') as f:
+                f['foo'] = 'bar'
+                f['baz'] = [2, 3, 4]
+                del f['foo']
+                f.update(zip='zap')
 
-        with cfgs.Cfgs('test').data.open('special.yml') as f:
-            self.assertEqual(f.data, {'baz': [2, 3, 4], 'zip': 'zap'})
-            self.assertNotIn('"', open(f.filename).read())
-            self.assertIn('zip', open(f.filename).read())
+            with cfgs.Project('test').data.open('special.yml') as f:
+                self.assertEqual(f.as_dict(), {'baz': [2, 3, 4], 'zip': 'zap'})
+                self.assertNotIn('"', open(f.filename).read())
+                self.assertIn('zip', open(f.filename).read())
 
-    def test_configfile(self):
-        with cfgs.Cfgs('test', format='configparser').config.open() as f:
+        def test_configfile(self):
+            pr = cfgs.Project('test', format='configparser')
+            with pr.config.open() as f:
+                f['foo'] = {'a': 1, 'b': 2}
+                f['bar'] = {}
 
-            f['foo'] = {'a': 1, 'b': 2}
-            f['bar'] = {}
-            print('XXX', f.filename)
+            pr = cfgs.Project('test')
+            with pr.config.open(format='configparser') as f:
+                actual = f.as_dict()
+                expected = {'DEFAULT': {}, 'foo': {'a': '1', 'b': '2'},
+                            'bar': {}}
+                self.assertEqual(expected, actual)
 
-        with cfgs.Cfgs('test').config.open(format='configparser') as f:
-            print('XXX', f.filename)
-            actual = {k: dict(v) for k, v in f.data.items()}
-            expected = {'DEFAULT': {}, 'foo': {'a': '1', 'b': '2'}, 'bar': {}}
-            self.assertEqual(expected, actual)
+                f.clear()
+                self.assertEqual(f.as_dict(), {'DEFAULT': {}})
 
 
 class AllFilesTest(TestCase):
@@ -104,7 +109,7 @@ class AllFilesTest(TestCase):
                  '/wombat.json')
         for f in files:
             self.fs.create_file(f)
-        cfg = cfgs.Cfgs('test')
+        cfg = cfgs.Project('test')
         actual = list(cfg.config.all_files('wombat.json'))
         expected = ['/etc/xdg/test/wombat.json']
         self.assertEqual(actual, expected)
@@ -118,41 +123,41 @@ class CacheTest(TestCase):
         ('four', '4444'),
         ('five', '55555'),
         ('six', '666666'))
-    EXPECTED = [f for (f, c) in FILE_CONTENTS]
+    EXPECTED = set(f for (f, c) in FILE_CONTENTS)
 
     def test_cache1(self):
         cache, listdir = self._create_cache(0, False)
-        self.assertEqual(listdir, self.EXPECTED + ['seven'])
+        self.assertEqual(set(listdir), self.EXPECTED.union({'seven'}))
 
     def test_cache2(self):
         cache, listdir = self._create_cache(0, True)
-        self.assertEqual(listdir, self.EXPECTED + ['seven'])
+        self.assertEqual(set(listdir), self.EXPECTED.union({'seven'}))
 
     def test_cache3(self):
         cache, listdir = self._create_cache(21, False)
-        self.assertEqual(listdir, self.EXPECTED + ['seven'])
+        self.assertEqual(set(listdir), self.EXPECTED.union({'seven'}))
         with cache.open('eight') as f:
             f.write('88888888')
-        expected = ['five', 'six', 'seven', 'eight']
-        self.assertEqual(self.fs.listdir(cache.dirname), expected)
+        expected = {'five', 'six', 'seven', 'eight'}
+        self.assertEqual(set(self.fs.listdir(cache.dirname)), expected)
 
     def test_cache4(self):
         cache, listdir = self._create_cache(21, True)
-        expected = ['five', 'six', 'seven']
-        self.assertEqual(listdir, expected)
+        expected = {'five', 'six', 'seven'}
+        self.assertEqual(set(listdir), expected)
         with cache.open('eight', size_guess=8) as f:
             f.write('88888888')
-        expected = ['six', 'seven', 'eight']
-        self.assertEqual(self.fs.listdir(cache.dirname), expected)
+        expected = {'six', 'seven', 'eight'}
+        self.assertEqual(set(self.fs.listdir(cache.dirname)), expected)
 
         with cache.open('twenty-three', size_guess=21) as f:
             f.write('L' * 23)
-        expected = ['twenty-three']
-        self.assertEqual(self.fs.listdir(cache.dirname), expected)
+        expected = {'twenty-three'}
+        self.assertEqual(set(self.fs.listdir(cache.dirname)), expected)
 
     def _create_cache(self, cache_size=0, use_size_guess=True):
-        c = cfgs.Cfgs('test')
-        cache = c.cache.directory(cache_size=cache_size)
+        p = cfgs.Project('test')
+        cache = p.cache.directory(cache_size=cache_size)
 
         for file, contents in self.FILE_CONTENTS:
             size_guess = len(contents) if use_size_guess else 0
@@ -163,7 +168,7 @@ class CacheTest(TestCase):
             self.assertEqual(cache.open(file).read(), contents)
 
         self.assertEqual(cache.dirname, '/usr/fake/.cache/test/cache')
-        self.assertEqual(self.fs.listdir(cache.dirname), self.EXPECTED)
+        self.assertEqual(set(self.fs.listdir(cache.dirname)), self.EXPECTED)
         with self.assertRaises(ValueError):
             cache.open('foo/bar')
 
