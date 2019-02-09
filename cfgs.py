@@ -13,9 +13,10 @@ class Cfgs:
 
     def __init__(self, name, format=DEFAULT_FORMAT):
         self.name = name
+        xdg = XDG()
 
         def path(attrname):
-            path = getattr(XDG, attrname)
+            path = getattr(xdg, attrname)
             if attrname.endswith('DIRS'):
                 return [os.path.join(i, self.name) for i in path.split(':')]
             return os.path.join(path, self.name)
@@ -27,7 +28,7 @@ class Cfgs:
             path('XDG_DATA_HOME'), path('XDG_DATA_DIRS'), format)
 
 
-class _XDG:
+class XDG:
     DEFAULTS = {
         'XDG_CACHE_HOME': '$HOME/.cache',
         'XDG_CONFIG_DIRS': '/etc/xdg',
@@ -36,17 +37,11 @@ class _XDG:
         'XDG_DATA_HOME': '$HOME/.local/share',
         'XDG_RUNTIME_DIR': ''}
 
-    def __getattr__(self, k):
-        default = self.DEFAULTS.get(k)
-        if default is None:
-            raise AttributeError('XDG has no such attribute "%s"' %  k)
-        return getenv(k) or expandvars(default)
+    PREFIX = 'XDG_'
 
-    def __dir__(self):
-        return list(self.DEFAULTS)
-
-
-XDG = _XDG()
+    def __init__(self):
+        for k, v in self.DEFAULTS.items():
+            setattr(self, k, getenv(k) or expandvars(v))
 
 
 class _Directory:

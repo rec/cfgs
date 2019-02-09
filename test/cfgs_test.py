@@ -3,6 +3,7 @@ from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
 
 
 class TestCase(FakeTestCase):
+    maxDiff = 2048
     ENV = {'XDG_RUNTIME_DIR': '/var/rt'}
     VARS = {'$HOME': '/usr/fake'}
 
@@ -29,7 +30,7 @@ class TestTestCase(TestCase):
 
 class XDGTest(TestCase):
     def test_simple(self):
-        x = cfgs.XDG
+        x = cfgs.XDG()
 
         self.assertEqual(x.XDG_CACHE_HOME, '/usr/fake/.cache')
         self.assertEqual(x.XDG_CONFIG_DIRS, '/etc/xdg')
@@ -40,12 +41,6 @@ class XDGTest(TestCase):
 
         with self.assertRaises(AttributeError):
             x.XDG_CACHE_DIRS
-
-    def test_dir(self):
-        self.assertEqual(
-            sorted(dir(cfgs.XDG)),
-            ['XDG_CACHE_HOME', 'XDG_CONFIG_DIRS', 'XDG_CONFIG_HOME',
-             'XDG_DATA_DIRS', 'XDG_DATA_HOME', 'XDG_RUNTIME_DIR'])
 
 
 class ConfigTest(TestCase):
@@ -92,14 +87,14 @@ class ConfigTest(TestCase):
     def test_configfile(self):
         with cfgs.Cfgs('test', format='configparser').config.open() as f:
 
-            f['foo'] = {'a' : 1, 'b': 2}
+            f['foo'] = {'a': 1, 'b': 2}
             f['bar'] = {}
             print('XXX', f.filename)
 
         with cfgs.Cfgs('test').config.open(format='configparser') as f:
             print('XXX', f.filename)
             actual = {k: dict(v) for k, v in f.data.items()}
-            expected = {'DEFAULT': {}, 'foo': {'a' : '1', 'b': '2'}, 'bar': {}}
+            expected = {'DEFAULT': {}, 'foo': {'a': '1', 'b': '2'}, 'bar': {}}
             self.assertEqual(expected, actual)
 
 
@@ -117,12 +112,12 @@ class AllFilesTest(TestCase):
 
 class CacheTest(TestCase):
     FILE_CONTENTS = (
-            ('one', '1'),
-            ('two', '22'),
-            ('three', '333'),
-            ('four', '4444'),
-            ('five', '55555'),
-            ('six', '666666'))
+        ('one', '1'),
+        ('two', '22'),
+        ('three', '333'),
+        ('four', '4444'),
+        ('five', '55555'),
+        ('six', '666666'))
     EXPECTED = [f for (f, c) in FILE_CONTENTS]
 
     def test_cache1(self):
