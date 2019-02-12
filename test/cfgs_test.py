@@ -9,11 +9,11 @@ class TestCase(FakeTestCase):
 
     def setUp(self):
         self.setUpPyfakefs()
-        cfgs.expandvars, self._expandvars = self.expandvars, cfgs.expandvars
-        cfgs.getenv, self._getenv = self.ENV.get, cfgs.getenv
+        cfgs._expandvars, self._expandvars = self.expandvars, cfgs._expandvars
+        cfgs._getenv, self._getenv = self.ENV.get, cfgs._getenv
 
     def tearDown(self):
-        cfgs.expandvars, cfgs.getenv = self._expandvars, self._getenv
+        cfgs._expandvars, cfgs._getenv = self._expandvars, self._getenv
 
     def expandvars(self, s):
         for k, v in self.VARS.items():
@@ -45,7 +45,7 @@ class XDGTest(TestCase):
 
 class ConfigTest(TestCase):
     def test_simple(self):
-        with cfgs.Project('test').config.open() as f:
+        with cfgs.App('test').config.open() as f:
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
@@ -56,43 +56,48 @@ class ConfigTest(TestCase):
         self.assertEqual(actual, expected)
 
     def test_read_write(self):
-        with cfgs.Project('test').config.open() as f:
+        with cfgs.App('test').config.open() as f:
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
             f.update(zip='zap')
 
-        with cfgs.Project('test').config.open() as f:
+        with cfgs.App('test').config.open() as f:
             self.assertEqual(f['zip'], 'zap')
             self.assertEqual(f.as_dict(), {'baz': [2, 3, 4], 'zip': 'zap'})
             f.clear()
             self.assertEqual(f.as_dict(), {})
 
     def test_bad_format(self):
-        c = cfgs.Project('test', format='wombat')
+        c = cfgs.App('test', format='wombat')
         with self.assertRaises(ValueError):
             c.config.open()
 
+    def test_error(self):
+        with self.assertRaises(ValueError) as cm:
+            cfgs.App('/\\?:|*<"%')
+        self.assertIn('"%*/:<?\\|', cm.exception.args[0])
+
     if platform.python_version_tuple()[0] != '2':
         def test_guess_format(self):
-            with cfgs.Project('test').data.open('special.yml') as f:
+            with cfgs.App('test').data.open('special.yml') as f:
                 f['foo'] = 'bar'
                 f['baz'] = [2, 3, 4]
                 del f['foo']
                 f.update(zip='zap')
 
-            with cfgs.Project('test').data.open('special.yml') as f:
+            with cfgs.App('test').data.open('special.yml') as f:
                 self.assertEqual(f.as_dict(), {'baz': [2, 3, 4], 'zip': 'zap'})
                 self.assertNotIn('"', open(f.filename).read())
                 self.assertIn('zip', open(f.filename).read())
 
         def test_configfile(self):
-            pr = cfgs.Project('test', format='configparser')
+            pr = cfgs.App('test', format='configparser')
             with pr.config.open() as f:
                 f['foo'] = {'a': 1, 'b': 2}
                 f['bar'] = {}
 
-            pr = cfgs.Project('test')
+            pr = cfgs.App('test')
             with pr.config.open(format='configparser') as f:
                 actual = f.as_dict()
                 expected = {'DEFAULT': {}, 'foo': {'a': '1', 'b': '2'},
@@ -109,7 +114,7 @@ class AllFilesTest(TestCase):
                  '/wombat.json')
         for f in files:
             self.fs.create_file(f)
-        cfg = cfgs.Project('test')
+        cfg = cfgs.App('test')
         actual = list(cfg.config.all_files('wombat.json'))
         expected = ['/etc/xdg/test/wombat.json']
         self.assertEqual(actual, expected)
@@ -156,7 +161,7 @@ class CacheTest(TestCase):
         self.assertEqual(set(self.fs.listdir(cache.dirname)), expected)
 
     def _create_cache(self, cache_size=0, use_size_guess=True):
-        p = cfgs.Project('test')
+        p = cfgs.App('test')
         cache = p.cache.directory(cache_size=cache_size)
 
         for file, contents in self.FILE_CONTENTS:

@@ -1,14 +1,31 @@
+"""
+
+cfgs: Simple, correct handling of config, data and cache files
+
+
+"""
+
 import copy, os
 
-getenv = os.environ.get
-expandvars = os.path.expandvars
-__all__ = ['Project', 'XDG']
+_getenv = os.environ.get
+_expandvars = os.path.expandvars
 
 
-class Project:
+class App:
+    """
+    App - the central class
+    """
     DEFAULT_FORMAT = 'json'
 
     def __init__(self, name, format=DEFAULT_FORMAT):
+        """
+        Arguments:
+
+          name: the text name of the project.  This is used as a directory
+                name so it should not contain any illegal characters
+
+        """
+        _check_filename(name)
         self.name = name
         self.xdg = XDG()
 
@@ -28,6 +45,8 @@ class Project:
 
 
 class XDG:
+    """XDG variables"""
+
     DEFAULTS = {
         'XDG_CACHE_HOME': '$HOME/.cache',
         'XDG_CONFIG_DIRS': '/etc/xdg',
@@ -40,14 +59,22 @@ class XDG:
 
     def __init__(self):
         for k, v in self.DEFAULTS.items():
-            setattr(self, k, getenv(k) or expandvars(v))
+            setattr(self, k, _getenv(k) or _expandvars(v))
 
 
 class Directory:
-    def __init__(self, home, dirs, format):
+    """Either a config or data directory"""
+
+    def __init__(self, home, dirs, default_format):
+        """
+        Arguments:
+          home: home directory
+          dirs:  xxx
+          default_format: xxx
+        """
         self.home = home
         self.dirs = dirs
-        self.format = format
+        self.default_format = default_format
         self.dirs.insert(0, self.home)
 
     def all_files(self, filename=None):
@@ -63,14 +90,19 @@ class Directory:
                 pass
 
     def open(self, filename=None, format=None):
+        """
+        Return a File in
+        """
         if not filename:
             basename = os.path.basename(self.home)
-            filename = '%s.%s' % (basename, format or self.format)
+            filename = '%s.%s' % (basename, format or self.default_format)
         fullname = os.path.join(self.home, filename)
-        return File(fullname, format, self.format)
+        return File(fullname, format, self.default_format)
 
 
 class File:
+    """A data file or a config file"""
+
     FROM_SUFFIX = {
         '.cfg': 'configparser',
         '.ini': 'configparser',
@@ -174,22 +206,29 @@ class _ConfigParser:
 
 
 class Cache:
+    """
+    The class that creates caches.
+    """
     def __init__(self, dirname):
+        """Cache.__init__"""
         self.dirname = dirname
 
     def directory(self, name='cache', cache_size=0):
+        """directory"""
         name = os.path.join(self.dirname, name)
         return CacheDirectory(name, cache_size)
 
 
 class CacheDirectory:
     def __init__(self, dirname, cache_size):
+        """CacheDirectory.__init__"""
         self.dirname = dirname
         self.cache_size = cache_size
         _makedirs(self.dirname)
         self._prune(0)
 
     def open(self, filename, size_guess=0, binary=False):
+        """open"""
         if '/' in filename:
             raise ValueError('Subdirectories are not allowed in caches')
 
@@ -225,3 +264,15 @@ def _makedirs(f):  # For Python 2 compatibility
         os.makedirs(f)
     except:
         pass
+
+
+_BAD_CHARS = set('/\\?%*:|"<>\';')
+
+
+def _check_filename(filename):
+    # Just a heuristic - names might pass this test and still not
+    # be valid i.e. CON on Windows.
+    bad_chars = _BAD_CHARS.intersection(set(filename))
+    if bad_chars:
+        bad_chars = ''.join(sorted(bad_chars))
+        raise ValueError('Invalid characters in filename: "%s"' % bad_chars)

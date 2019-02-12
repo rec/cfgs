@@ -13,10 +13,17 @@ for data, config and cache directories in Linux that prevents this problem, and
 that I was not using it:  https://0x46.net/thoughts/2019/02/01/dotfile-madness/
 
 So I implemented a small and simple Python API as a single file, `cfgs.py`.
-It works on all versions of Python from 2.7 to 3.7, has full test coverage,
-and all the functionality is reachable from a single class, `cfgs.Project`
+It works on all versions of Python from 2.7 to 3.7, has complete test coverage,
+and all the functionality is reachable from a single class, `cfgs.App`
 
-How to install `cfgs`
+How it works in one sentence
+============
+
+Create a `cfgs.App` for your application, project, or script which
+handles finding, reading and writing your data and config files and
+managing your cache directories.
+
+How to install
 ===============
 
 You can either use pip:
@@ -27,11 +34,12 @@ Or if you don't like dependencies (and who does?), you can drop the source file
 [`cgfs.py`](https://raw.githubusercontent.com/timedata-org/cfgs/master/cfgs.py)
 right into your project.
 
+
 Usage examples
 ==================
 
     import cfgs
-    pr = cfgs.Project('my-project')
+    pr = cfgs.App('my-project')
     print(pr.xdg.XDG_CACHE_HOME)
     #   /home/tom/.cache/my-project
 
