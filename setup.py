@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
-import sys
+import os, sys
 
 
 # From here: http://pytest.org/2.2.4/goodpractises.html
@@ -38,6 +38,18 @@ class RunCoverage(RunTests):
             raise SystemExit(1)
 
 
+NAME = 'cfgs'
+OWNER = 'timedata-org'
+FILENAME = os.path.join(os.path.dirname(__file__), 'VERSION')
+VERSION = open(FILENAME).read().strip()
+
+URL = 'http://github.com/{OWNER}/{NAME}'.format(**locals())
+DOWNLOAD_URL = '{URL}/archive/{VERSION}.tar.gz'.format(**locals())
+
+with open('test_requirements.txt') as f:
+    TESTS_REQUIRE = f.read().splitlines()
+
+
 setup(
     name='cfgs',
     version=open('VERSION').read().strip(),
@@ -47,11 +59,12 @@ setup(
     long_description=open('README.md').read(),
     author='Tom Ritchford',
     author_email='tom@swirly.com',
-    url='http://github.com/timedata-org/cfgs/',
+    url=URL,
+    download_url=DOWNLOAD_URL,
     license='MIT',
     packages=find_packages(),
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.3',
@@ -60,9 +73,11 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    tests_require=['pytest'],
+    tests_require=TESTS_REQUIRE,
     cmdclass={
         'coverage': RunCoverage,
         'test': RunTests,
     },
+    keywords=[
+        'configuration', 'cache', 'configparser', 'json', 'toml', 'yaml'],
 )
