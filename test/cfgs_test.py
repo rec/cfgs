@@ -69,8 +69,8 @@ class ConfigTest(TestCase):
             self.assertEqual(f.as_dict(), {})
 
     def test_bad_format(self):
-        c = cfgs.App('test', format='wombat')
-        with self.assertRaises(ValueError):
+        c = cfgs.App('test', default_format='wombat')
+        with self.assertRaises(KeyError):
             c.config.open()
 
     def test_error(self):
@@ -92,7 +92,7 @@ class ConfigTest(TestCase):
                 self.assertIn('zip', open(f.filename).read())
 
         def test_configfile(self):
-            pr = cfgs.App('test', format='configparser')
+            pr = cfgs.App('test', default_format='configparser')
             with pr.config.open() as f:
                 f['foo'] = {'a': 1, 'b': 2}
                 f['bar'] = {}
