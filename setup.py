@@ -56,7 +56,7 @@ setup(
     description=(
         'cfgs is a pure Python library for data and config files which '
         'implements the XDG standard for persistent files'),
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     author='Tom Ritchford',
     author_email='tom@swirly.com',
     url=URL,

@@ -2,46 +2,50 @@
 -------------
 
 Simple, correct handling of config, data and cache files
-==========================================
+==================================================================
 
 Like everyone else, I wrote a lot of programs which saved config files
-as dotfiles in the user's home directory - `~/.my-program-name` and now
+as dotfiles in the user's home directory like ``~/.my-program-name`` and now
 everyone's home directory has dozens of these.
 
 Then I read
-[this article](https://0x46.net/thoughts/2019/02/01/dotfile-madness/).
+`this article <https://0x46.net/thoughts/2019/02/01/dotfile-madness/>`_.
 
 Great was my embarrasment to discover that there was a
-[neat little specification](https://0x46.net/thoughts/2019/02/01/dotfile-madness/)
+`neat little specification <https://0x46.net/thoughts/2019/02/01/dotfile-madness/>`_
 for data, config and cache directories in Linux that prevents this problem, and
 that I was not using it:
 
-So I implemented a small and simple Python API as a single file, `cfgs.py`.
+So I implemented a small and simple Python API as a single file, ``cfgs.py``.
 
 It works on all versions of Python from 2.7 to 3.7, has complete test coverage,
-and all the functionality is reachable from a single class, `cfgs.App`
+and all the functionality is reachable from a single class, ``cfgs.App``
 
 How it works in one sentence
-============
+===========================================
 
-Create a `cfgs.App` for your application, project, or script which
+Create a ``cfgs.App`` for your application, project, or script which
 handles finding, reading and writing your data and config files and
 managing your cache directories.
 
 How to install
-===============
+=====================
 
 You can either use pip:
+
+.. code-block:: bash
 
     pip install cfgs
 
 Or if you don't like dependencies (and who does?), you can drop the source file
-[`cgfs.py`](https://raw.githubusercontent.com/timedata-org/cfgs/master/cfgs.py)
+`cgfs.py <https://raw.githubusercontent.com/timedata-org/cfgs/master/cfgs.py>`_
 right into your project.
 
 
 Usage examples
 ==================
+
+.. code-block:: python
 
     import cfgs
     app = cfgs.App('my-project')
@@ -52,25 +56,30 @@ Usage examples
     #   /etc/xdg
 
     with app.config.open() as f:
-        f['name'] = 'oliver'
+        f.update(name='oliver', species='dog')
         f['description'] = {'size': 'S', 'fur': 'brown'}
         print(f.filename)
     #    /home/tom/.cache/my-project/my-project.json
 
     # Later:
     with app.config.open() as f:
-        print(f['name'], f.as_dict())
-    #    oliver {'name': 'oliver',
-    #            'description': {'size': 'S', 'fur': 'brown'}
+        print(f['name'])
+    #    oliver
+
+        print(f.as_dict())
+    #     {'name': 'oliver', 'species': 'dog',
+    #      'description': {'size': 'S', 'fur': 'brown'}
 
 
 
-Using `cfgs` In legacy code
-=================
+Using ``cfgs`` In legacy code
+=============================
 
 If you already have code to handle your config, data and cache files, then you
-can just use `cgfs` to get the
-[XDG variables](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html):
+can just use ``cgfs`` to get the
+`XDG variables <https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_
+
+.. code-block:: python
 
     from cfgs import XDG
 
@@ -83,11 +92,11 @@ can just use `cgfs` to get the
         legacy_write_my_file(f)
 
 
-`cfgs` automatically handles data and config files, and independently, cache
+``cfgs`` automatically handles data and config files, and independently, cache
 directories.
 
 
 API Documentation
-=================
+======================
 
-Is [here](cfgs.html).
+API documentation is `here <cfgs.html>`_.
