@@ -1,8 +1,8 @@
 """
+`cfgs`
 
-cfgs: Simple, correct handling of config, data and cache files
-
-
+Simple, correct handling of config, data and cache files.
+Fully compliant with the XDG Base Directory Specification.
 """
 
 import copy, os
@@ -13,74 +13,136 @@ _expandvars = os.path.expandvars
 
 class App:
     """
-    App - the central class
+    `cfg.App` is the main class, but it has no methods - it just holds the
+    `config`, `data`, `cache` and `xdg` objects.
     """
-    DEFAULT_FORMAT = 'json'
 
-    def __init__(self, name, format=DEFAULT_FORMAT):
+    DEFAULT_FORMAT = 'json'
+    """The default, default file format for all Apps"""
+
+    def __init__(self, name, default_format=DEFAULT_FORMAT):
         """
         Arguments:
 
-          name: the text name of the project.  This is used as a directory
-                name so it should not contain any illegal characters
+          name: the name of the App.  `name` is used as a directory
+                name so it should not contain any characters illegal in
+                pathnames
 
+          default_format: the default format for config and data files from
+              this App
         """
-        _check_filename(name)
-        self.name = name
-        self.xdg = XDG()
-
         def path(attrname):
             path = getattr(self.xdg, attrname)
             if attrname.endswith('DIRS'):
                 return [os.path.join(i, self.name) for i in path.split(':')]
             return os.path.join(path, self.name)
 
+        _check_filename(name)
+
+        self.name = name
+        """The text name of the App"""
+
+        self.xdg = XDG()
+        """A `cfg.XFG` as of when the App was constructed."""
+
         self.cache = Cache(path('XDG_CACHE_HOME'))
+        """A `cfg.Cache` that manages cache directories"""
 
         h, d = path('XDG_CONFIG_HOME'), path('XDG_CONFIG_DIRS')
-        self.config = Directory(h, d, format)
+        self.config = Directory(h, d, default_format)
+        """A `cfgs.Directory` for config files"""
 
         h, d = path('XDG_DATA_HOME'), path('XDG_DATA_DIRS')
-        self.data = Directory(h, d, format)
+        self.data = Directory(h, d, default_format)
+        """A `cfgs.Directory` for data files"""
 
 
 class XDG:
-    """XDG variables"""
-
-    DEFAULTS = {
-        'XDG_CACHE_HOME': '$HOME/.cache',
-        'XDG_CONFIG_DIRS': '/etc/xdg',
-        'XDG_CONFIG_HOME': '$HOME/.config',
-        'XDG_DATA_DIRS': '/usr/local/share/:/usr/share/',
-        'XDG_DATA_HOME': '$HOME/.local/share',
-        'XDG_RUNTIME_DIR': ''}
-
-    PREFIX = 'XDG_'
+    """
+    The XDG Base Directory Spec mandates six directories for config and data
+    files, caches and runtime files, with default values that can be overridden
+    through environment variables.  This class takes a snapshot of these six
+    directories using the current environment.
+    """
 
     def __init__(self):
-        for k, v in self.DEFAULTS.items():
-            setattr(self, k, _getenv(k) or _expandvars(v))
+        """
+        Construct the class with a snapshot of the six XDG base directories
+        """
+
+        def get(k, v):
+            return _getenv(k) or _expandvars(v)
+
+        self.XDG_CACHE_HOME = get('XDG_CACHE_HOME', '$HOME/.cache')
+        """Base directory relative to which
+           user-specific non-essential (cached) data should be written
+        """
+
+        self.XDG_CONFIG_DIRS = get('XDG_CONFIG_DIRS', '/etc/xdg')
+        """A set of preference ordered base directories relative to which
+           configuration files should be searched
+        """
+
+        self.XDG_CONFIG_HOME = get('XDG_CONFIG_HOME', '$HOME/.config')
+        """Base directory relative to which user-specific
+           configuration files should be written
+        """
+
+        self.XDG_DATA_DIRS = get(
+            'XDG_DATA_DIRS', '/usr/local/share/:/usr/share/')
+        """A set of preference ordered base directories relative to which
+           data files should be searched
+        """
+
+        self.XDG_DATA_HOME = get('XDG_DATA_HOME', '$HOME/.local/share')
+        """Base directory relative to which user-specific
+           data files should be written
+        """
+
+        self.XDG_RUNTIME_DIR = get('XDG_RUNTIME_DIR', '')
+        """Base directory relative to which
+           user-specific runtime files and other file objects should be placed
+        """
 
 
 class Directory:
-    """Either a config or data directory"""
+    """
+    An XDG directory of persistent, formatted files
+    """
 
     def __init__(self, home, dirs, default_format):
         """
-        Arguments:
-          home: home directory
-          dirs:  xxx
-          default_format: xxx
+        Don't call this constructor directly - use either
+        `cfgs.App.config` or `cfgs.App.data` instead.
         """
         self.home = home
         self.dirs = dirs
         self.default_format = default_format
         self.dirs.insert(0, self.home)
 
-    def all_files(self, filename=None):
+    def open(self, filename=None, format=None):
+        """
+        Open a persistent `cfg.File`.
+
+        Arguments:
+          filename: The name of the persistent file. If None,
+            `filename` defaults to `cfg.App.name` plus the format suffix
+
+          format: A string representing the file format.  If None,
+             first try to guess the filename from the filename, then use
+             `self.default_format`
+        """
+        if not filename:
+            basename = os.path.basename(self.home)
+            suffix = FORMAT_TO_SUFFIX[format or self.default_format]
+            filename = '%s%s' % (basename, suffix)
+
+        return File(self.full_name(filename), format, self.default_format)
+
+    def all_files(self, filename):
         """
         Yield all filenames matching the argument in either the home
-        directory or the search directories
+        directory or any of the search directories
         """
         for p in self.dirs:
             full_path = os.path.join(p, filename)
@@ -89,44 +151,41 @@ class Directory:
             except IOError:
                 pass
 
-    def open(self, filename=None, format=None):
+    def full_name(self, filename):
         """
-        Return a File in
+        Return the full name of a file with respect to this XDG directory
         """
-        if not filename:
-            basename = os.path.basename(self.home)
-            filename = '%s.%s' % (basename, format or self.default_format)
-        fullname = os.path.join(self.home, filename)
-        return File(fullname, format, self.default_format)
+        return os.path.join(self.home, filename)
 
 
 class File:
-    """A data file or a config file"""
-
-    FROM_SUFFIX = {
-        '.cfg': 'configparser',
-        '.ini': 'configparser',
-        '.json': 'json',
-        '.toml': 'toml',
-        '.yaml': 'yaml',
-        '.yml': 'yaml',
-    }
-    TO_SUFFIX = {
-        'configparser': '.ini',
-        'json': '.json',
-        'toml': '.toml',
-        'yaml': '.yml',
-    }
-    FORMATS = set(FROM_SUFFIX.values())
+    """
+    A formatted data or config file where you can set and get items,
+    and read or write.
+    """
 
     def __init__(self, filename, format, default_format):
+        """
+        Do not call this constructor directly but instead use
+        `cfg.Directory.open`
+        """
         self.filename = filename
+        """The full pathname to the data file"""
+
+        self.contents = {}
+        """
+        The contents of the formatted file, read and parsed.
+
+        This will be a `dict` for all formats except `configparser`,
+        where it will be a `configparser.SafeConfigParser`.
+        """
+
         _makedirs(os.path.dirname(self.filename))
         if not format:
             ext = os.path.splitext(self.filename)[1]
-            format = self.FROM_SUFFIX.get(ext) or default_format
+            format = SUFFIX_TO_FORMAT.get(ext) or default_format
 
-        if format not in self.FORMATS:
+        if format not in FORMATS:
             raise ValueError('Do not understand format ' + format)
 
         if format == 'configparser':
@@ -137,34 +196,39 @@ class File:
         self.read()
 
     def update(self, a=(), **kwds):
-        return self.data.update(a, **kwds)
+        """Update the contents entries like a dictionary"""
+        return self.contents.update(a, **kwds)
 
     def read(self):
+        """Re-read the contents from the file"""
         try:
             with open(self.filename) as fp:
-                self.data = self._parser.read(fp)
+                self.contents = self._parser.read(fp)
         except IOError:
-            self.data = self._parser.create()
-        return self.data
+            self.contents = self._parser.create()
+        return self.contents
 
     def write(self):
+        """Write the contents to the file"""
         with open(self.filename, 'w') as fp:
-            self._parser.write(self.data, fp)
+            self._parser.write(self.contents, fp)
 
     def as_dict(self):
-        return self._parser.as_dict(self.data)
+        """Return a deep copy of the contents as a dict"""
+        return self._parser.as_dict(self.contents)
 
     def clear(self):
-        self.data.clear()
+        """Clear the contents without writing"""
+        self.contents.clear()
 
     def __setitem__(self, k, v):
-        self.data[k] = v
+        self.contents[k] = v
 
     def __getitem__(self, k):
-        return self.data[k]
+        return self.contents[k]
 
     def __delitem__(self, k):
-        del self.data[k]
+        del self.contents[k]
 
     def __enter__(self):
         return self
@@ -173,62 +237,60 @@ class File:
         self.write()
 
 
-class _Parser:
-    def __init__(self, format):
-        parser = __import__(format)
-        self.read, self.write = parser.load, parser.dump
-
-    def create(self):
-        return {}
-
-    def as_dict(self, data):
-        return copy.deepcopy(data)
-
-
-class _ConfigParser:
-    def __init__(self):
-        try:
-            configparser = __import__('configparser')
-        except ImportError:
-            configparser = __import__('ConfigParser')
-        self.create = configparser.SafeConfigParser
-
-    def read(self, fp):
-        data = self.create()
-        data.readfp(fp)
-        return data
-
-    def write(self, data, fp):
-        data.write(fp)
-
-    def as_dict(self, data):
-        return {k: dict(v) for k, v in data.items()}
-
-
 class Cache:
     """
-    The class that creates caches.
+    A class that creates caches
     """
     def __init__(self, dirname):
-        """Cache.__init__"""
+        """Do not call this constructor - instead use `cfgs.App.cache` """
+
         self.dirname = dirname
+        """The full path of the root directory for all cache directories"""
 
     def directory(self, name='cache', cache_size=0):
-        """directory"""
+        """
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means "unlimited cache size"
+        """
         name = os.path.join(self.dirname, name)
         return CacheDirectory(name, cache_size)
 
 
 class CacheDirectory:
     def __init__(self, dirname, cache_size):
-        """CacheDirectory.__init__"""
+        """Do not call this constructor - use `cfgs.Cache.directory`"""
+
         self.dirname = dirname
+        """The full path to this cache directory"""
+
         self.cache_size = cache_size
+        """
+        The number of bytes allowed in the cache.
+        0 means "unlimited cache size"
+        """
+
         _makedirs(self.dirname)
-        self._prune(0)
+        self.prune()
 
     def open(self, filename, size_guess=0, binary=False):
-        """open"""
+        """
+        Open a cached file in this directory.
+
+        If the file already exists, it is opened for read.
+
+        Otherwise the cache is pruned and the file is opened for write.
+
+        Arguments:
+          filename: the name of the file, relative to the cache directory
+          size_guess: A guess as to how large the file will be, in bytes
+          binary: if True, the file is opened in binary mode
+
+        """
         if '/' in filename:
             raise ValueError('Subdirectories are not allowed in caches')
 
@@ -238,16 +300,20 @@ class CacheDirectory:
         if os.path.exists(full):
             return open(full, 'r' + bin)
 
-        self._prune(size_guess)
+        self.prune(size_guess)
         return open(full, 'w' + bin)
 
-    def _prune(self, size_guess):
+    def prune(self, bytes_needed=0):
+        """
+        Prune the cache to generate at least `bytes_needed` of free space,
+        if this is possible.
+        """
         if not self.cache_size:
             return
 
         files = os.listdir(self.dirname)
         info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
-        required_size = sum(s.st_size for f, s in info.items()) + size_guess
+        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
         if required_size <= self.cache_size:
             return
 
@@ -259,6 +325,75 @@ class CacheDirectory:
                 return
 
 
+def _check_filename(filename):
+    # Just a heuristic - names might pass this test and still not
+    # be valid i.e. CON on Windows.
+    bad_chars = _BAD_CHARS.intersection(set(filename))
+    if bad_chars:
+        bad_chars = ''.join(sorted(bad_chars))
+        raise ValueError('Invalid characters in filename: "%s"' % bad_chars)
+
+
+SUFFIX_TO_FORMAT = {
+    '.cfg': 'configparser',
+    '.ini': 'configparser',
+    '.json': 'json',
+    '.toml': 'toml',
+    '.yaml': 'yaml',
+    '.yml': 'yaml',
+}
+"""
+Map file suffixes to the file format - the partial inverse
+to `cfgs.FORMAT_TO_SUFFIX`
+"""
+
+FORMAT_TO_SUFFIX = {
+    'configparser': '.ini',
+    'json': '.json',
+    'toml': '.toml',
+    'yaml': '.yml',
+}
+"""
+Map file formats to file suffix - the partial inverse
+to `cfgs.SUFFIX_TO_FORMAT`
+"""
+
+FORMATS = set(SUFFIX_TO_FORMAT.values())
+"""A list of all formats that `cfgs` understands."""
+
+
+class _Parser:
+    def __init__(self, format):
+        parser = __import__(format)
+        self.read, self.write = parser.load, parser.dump
+
+    def create(self):
+        return {}
+
+    def as_dict(self, contents):
+        return copy.deepcopy(contents)
+
+
+class _ConfigParser:
+    def __init__(self):
+        try:
+            configparser = __import__('configparser')
+        except ImportError:
+            configparser = __import__('ConfigParser')
+        self.create = configparser.SafeConfigParser
+
+    def read(self, fp):
+        contents = self.create()
+        contents.readfp(fp)
+        return contents
+
+    def write(self, contents, fp):
+        contents.write(fp)
+
+    def as_dict(self, contents):
+        return {k: dict(v) for k, v in contents.items()}
+
+
 def _makedirs(f):  # For Python 2 compatibility
     try:
         os.makedirs(f)
@@ -267,12 +402,3 @@ def _makedirs(f):  # For Python 2 compatibility
 
 
 _BAD_CHARS = set('/\\?%*:|"<>\';')
-
-
-def _check_filename(filename):
-    # Just a heuristic - names might pass this test and still not
-    # be valid i.e. CON on Windows.
-    bad_chars = _BAD_CHARS.intersection(set(filename))
-    if bad_chars:
-        bad_chars = ''.join(sorted(bad_chars))
-        raise ValueError('Invalid characters in filename: "%s"' % bad_chars)

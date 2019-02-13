@@ -69,8 +69,8 @@ class ConfigTest(TestCase):
             self.assertEqual(f.as_dict(), {})
 
     def test_bad_format(self):
-        c = cfgs.App('test', format='wombat')
-        with self.assertRaises(ValueError):
+        c = cfgs.App('test', default_format='wombat')
+        with self.assertRaises(KeyError):
             c.config.open()
 
     def test_error(self):
