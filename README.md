@@ -44,24 +44,24 @@ Usage examples
 ==================
 
     import cfgs
-    pr = cfgs.App('my-project')
-    print(pr.xdg.XDG_CACHE_HOME)
+    app = cfgs.App('my-project')
+    print(app.xdg.XDG_CACHE_HOME)
     #   /home/tom/.cache/my-project
 
-    pr.xdg.XDG_CONFIG_DIRS
+    app.xdg.XDG_CONFIG_DIRS
     #   /etc/xdg
 
-    with pr.config.open() as f:
+    with app.config.open() as f:
         f['name'] = 'oliver'
-        f['description'] = {'size': 'small", 'fur': 'brown'}
+        f['description'] = {'size': 'S', 'fur': 'brown'}
         print(f.filename)
     #    /home/tom/.cache/my-project/my-project.json
 
     # Later:
-    with pr.config.open() as f:
+    with app.config.open() as f:
         print(f['name'], f.as_dict())
     #    oliver {'name': 'oliver',
-    #            'description': {'size': 'small", 'fur': 'brown'}
+    #            'description': {'size': 'S', 'fur': 'brown'}
 
 
 
@@ -86,8 +86,8 @@ can just use `cgfs` to get the
 `cfgs` automatically handles data and config files, and independently, cache
 directories.
 
-Data and config files
 
+API Documentation
+=================
 
-
-Complies with the XDG Base Directory Specification.
+Is [here](cfgs.html).
