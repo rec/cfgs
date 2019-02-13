@@ -1,0 +1,6 @@
+include VERSION
+recursive-exclude test *
+recursive-exclude bin *
+recursive-exclude build *
+recursive-exclude htmlcov *
+recursive-exclude dist *
