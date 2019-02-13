@@ -8,11 +8,16 @@ Like everyone else, I wrote a lot of programs which saved config files
 as dotfiles in the user's home directory - `~/.my-program-name` and now
 everyone's home directory has dozens of these.
 
-Great was my embarrasment to discover that there was a neat little specification
+Then I read
+[this article](https://0x46.net/thoughts/2019/02/01/dotfile-madness/).
+
+Great was my embarrasment to discover that there was a
+[neat little specification](https://0x46.net/thoughts/2019/02/01/dotfile-madness/)
 for data, config and cache directories in Linux that prevents this problem, and
-that I was not using it:  https://0x46.net/thoughts/2019/02/01/dotfile-madness/
+that I was not using it:
 
 So I implemented a small and simple Python API as a single file, `cfgs.py`.
+
 It works on all versions of Python from 2.7 to 3.7, has complete test coverage,
 and all the functionality is reachable from a single class, `cfgs.App`
 
