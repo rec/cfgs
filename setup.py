@@ -37,6 +37,7 @@ class RunCoverage(RunTests):
                   coverage, fail_under))
             raise SystemExit(1)
 
+
 NAME = 'cfgs'
 OWNER = 'timedata-org'
 FILENAME = os.path.join(os.path.dirname(__file__), 'VERSION')
@@ -47,7 +48,6 @@ DOWNLOAD_URL = '{URL}/archive/{VERSION}.tar.gz'.format(**locals())
 
 with open('test_requirements.txt') as f:
     TESTS_REQUIRE = f.read().splitlines()
-
 
 
 setup(
