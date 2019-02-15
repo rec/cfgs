@@ -99,4 +99,4 @@ directories.
 API Documentation
 ======================
 
-API documentation is `here <cfgs.html>`_.
+API documentation is `here <doc/cfgs.html>`_.
