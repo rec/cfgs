@@ -20,7 +20,8 @@ class App:
     DEFAULT_FORMAT = 'json'
     """The default, default file format for all Apps"""
 
-    def __init__(self, name, default_format=DEFAULT_FORMAT):
+    def __init__(self, name, format=DEFAULT_FORMAT,
+                 read_kwds=None, write_kwds=None):
         """
         Arguments:
 
@@ -28,8 +29,7 @@ class App:
                 name so it should not contain any characters illegal in
                 pathnames
 
-          default_format: the default format for config and data files from
-              this App
+          format: the format for config and data files from this App
         """
         def path(attrname):
             path = getattr(self.xdg, attrname)
@@ -48,12 +48,21 @@ class App:
         self.cache = Cache(path('XDG_CACHE_HOME'))
         """A `cfg.Cache` that manages cache directories"""
 
+        if format not in FORMATS:
+            raise ValueError('Unknown format', format)
+
+        if format == 'configparser':
+            self.format = ConfigparserFormat()
+            """A `cfgs.Format` representing the data format."""
+        else:
+            self.format = Format(format, read_kwds, write_kwds)
+
         h, d = path('XDG_CONFIG_HOME'), path('XDG_CONFIG_DIRS')
-        self.config = Directory(h, d, default_format)
+        self.config = Directory(h, d, self.format)
         """A `cfgs.Directory` for config files"""
 
         h, d = path('XDG_DATA_HOME'), path('XDG_DATA_DIRS')
-        self.data = Directory(h, d, default_format)
+        self.data = Directory(h, d, self.format)
         """A `cfgs.Directory` for data files"""
 
 
@@ -110,17 +119,18 @@ class Directory:
     An XDG directory of persistent, formatted files
     """
 
-    def __init__(self, home, dirs, default_format):
+    def __init__(self, home, dirs, format):
         """
         Don't call this constructor directly - use either
         `cfgs.App.config` or `cfgs.App.data` instead.
         """
         self.home = home
         self.dirs = dirs
-        self.default_format = default_format
+        assert not isinstance(format, str)
+        self.format = format
         self.dirs.insert(0, self.home)
 
-    def open(self, filename=None, format=None):
+    def open(self, filename=None):
         """
         Open a persistent `cfg.File`.
 
@@ -130,14 +140,14 @@ class Directory:
 
           format: A string representing the file format.  If None,
              first try to guess the filename from the filename, then use
-             `self.default_format`
+             `self.format`
         """
         if not filename:
             basename = os.path.basename(self.home)
-            suffix = FORMAT_TO_SUFFIX[format or self.default_format]
+            suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = '%s%s' % (basename, suffix)
 
-        return File(self.full_name(filename), format, self.default_format)
+        return File(self.full_name(filename), self.format)
 
     def all_files(self, filename):
         """
@@ -164,35 +174,22 @@ class File:
     and read or write.
     """
 
-    def __init__(self, filename, format, default_format):
-        """
-        Do not call this constructor directly but instead use
-        `cfg.Directory.open`
-        """
+    def __init__(self, filename, format):
+        """Do not call this constructor directly but use
+        `cfg.Directory.open` instead"""
+
         self.filename = filename
         """The full pathname to the data file"""
 
         self.contents = {}
-        """
-        The contents of the formatted file, read and parsed.
+        """The contents of the formatted file, read and parsed.
 
         This will be a `dict` for all formats except `configparser`,
         where it will be a `configparser.SafeConfigParser`.
         """
 
         _makedirs(os.path.dirname(self.filename))
-        if not format:
-            ext = os.path.splitext(self.filename)[1]
-            format = SUFFIX_TO_FORMAT.get(ext) or default_format
-
-        if format not in FORMATS:
-            raise ValueError('Do not understand format ' + format)
-
-        if format == 'configparser':
-            self._parser = _ConfigParser()
-        else:
-            self._parser = _Parser(format)
-
+        self.format = format
         self.read()
 
     def update(self, a=(), **kwds):
@@ -203,19 +200,19 @@ class File:
         """Re-read the contents from the file"""
         try:
             with open(self.filename) as fp:
-                self.contents = self._parser.read(fp)
+                self.contents = self.format.read(fp)
         except IOError:
-            self.contents = self._parser.create()
+            self.contents = self.format.create()
         return self.contents
 
     def write(self):
         """Write the contents to the file"""
         with open(self.filename, 'w') as fp:
-            self._parser.write(self.contents, fp)
+            self.format.write(self.contents, fp)
 
     def as_dict(self):
         """Return a deep copy of the contents as a dict"""
-        return self._parser.as_dict(self.contents)
+        return self.format.as_dict(self.contents)
 
     def clear(self):
         """Clear the contents without writing"""
@@ -362,35 +359,58 @@ FORMATS = set(SUFFIX_TO_FORMAT.values())
 """A list of all formats that `cfgs` understands."""
 
 
-class _Parser:
-    def __init__(self, format):
-        parser = __import__(format)
-        self.read, self.write = parser.load, parser.dump
+class Format:
+    def __init__(self, format, read_kwds, write_kwds):
+        self.name = format
+        """The name of this format"""
+
+        self._parser = __import__(format)
+        self._read_kwds = read_kwds or {}
+        self._write_kwds = write_kwds or {}
+
+    def read(self, fp):
+        """Read contents from an open file in this format"""
+        return self._parser.load(fp, **self._read_kwds)
+
+    def write(self, contents, fp):
+        """Write contents in this format to an open file"""
+        return self._parser.dump(contents, fp, **self._write_kwds)
 
     def create(self):
+        """Return new, empty contents"""
         return {}
 
     def as_dict(self, contents):
+        """Convert the contents to a dict"""
         return copy.deepcopy(contents)
 
 
-class _ConfigParser:
+class ConfigparserFormat(Format):
+    name = 'configparser'
+    """The name of the configparser format"""
+
     def __init__(self):
         try:
-            configparser = __import__('configparser')
+            self._parser = __import__('configparser')
         except ImportError:
-            configparser = __import__('ConfigParser')
-        self.create = configparser.SafeConfigParser
+            self.__import__ = __import__('ConfigParser')
 
     def read(self, fp):
+        """Read contents from an open file in this format"""
         contents = self.create()
         contents.readfp(fp)
         return contents
 
     def write(self, contents, fp):
+        """Write contents in this format to an open file"""
         contents.write(fp)
 
+    def create(self):
+        """Return new, empty contents"""
+        return self._parser.SafeConfigParser()
+
     def as_dict(self, contents):
+        """Convert the contents to a dict"""
         return {k: dict(v) for k, v in contents.items()}
 
 
