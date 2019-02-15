@@ -100,3 +100,15 @@ API Documentation
 ======================
 
 API documentation is `here <doc/cfgs.html>`_.
+
+--------------------------------------
+
+====== ======
+|pic1| |pic2|
+====== ======
+
+
+.. |pic2| image::
+          https://img.shields.io/travis/timedata-org/cfgs/master.svg?style=flat
+
+.. |pic1| image:: https://img.shields.io/pypi/pyversions/cfgs.svg?style=flat
