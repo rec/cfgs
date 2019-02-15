@@ -71,6 +71,17 @@ Usage examples
     #      'description': {'size': 'S', 'fur': 'brown'}
 
 
+Cache
+======
+
+.. code-block:: python
+
+    import cfgs
+    cache_size = 0x10000000
+    app = cfgs.App('my-project')
+    directory = app.cache.directory(cache_size=cache_size)
+
+
 
 Using ``cfgs`` In legacy code
 =============================
@@ -99,7 +110,7 @@ directories.
 API Documentation
 ======================
 
-API documentation is `here <doc/cfgs.html>`_.
+API documentation is `here <https://timedata-org.github.io/cfgs/cfgs.html>`_.
 
 --------------------------------------
 
