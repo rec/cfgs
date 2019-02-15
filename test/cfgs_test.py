@@ -68,10 +68,27 @@ class ConfigTest(TestCase):
             f.clear()
             self.assertEqual(f.as_dict(), {})
 
+    def test_kwds(self):
+        def object_hook(x):
+            print('object_hook', x)
+            return set(x) if isinstance(x, list) else x
+
+        read_kwds = {'object_hook': object_hook}
+        write_kwds = {'sort_keys': True, 'indent': 1}
+        app = cfgs.App('test', read_kwds=read_kwds, write_kwds=write_kwds)
+        with app.config.open() as f:
+            f['foo'] = 'bar'
+            f['baz'] = [2, 3, 4]
+            del f['foo']
+            f.update(zip='zap')
+            filename = f.filename
+
+        c = open(filename).read().count('\n')
+        self.assertEqual(c, 7)
+
     def test_bad_format(self):
-        c = cfgs.App('test', default_format='wombat')
-        with self.assertRaises(KeyError):
-            c.config.open()
+        with self.assertRaises(ValueError):
+            cfgs.App('test', format='wombat')
 
     def test_error(self):
         with self.assertRaises(ValueError) as cm:
@@ -80,25 +97,25 @@ class ConfigTest(TestCase):
 
     if platform.python_version_tuple()[0] != '2':
         def test_guess_format(self):
-            with cfgs.App('test').data.open('special.yml') as f:
+            with cfgs.App('test', format='yaml').data.open('special') as f:
                 f['foo'] = 'bar'
                 f['baz'] = [2, 3, 4]
                 del f['foo']
                 f.update(zip='zap')
 
-            with cfgs.App('test').data.open('special.yml') as f:
+            with cfgs.App('test', format='yaml').data.open('special') as f:
                 self.assertEqual(f.as_dict(), {'baz': [2, 3, 4], 'zip': 'zap'})
                 self.assertNotIn('"', open(f.filename).read())
                 self.assertIn('zip', open(f.filename).read())
 
         def test_configfile(self):
-            pr = cfgs.App('test', default_format='configparser')
+            pr = cfgs.App('test', format='configparser')
             with pr.config.open() as f:
                 f['foo'] = {'a': 1, 'b': 2}
                 f['bar'] = {}
 
-            pr = cfgs.App('test')
-            with pr.config.open(format='configparser') as f:
+            pr = cfgs.App('test', format='configparser')
+            with pr.config.open() as f:
                 actual = f.as_dict()
                 expected = {'DEFAULT': {}, 'foo': {'a': '1', 'b': '2'},
                             'bar': {}}
