@@ -1,3 +1,7 @@
+## v 0.9.3 2019-02-15
+- Customized read and write
+- Build shields
+
 ## v 0.9.3 2019-02-13
  - Rename README.md to README.rst
 
