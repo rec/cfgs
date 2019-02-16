@@ -1,6 +1,7 @@
 include VERSION
 include test_requirements.txt
 include README.rst
+include cfgs.py
 recursive-exclude test *
 recursive-exclude bin *
 recursive-exclude build *
