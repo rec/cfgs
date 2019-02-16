@@ -1,4 +1,7 @@
 ## v0.9.5 2019-02-16
+- Add cfgs.py to MANIFEST.in
+
+## v0.9.5 2019-02-16
 - Simplify File API
 - New cfgs.html
 - Perhaps fix https://github.com/timedata-org/cfgs/issues/6
