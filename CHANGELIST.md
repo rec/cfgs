@@ -1,4 +1,7 @@
-## v0.9.5 2019-02-16
+## v0.9.7 2019-02-16
+- Change setup.py to fix #6
+
+## v0.9.6 2019-02-16
 - Add cfgs.py to MANIFEST.in
 
 ## v0.9.5 2019-02-16
