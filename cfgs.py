@@ -192,10 +192,6 @@ class File:
         self.format = format
         self.read()
 
-    def update(self, a=(), **kwds):
-        """Update the contents entries like a dictionary"""
-        return self.contents.update(a, **kwds)
-
     def read(self):
         """Re-read the contents from the file"""
         try:
@@ -217,15 +213,6 @@ class File:
     def clear(self):
         """Clear the contents without writing"""
         self.contents.clear()
-
-    def __setitem__(self, k, v):
-        self.contents[k] = v
-
-    def __getitem__(self, k):
-        return self.contents[k]
-
-    def __delitem__(self, k):
-        del self.contents[k]
 
     def __enter__(self):
         return self
