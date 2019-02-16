@@ -63,6 +63,7 @@ setup(
     download_url=DOWNLOAD_URL,
     license='MIT',
     packages=find_packages(),
+    include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
