@@ -1,0 +1,1618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.5.3.dev4+ge9f9892" />
+<title>cfgs API documentation</title>
+<meta name="description" content="`cfgs` …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.name small{font-weight:normal}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title"><code>cfgs</code> module</h1>
+</header>
+<section id="section-intro">
+<p><a title="cfgs" href="#cfgs"><code>cfgs</code></a></p>
+<p>Simple, correct handling of config, data and cache files.
+Fully compliant with the XDG Base Directory Specification.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;
+`cfgs`
+
+Simple, correct handling of config, data and cache files.
+Fully compliant with the XDG Base Directory Specification.
+&#34;&#34;&#34;
+
+import copy, os
+
+_getenv = os.environ.get
+_expandvars = os.path.expandvars
+
+
+class App:
+    &#34;&#34;&#34;
+    `cfg.App` is the main class, but it has no methods - it just holds the
+    `config`, `data`, `cache` and `xdg` objects.
+    &#34;&#34;&#34;
+
+    DEFAULT_FORMAT = &#39;json&#39;
+    &#34;&#34;&#34;The default, default file format for all Apps&#34;&#34;&#34;
+
+    def __init__(self, name, format=DEFAULT_FORMAT,
+                 read_kwds=None, write_kwds=None):
+        &#34;&#34;&#34;
+        Arguments:
+
+          name: the name of the App.  `name` is used as a directory
+                name so it should not contain any characters illegal in
+                pathnames
+
+          format: the format for config and data files from this App
+        &#34;&#34;&#34;
+        def path(attrname):
+            path = getattr(self.xdg, attrname)
+            if attrname.endswith(&#39;DIRS&#39;):
+                return [os.path.join(i, self.name) for i in path.split(&#39;:&#39;)]
+            return os.path.join(path, self.name)
+
+        _check_filename(name)
+
+        self.name = name
+        &#34;&#34;&#34;The text name of the App&#34;&#34;&#34;
+
+        self.xdg = XDG()
+        &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
+
+        self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
+        &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
+
+        if format not in FORMATS:
+            raise ValueError(&#39;Unknown format&#39;, format)
+
+        if format == &#39;configparser&#39;:
+            self.format = ConfigparserFormat()
+            &#34;&#34;&#34;A `cfgs.Format` representing the data format.&#34;&#34;&#34;
+        else:
+            self.format = Format(format, read_kwds, write_kwds)
+
+        h, d = path(&#39;XDG_CONFIG_HOME&#39;), path(&#39;XDG_CONFIG_DIRS&#39;)
+        self.config = Directory(h, d, self.format)
+        &#34;&#34;&#34;A `cfgs.Directory` for config files&#34;&#34;&#34;
+
+        h, d = path(&#39;XDG_DATA_HOME&#39;), path(&#39;XDG_DATA_DIRS&#39;)
+        self.data = Directory(h, d, self.format)
+        &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;
+
+
+class XDG:
+    &#34;&#34;&#34;
+    The XDG Base Directory Spec mandates six directories for config and data
+    files, caches and runtime files, with default values that can be overridden
+    through environment variables.  This class takes a snapshot of these six
+    directories using the current environment.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        &#34;&#34;&#34;
+        Construct the class with a snapshot of the six XDG base directories
+        &#34;&#34;&#34;
+
+        def get(k, v):
+            return _getenv(k) or _expandvars(v)
+
+        self.XDG_CACHE_HOME = get(&#39;XDG_CACHE_HOME&#39;, &#39;$HOME/.cache&#39;)
+        &#34;&#34;&#34;Base directory relative to which
+           user-specific non-essential (cached) data should be written
+        &#34;&#34;&#34;
+
+        self.XDG_CONFIG_DIRS = get(&#39;XDG_CONFIG_DIRS&#39;, &#39;/etc/xdg&#39;)
+        &#34;&#34;&#34;A set of preference ordered base directories relative to which
+           configuration files should be searched
+        &#34;&#34;&#34;
+
+        self.XDG_CONFIG_HOME = get(&#39;XDG_CONFIG_HOME&#39;, &#39;$HOME/.config&#39;)
+        &#34;&#34;&#34;Base directory relative to which user-specific
+           configuration files should be written
+        &#34;&#34;&#34;
+
+        self.XDG_DATA_DIRS = get(
+            &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;)
+        &#34;&#34;&#34;A set of preference ordered base directories relative to which
+           data files should be searched
+        &#34;&#34;&#34;
+
+        self.XDG_DATA_HOME = get(&#39;XDG_DATA_HOME&#39;, &#39;$HOME/.local/share&#39;)
+        &#34;&#34;&#34;Base directory relative to which user-specific
+           data files should be written
+        &#34;&#34;&#34;
+
+        self.XDG_RUNTIME_DIR = get(&#39;XDG_RUNTIME_DIR&#39;, &#39;&#39;)
+        &#34;&#34;&#34;Base directory relative to which
+           user-specific runtime files and other file objects should be placed
+        &#34;&#34;&#34;
+
+
+class Directory:
+    &#34;&#34;&#34;
+    An XDG directory of persistent, formatted files
+    &#34;&#34;&#34;
+
+    def __init__(self, home, dirs, format):
+        &#34;&#34;&#34;
+        Don&#39;t call this constructor directly - use either
+        `cfgs.App.config` or `cfgs.App.data` instead.
+        &#34;&#34;&#34;
+        self.home = home
+        self.dirs = dirs
+        assert not isinstance(format, str)
+        self.format = format
+        self.dirs.insert(0, self.home)
+
+    def open(self, filename=None):
+        &#34;&#34;&#34;
+        Open a persistent `cfg.File`.
+
+        Arguments:
+          filename: The name of the persistent file. If None,
+            `filename` defaults to `cfg.App.name` plus the format suffix
+
+          format: A string representing the file format.  If None,
+             first try to guess the filename from the filename, then use
+             `self.format`
+        &#34;&#34;&#34;
+        if not filename:
+            basename = os.path.basename(self.home)
+            suffix = FORMAT_TO_SUFFIX[self.format.name]
+            filename = &#39;%s%s&#39; % (basename, suffix)
+
+        return File(self.full_name(filename), self.format)
+
+    def all_files(self, filename):
+        &#34;&#34;&#34;
+        Yield all filenames matching the argument in either the home
+        directory or any of the search directories
+        &#34;&#34;&#34;
+        for p in self.dirs:
+            full_path = os.path.join(p, filename)
+            try:
+                yield open(full_path) and full_path
+            except IOError:
+                pass
+
+    def full_name(self, filename):
+        &#34;&#34;&#34;
+        Return the full name of a file with respect to this XDG directory
+        &#34;&#34;&#34;
+        return os.path.join(self.home, filename)
+
+
+class File:
+    &#34;&#34;&#34;
+    A formatted data or config file where you can set and get items,
+    and read or write.
+    &#34;&#34;&#34;
+
+    def __init__(self, filename, format):
+        &#34;&#34;&#34;Do not call this constructor directly but use
+        `cfg.Directory.open` instead&#34;&#34;&#34;
+
+        self.filename = filename
+        &#34;&#34;&#34;The full pathname to the data file&#34;&#34;&#34;
+
+        self.contents = {}
+        &#34;&#34;&#34;The contents of the formatted file, read and parsed.
+
+        This will be a `dict` for all formats except `configparser`,
+        where it will be a `configparser.SafeConfigParser`.
+        &#34;&#34;&#34;
+
+        _makedirs(os.path.dirname(self.filename))
+        self.format = format
+        self.read()
+
+    def read(self):
+        &#34;&#34;&#34;Re-read the contents from the file&#34;&#34;&#34;
+        try:
+            with open(self.filename) as fp:
+                self.contents = self.format.read(fp)
+        except IOError:
+            self.contents = self.format.create()
+        return self.contents
+
+    def write(self):
+        &#34;&#34;&#34;Write the contents to the file&#34;&#34;&#34;
+        with open(self.filename, &#39;w&#39;) as fp:
+            self.format.write(self.contents, fp)
+
+    def as_dict(self):
+        &#34;&#34;&#34;Return a deep copy of the contents as a dict&#34;&#34;&#34;
+        return self.format.as_dict(self.contents)
+
+    def clear(self):
+        &#34;&#34;&#34;Clear the contents without writing&#34;&#34;&#34;
+        self.contents.clear()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.write()
+
+
+class Cache:
+    &#34;&#34;&#34;
+    A class that creates caches
+    &#34;&#34;&#34;
+    def __init__(self, dirname):
+        &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
+
+        self.dirname = dirname
+        &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;
+
+    def directory(self, name=&#39;cache&#39;, cache_size=0):
+        &#34;&#34;&#34;
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+        name = os.path.join(self.dirname, name)
+        return CacheDirectory(name, cache_size)
+
+
+class CacheDirectory:
+    def __init__(self, dirname, cache_size):
+        &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
+
+        self.dirname = dirname
+        &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
+
+        self.cache_size = cache_size
+        &#34;&#34;&#34;
+        The number of bytes allowed in the cache.
+        0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+
+        _makedirs(self.dirname)
+        self.prune()
+
+    def open(self, filename, size_guess=0, binary=False):
+        &#34;&#34;&#34;
+        Open a cached file in this directory.
+
+        If the file already exists, it is opened for read.
+
+        Otherwise the cache is pruned and the file is opened for write.
+
+        Arguments:
+          filename: the name of the file, relative to the cache directory
+          size_guess: A guess as to how large the file will be, in bytes
+          binary: if True, the file is opened in binary mode
+
+        &#34;&#34;&#34;
+        if &#39;/&#39; in filename:
+            raise ValueError(&#39;Subdirectories are not allowed in caches&#39;)
+
+        bin = &#39;b&#39; if binary else &#39;&#39;
+
+        full = os.path.join(self.dirname, filename)
+        if os.path.exists(full):
+            return open(full, &#39;r&#39; + bin)
+
+        self.prune(size_guess)
+        return open(full, &#39;w&#39; + bin)
+
+    def prune(self, bytes_needed=0):
+        &#34;&#34;&#34;
+        Prune the cache to generate at least `bytes_needed` of free space,
+        if this is possible.
+        &#34;&#34;&#34;
+        if not self.cache_size:
+            return
+
+        files = os.listdir(self.dirname)
+        info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
+        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
+        if required_size &lt;= self.cache_size:
+            return
+
+        # Delete oldest items first
+        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
+            os.remove(os.path.join(self.dirname, f))
+            required_size -= s.st_size
+            if required_size &lt;= self.cache_size:
+                return
+
+
+def _check_filename(filename):
+    # Just a heuristic - names might pass this test and still not
+    # be valid i.e. CON on Windows.
+    bad_chars = _BAD_CHARS.intersection(set(filename))
+    if bad_chars:
+        bad_chars = &#39;&#39;.join(sorted(bad_chars))
+        raise ValueError(&#39;Invalid characters in filename: &#34;%s&#34;&#39; % bad_chars)
+
+
+SUFFIX_TO_FORMAT = {
+    &#39;.cfg&#39;: &#39;configparser&#39;,
+    &#39;.ini&#39;: &#39;configparser&#39;,
+    &#39;.json&#39;: &#39;json&#39;,
+    &#39;.toml&#39;: &#39;toml&#39;,
+    &#39;.yaml&#39;: &#39;yaml&#39;,
+    &#39;.yml&#39;: &#39;yaml&#39;,
+}
+&#34;&#34;&#34;
+Map file suffixes to the file format - the partial inverse
+to `cfgs.FORMAT_TO_SUFFIX`
+&#34;&#34;&#34;
+
+FORMAT_TO_SUFFIX = {
+    &#39;configparser&#39;: &#39;.ini&#39;,
+    &#39;json&#39;: &#39;.json&#39;,
+    &#39;toml&#39;: &#39;.toml&#39;,
+    &#39;yaml&#39;: &#39;.yml&#39;,
+}
+&#34;&#34;&#34;
+Map file formats to file suffix - the partial inverse
+to `cfgs.SUFFIX_TO_FORMAT`
+&#34;&#34;&#34;
+
+FORMATS = set(SUFFIX_TO_FORMAT.values())
+&#34;&#34;&#34;A list of all formats that `cfgs` understands.&#34;&#34;&#34;
+
+
+class Format:
+    def __init__(self, format, read_kwds, write_kwds):
+        self.name = format
+        &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
+
+        self._parser = __import__(format)
+        self._read_kwds = read_kwds or {}
+        self._write_kwds = write_kwds or {}
+
+    def read(self, fp):
+        &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
+        return self._parser.load(fp, **self._read_kwds)
+
+    def write(self, contents, fp):
+        &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
+        return self._parser.dump(contents, fp, **self._write_kwds)
+
+    def create(self):
+        &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
+        return {}
+
+    def as_dict(self, contents):
+        &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
+        return copy.deepcopy(contents)
+
+
+class ConfigparserFormat(Format):
+    name = &#39;configparser&#39;
+    &#34;&#34;&#34;The name of the configparser format&#34;&#34;&#34;
+
+    def __init__(self):
+        try:
+            self._parser = __import__(&#39;configparser&#39;)
+        except ImportError:
+            self.__import__ = __import__(&#39;ConfigParser&#39;)
+
+    def read(self, fp):
+        &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
+        contents = self.create()
+        contents.readfp(fp)
+        return contents
+
+    def write(self, contents, fp):
+        &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
+        contents.write(fp)
+
+    def create(self):
+        &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
+        return self._parser.SafeConfigParser()
+
+    def as_dict(self, contents):
+        &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
+        return {k: dict(v) for k, v in contents.items()}
+
+
+def _makedirs(f):  # For Python 2 compatibility
+    try:
+        os.makedirs(f)
+    except:
+        pass
+
+
+_BAD_CHARS = set(&#39;/\\?%*:|&#34;&lt;&gt;\&#39;;&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="cfgs.FORMATS"><code class="name">var <span class="ident">FORMATS</span></code></dt>
+<dd>
+<section class="desc"><p>A list of all formats that <a title="cfgs" href="#cfgs"><code>cfgs</code></a> understands.</p></section>
+</dd>
+<dt id="cfgs.FORMAT_TO_SUFFIX"><code class="name">var <span class="ident">FORMAT_TO_SUFFIX</span></code></dt>
+<dd>
+<section class="desc"><p>Map file formats to file suffix - the partial inverse
+to <a title="cfgs.SUFFIX_TO_FORMAT" href="#cfgs.SUFFIX_TO_FORMAT"><code>SUFFIX_TO_FORMAT</code></a></p></section>
+</dd>
+<dt id="cfgs.SUFFIX_TO_FORMAT"><code class="name">var <span class="ident">SUFFIX_TO_FORMAT</span></code></dt>
+<dd>
+<section class="desc"><p>Map file suffixes to the file format - the partial inverse
+to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_TO_SUFFIX</code></a></p></section>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cfgs.App"><code class="flex name class">
+<span>class <span class="ident">App</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p><code>cfg.App</code> is the main class, but it has no methods - it just holds the
+<code>config</code>, <code>data</code>, <code>cache</code> and <code>xdg</code> objects.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class App:
+    &#34;&#34;&#34;
+    `cfg.App` is the main class, but it has no methods - it just holds the
+    `config`, `data`, `cache` and `xdg` objects.
+    &#34;&#34;&#34;
+
+    DEFAULT_FORMAT = &#39;json&#39;
+    &#34;&#34;&#34;The default, default file format for all Apps&#34;&#34;&#34;
+
+    def __init__(self, name, format=DEFAULT_FORMAT,
+                 read_kwds=None, write_kwds=None):
+        &#34;&#34;&#34;
+        Arguments:
+
+          name: the name of the App.  `name` is used as a directory
+                name so it should not contain any characters illegal in
+                pathnames
+
+          format: the format for config and data files from this App
+        &#34;&#34;&#34;
+        def path(attrname):
+            path = getattr(self.xdg, attrname)
+            if attrname.endswith(&#39;DIRS&#39;):
+                return [os.path.join(i, self.name) for i in path.split(&#39;:&#39;)]
+            return os.path.join(path, self.name)
+
+        _check_filename(name)
+
+        self.name = name
+        &#34;&#34;&#34;The text name of the App&#34;&#34;&#34;
+
+        self.xdg = XDG()
+        &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
+
+        self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
+        &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
+
+        if format not in FORMATS:
+            raise ValueError(&#39;Unknown format&#39;, format)
+
+        if format == &#39;configparser&#39;:
+            self.format = ConfigparserFormat()
+            &#34;&#34;&#34;A `cfgs.Format` representing the data format.&#34;&#34;&#34;
+        else:
+            self.format = Format(format, read_kwds, write_kwds)
+
+        h, d = path(&#39;XDG_CONFIG_HOME&#39;), path(&#39;XDG_CONFIG_DIRS&#39;)
+        self.config = Directory(h, d, self.format)
+        &#34;&#34;&#34;A `cfgs.Directory` for config files&#34;&#34;&#34;
+
+        h, d = path(&#39;XDG_DATA_HOME&#39;), path(&#39;XDG_DATA_DIRS&#39;)
+        self.data = Directory(h, d, self.format)
+        &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="cfgs.App.DEFAULT_FORMAT"><code class="name">var <span class="ident">DEFAULT_FORMAT</span></code></dt>
+<dd>
+<section class="desc"><p>The default, default file format for all Apps</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cfgs.App.cache"><code class="name">var <span class="ident">cache</span></code></dt>
+<dd>
+<section class="desc"><p>A <code>cfg.Cache</code> that manages cache directories</p></section>
+</dd>
+<dt id="cfgs.App.config"><code class="name">var <span class="ident">config</span></code></dt>
+<dd>
+<section class="desc"><p>A <a title="cfgs.Directory" href="#cfgs.Directory"><code>Directory</code></a> for config files</p></section>
+</dd>
+<dt id="cfgs.App.data"><code class="name">var <span class="ident">data</span></code></dt>
+<dd>
+<section class="desc"><p>A <a title="cfgs.Directory" href="#cfgs.Directory"><code>Directory</code></a> for data files</p></section>
+</dd>
+<dt id="cfgs.App.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>The text name of the App</p></section>
+</dd>
+<dt id="cfgs.App.xdg"><code class="name">var <span class="ident">xdg</span></code></dt>
+<dd>
+<section class="desc"><p>A <code>cfg.XFG</code> as of when the App was constructed.</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.App.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, name, format=&#39;json&#39;, read_kwds=None, write_kwds=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>the name of the App.
+<code>name</code> is used as a directory
+name so it should not contain any characters illegal in
+pathnames</dd>
+<dt><strong><code>format</code></strong></dt>
+<dd>the format for config and data files from this App</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, name, format=DEFAULT_FORMAT,
+             read_kwds=None, write_kwds=None):
+    &#34;&#34;&#34;
+    Arguments:
+
+      name: the name of the App.  `name` is used as a directory
+            name so it should not contain any characters illegal in
+            pathnames
+
+      format: the format for config and data files from this App
+    &#34;&#34;&#34;
+    def path(attrname):
+        path = getattr(self.xdg, attrname)
+        if attrname.endswith(&#39;DIRS&#39;):
+            return [os.path.join(i, self.name) for i in path.split(&#39;:&#39;)]
+        return os.path.join(path, self.name)
+
+    _check_filename(name)
+
+    self.name = name
+    &#34;&#34;&#34;The text name of the App&#34;&#34;&#34;
+
+    self.xdg = XDG()
+    &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
+
+    self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
+    &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
+
+    if format not in FORMATS:
+        raise ValueError(&#39;Unknown format&#39;, format)
+
+    if format == &#39;configparser&#39;:
+        self.format = ConfigparserFormat()
+        &#34;&#34;&#34;A `cfgs.Format` representing the data format.&#34;&#34;&#34;
+    else:
+        self.format = Format(format, read_kwds, write_kwds)
+
+    h, d = path(&#39;XDG_CONFIG_HOME&#39;), path(&#39;XDG_CONFIG_DIRS&#39;)
+    self.config = Directory(h, d, self.format)
+    &#34;&#34;&#34;A `cfgs.Directory` for config files&#34;&#34;&#34;
+
+    h, d = path(&#39;XDG_DATA_HOME&#39;), path(&#39;XDG_DATA_DIRS&#39;)
+    self.data = Directory(h, d, self.format)
+    &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.Cache"><code class="flex name class">
+<span>class <span class="ident">Cache</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>A class that creates caches</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Cache:
+    &#34;&#34;&#34;
+    A class that creates caches
+    &#34;&#34;&#34;
+    def __init__(self, dirname):
+        &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
+
+        self.dirname = dirname
+        &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;
+
+    def directory(self, name=&#39;cache&#39;, cache_size=0):
+        &#34;&#34;&#34;
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+        name = os.path.join(self.dirname, name)
+        return CacheDirectory(name, cache_size)</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cfgs.Cache.dirname"><code class="name">var <span class="ident">dirname</span></code></dt>
+<dd>
+<section class="desc"><p>The full path of the root directory for all cache directories</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.Cache.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, dirname)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Do not call this constructor - instead use <a title="cfgs.App.cache" href="#cfgs.App.cache"><code>App.cache</code></a></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, dirname):
+    &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
+
+    self.dirname = dirname
+    &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.directory"><code class="name flex">
+<span>def <span class="ident">directory</span></span>(<span>self, name=&#39;cache&#39;, cache_size=0)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a <a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory"><code>CacheDirectory</code></a></p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>name</code></strong></dt>
+<dd>The relative pathname of the cache directory</dd>
+<dt><strong><code>cache_size</code></strong></dt>
+<dd>The number of bytes allowed in the cache.
+The default of 0 means "unlimited cache size"</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def directory(self, name=&#39;cache&#39;, cache_size=0):
+    &#34;&#34;&#34;
+    Return a `cfgs.CacheDirectory`
+
+    Arguments:
+      name: The relative pathname of the cache directory
+
+      cache_size: The number of bytes allowed in the cache.
+          The default of 0 means &#34;unlimited cache size&#34;
+    &#34;&#34;&#34;
+    name = os.path.join(self.dirname, name)
+    return CacheDirectory(name, cache_size)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.CacheDirectory"><code class="flex name class">
+<span>class <span class="ident">CacheDirectory</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class CacheDirectory:
+    def __init__(self, dirname, cache_size):
+        &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
+
+        self.dirname = dirname
+        &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
+
+        self.cache_size = cache_size
+        &#34;&#34;&#34;
+        The number of bytes allowed in the cache.
+        0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+
+        _makedirs(self.dirname)
+        self.prune()
+
+    def open(self, filename, size_guess=0, binary=False):
+        &#34;&#34;&#34;
+        Open a cached file in this directory.
+
+        If the file already exists, it is opened for read.
+
+        Otherwise the cache is pruned and the file is opened for write.
+
+        Arguments:
+          filename: the name of the file, relative to the cache directory
+          size_guess: A guess as to how large the file will be, in bytes
+          binary: if True, the file is opened in binary mode
+
+        &#34;&#34;&#34;
+        if &#39;/&#39; in filename:
+            raise ValueError(&#39;Subdirectories are not allowed in caches&#39;)
+
+        bin = &#39;b&#39; if binary else &#39;&#39;
+
+        full = os.path.join(self.dirname, filename)
+        if os.path.exists(full):
+            return open(full, &#39;r&#39; + bin)
+
+        self.prune(size_guess)
+        return open(full, &#39;w&#39; + bin)
+
+    def prune(self, bytes_needed=0):
+        &#34;&#34;&#34;
+        Prune the cache to generate at least `bytes_needed` of free space,
+        if this is possible.
+        &#34;&#34;&#34;
+        if not self.cache_size:
+            return
+
+        files = os.listdir(self.dirname)
+        info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
+        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
+        if required_size &lt;= self.cache_size:
+            return
+
+        # Delete oldest items first
+        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
+            os.remove(os.path.join(self.dirname, f))
+            required_size -= s.st_size
+            if required_size &lt;= self.cache_size:
+                return</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cfgs.CacheDirectory.cache_size"><code class="name">var <span class="ident">cache_size</span></code></dt>
+<dd>
+<section class="desc"><p>The number of bytes allowed in the cache.
+0 means "unlimited cache size"</p></section>
+</dd>
+<dt id="cfgs.CacheDirectory.dirname"><code class="name">var <span class="ident">dirname</span></code></dt>
+<dd>
+<section class="desc"><p>The full path to this cache directory</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.CacheDirectory.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, dirname, cache_size)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Do not call this constructor - use <a title="cfgs.Cache.directory" href="#cfgs.Cache.directory"><code>Cache.directory()</code></a></p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, dirname, cache_size):
+    &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
+
+    self.dirname = dirname
+    &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
+
+    self.cache_size = cache_size
+    &#34;&#34;&#34;
+    The number of bytes allowed in the cache.
+    0 means &#34;unlimited cache size&#34;
+    &#34;&#34;&#34;
+
+    _makedirs(self.dirname)
+    self.prune()</code></pre>
+</details>
+</dd>
+<dt id="cfgs.CacheDirectory.open"><code class="name flex">
+<span>def <span class="ident">open</span></span>(<span>self, filename, size_guess=0, binary=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Open a cached file in this directory.</p>
+<p>If the file already exists, it is opened for read.</p>
+<p>Otherwise the cache is pruned and the file is opened for write.</p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>the name of the file, relative to the cache directory</dd>
+<dt><strong><code>size_guess</code></strong></dt>
+<dd>A guess as to how large the file will be, in bytes</dd>
+<dt><strong><code>binary</code></strong></dt>
+<dd>if True, the file is opened in binary mode</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def open(self, filename, size_guess=0, binary=False):
+    &#34;&#34;&#34;
+    Open a cached file in this directory.
+
+    If the file already exists, it is opened for read.
+
+    Otherwise the cache is pruned and the file is opened for write.
+
+    Arguments:
+      filename: the name of the file, relative to the cache directory
+      size_guess: A guess as to how large the file will be, in bytes
+      binary: if True, the file is opened in binary mode
+
+    &#34;&#34;&#34;
+    if &#39;/&#39; in filename:
+        raise ValueError(&#39;Subdirectories are not allowed in caches&#39;)
+
+    bin = &#39;b&#39; if binary else &#39;&#39;
+
+    full = os.path.join(self.dirname, filename)
+    if os.path.exists(full):
+        return open(full, &#39;r&#39; + bin)
+
+    self.prune(size_guess)
+    return open(full, &#39;w&#39; + bin)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.CacheDirectory.prune"><code class="name flex">
+<span>def <span class="ident">prune</span></span>(<span>self, bytes_needed=0)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Prune the cache to generate at least <code>bytes_needed</code> of free space,
+if this is possible.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def prune(self, bytes_needed=0):
+    &#34;&#34;&#34;
+    Prune the cache to generate at least `bytes_needed` of free space,
+    if this is possible.
+    &#34;&#34;&#34;
+    if not self.cache_size:
+        return
+
+    files = os.listdir(self.dirname)
+    info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
+    required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
+    if required_size &lt;= self.cache_size:
+        return
+
+    # Delete oldest items first
+    for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
+        os.remove(os.path.join(self.dirname, f))
+        required_size -= s.st_size
+        if required_size &lt;= self.cache_size:
+            return</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.ConfigparserFormat"><code class="flex name class">
+<span>class <span class="ident">ConfigparserFormat</span></span>
+<span>(</span><span><small>ancestors:</small> <a title="cfgs.Format" href="#cfgs.Format">Format</a>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class ConfigparserFormat(Format):
+    name = &#39;configparser&#39;
+    &#34;&#34;&#34;The name of the configparser format&#34;&#34;&#34;
+
+    def __init__(self):
+        try:
+            self._parser = __import__(&#39;configparser&#39;)
+        except ImportError:
+            self.__import__ = __import__(&#39;ConfigParser&#39;)
+
+    def read(self, fp):
+        &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
+        contents = self.create()
+        contents.readfp(fp)
+        return contents
+
+    def write(self, contents, fp):
+        &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
+        contents.write(fp)
+
+    def create(self):
+        &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
+        return self._parser.SafeConfigParser()
+
+    def as_dict(self, contents):
+        &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
+        return {k: dict(v) for k, v in contents.items()}</code></pre>
+</details>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="cfgs.Format" href="#cfgs.Format">Format</a></b></code>:
+<ul class="hlist">
+<li><code><a title="cfgs.Format.__init__" href="#cfgs.Format.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.Format.as_dict" href="#cfgs.Format.as_dict">as_dict</a></code></li>
+<li><code><a title="cfgs.Format.create" href="#cfgs.Format.create">create</a></code></li>
+<li><code><a title="cfgs.Format.name" href="#cfgs.Format.name">name</a></code></li>
+<li><code><a title="cfgs.Format.read" href="#cfgs.Format.read">read</a></code></li>
+<li><code><a title="cfgs.Format.write" href="#cfgs.Format.write">write</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="cfgs.Directory"><code class="flex name class">
+<span>class <span class="ident">Directory</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>An XDG directory of persistent, formatted files</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Directory:
+    &#34;&#34;&#34;
+    An XDG directory of persistent, formatted files
+    &#34;&#34;&#34;
+
+    def __init__(self, home, dirs, format):
+        &#34;&#34;&#34;
+        Don&#39;t call this constructor directly - use either
+        `cfgs.App.config` or `cfgs.App.data` instead.
+        &#34;&#34;&#34;
+        self.home = home
+        self.dirs = dirs
+        assert not isinstance(format, str)
+        self.format = format
+        self.dirs.insert(0, self.home)
+
+    def open(self, filename=None):
+        &#34;&#34;&#34;
+        Open a persistent `cfg.File`.
+
+        Arguments:
+          filename: The name of the persistent file. If None,
+            `filename` defaults to `cfg.App.name` plus the format suffix
+
+          format: A string representing the file format.  If None,
+             first try to guess the filename from the filename, then use
+             `self.format`
+        &#34;&#34;&#34;
+        if not filename:
+            basename = os.path.basename(self.home)
+            suffix = FORMAT_TO_SUFFIX[self.format.name]
+            filename = &#39;%s%s&#39; % (basename, suffix)
+
+        return File(self.full_name(filename), self.format)
+
+    def all_files(self, filename):
+        &#34;&#34;&#34;
+        Yield all filenames matching the argument in either the home
+        directory or any of the search directories
+        &#34;&#34;&#34;
+        for p in self.dirs:
+            full_path = os.path.join(p, filename)
+            try:
+                yield open(full_path) and full_path
+            except IOError:
+                pass
+
+    def full_name(self, filename):
+        &#34;&#34;&#34;
+        Return the full name of a file with respect to this XDG directory
+        &#34;&#34;&#34;
+        return os.path.join(self.home, filename)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.Directory.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, home, dirs, format)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Don't call this constructor directly - use either
+<a title="cfgs.App.config" href="#cfgs.App.config"><code>App.config</code></a> or <a title="cfgs.App.data" href="#cfgs.App.data"><code>App.data</code></a> instead.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, home, dirs, format):
+    &#34;&#34;&#34;
+    Don&#39;t call this constructor directly - use either
+    `cfgs.App.config` or `cfgs.App.data` instead.
+    &#34;&#34;&#34;
+    self.home = home
+    self.dirs = dirs
+    assert not isinstance(format, str)
+    self.format = format
+    self.dirs.insert(0, self.home)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Directory.all_files"><code class="name flex">
+<span>def <span class="ident">all_files</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Yield all filenames matching the argument in either the home
+directory or any of the search directories</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def all_files(self, filename):
+    &#34;&#34;&#34;
+    Yield all filenames matching the argument in either the home
+    directory or any of the search directories
+    &#34;&#34;&#34;
+    for p in self.dirs:
+        full_path = os.path.join(p, filename)
+        try:
+            yield open(full_path) and full_path
+        except IOError:
+            pass</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Directory.full_name"><code class="name flex">
+<span>def <span class="ident">full_name</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return the full name of a file with respect to this XDG directory</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def full_name(self, filename):
+    &#34;&#34;&#34;
+    Return the full name of a file with respect to this XDG directory
+    &#34;&#34;&#34;
+    return os.path.join(self.home, filename)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Directory.open"><code class="name flex">
+<span>def <span class="ident">open</span></span>(<span>self, filename=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Open a persistent <code>cfg.File</code>.</p>
+<h2 id="arguments">Arguments</h2>
+<dl>
+<dt><strong><code>filename</code></strong></dt>
+<dd>The name of the persistent file. If None,
+<code>filename</code> defaults to <code>cfg.App.name</code> plus the format suffix</dd>
+<dt><strong><code>format</code></strong></dt>
+<dd>A string representing the file format.
+If None,
+first try to guess the filename from the filename, then use
+<code>self.format</code></dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def open(self, filename=None):
+    &#34;&#34;&#34;
+    Open a persistent `cfg.File`.
+
+    Arguments:
+      filename: The name of the persistent file. If None,
+        `filename` defaults to `cfg.App.name` plus the format suffix
+
+      format: A string representing the file format.  If None,
+         first try to guess the filename from the filename, then use
+         `self.format`
+    &#34;&#34;&#34;
+    if not filename:
+        basename = os.path.basename(self.home)
+        suffix = FORMAT_TO_SUFFIX[self.format.name]
+        filename = &#39;%s%s&#39; % (basename, suffix)
+
+    return File(self.full_name(filename), self.format)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.File"><code class="flex name class">
+<span>class <span class="ident">File</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>A formatted data or config file where you can set and get items,
+and read or write.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class File:
+    &#34;&#34;&#34;
+    A formatted data or config file where you can set and get items,
+    and read or write.
+    &#34;&#34;&#34;
+
+    def __init__(self, filename, format):
+        &#34;&#34;&#34;Do not call this constructor directly but use
+        `cfg.Directory.open` instead&#34;&#34;&#34;
+
+        self.filename = filename
+        &#34;&#34;&#34;The full pathname to the data file&#34;&#34;&#34;
+
+        self.contents = {}
+        &#34;&#34;&#34;The contents of the formatted file, read and parsed.
+
+        This will be a `dict` for all formats except `configparser`,
+        where it will be a `configparser.SafeConfigParser`.
+        &#34;&#34;&#34;
+
+        _makedirs(os.path.dirname(self.filename))
+        self.format = format
+        self.read()
+
+    def read(self):
+        &#34;&#34;&#34;Re-read the contents from the file&#34;&#34;&#34;
+        try:
+            with open(self.filename) as fp:
+                self.contents = self.format.read(fp)
+        except IOError:
+            self.contents = self.format.create()
+        return self.contents
+
+    def write(self):
+        &#34;&#34;&#34;Write the contents to the file&#34;&#34;&#34;
+        with open(self.filename, &#39;w&#39;) as fp:
+            self.format.write(self.contents, fp)
+
+    def as_dict(self):
+        &#34;&#34;&#34;Return a deep copy of the contents as a dict&#34;&#34;&#34;
+        return self.format.as_dict(self.contents)
+
+    def clear(self):
+        &#34;&#34;&#34;Clear the contents without writing&#34;&#34;&#34;
+        self.contents.clear()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.write()</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cfgs.File.contents"><code class="name">var <span class="ident">contents</span></code></dt>
+<dd>
+<section class="desc"><p>The contents of the formatted file, read and parsed.</p>
+<p>This will be a <code>dict</code> for all formats except <code>configparser</code>,
+where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
+</dd>
+<dt id="cfgs.File.filename"><code class="name">var <span class="ident">filename</span></code></dt>
+<dd>
+<section class="desc"><p>The full pathname to the data file</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.File.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, filename, format)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Do not call this constructor directly but use
+<code>cfg.Directory.open</code> instead</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, filename, format):
+    &#34;&#34;&#34;Do not call this constructor directly but use
+    `cfg.Directory.open` instead&#34;&#34;&#34;
+
+    self.filename = filename
+    &#34;&#34;&#34;The full pathname to the data file&#34;&#34;&#34;
+
+    self.contents = {}
+    &#34;&#34;&#34;The contents of the formatted file, read and parsed.
+
+    This will be a `dict` for all formats except `configparser`,
+    where it will be a `configparser.SafeConfigParser`.
+    &#34;&#34;&#34;
+
+    _makedirs(os.path.dirname(self.filename))
+    self.format = format
+    self.read()</code></pre>
+</details>
+</dd>
+<dt id="cfgs.File.as_dict"><code class="name flex">
+<span>def <span class="ident">as_dict</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a deep copy of the contents as a dict</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def as_dict(self):
+    &#34;&#34;&#34;Return a deep copy of the contents as a dict&#34;&#34;&#34;
+    return self.format.as_dict(self.contents)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.File.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Clear the contents without writing</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def clear(self):
+    &#34;&#34;&#34;Clear the contents without writing&#34;&#34;&#34;
+    self.contents.clear()</code></pre>
+</details>
+</dd>
+<dt id="cfgs.File.read"><code class="name flex">
+<span>def <span class="ident">read</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Re-read the contents from the file</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read(self):
+    &#34;&#34;&#34;Re-read the contents from the file&#34;&#34;&#34;
+    try:
+        with open(self.filename) as fp:
+            self.contents = self.format.read(fp)
+    except IOError:
+        self.contents = self.format.create()
+    return self.contents</code></pre>
+</details>
+</dd>
+<dt id="cfgs.File.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write the contents to the file</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def write(self):
+    &#34;&#34;&#34;Write the contents to the file&#34;&#34;&#34;
+    with open(self.filename, &#39;w&#39;) as fp:
+        self.format.write(self.contents, fp)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.Format"><code class="flex name class">
+<span>class <span class="ident">Format</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Format:
+    def __init__(self, format, read_kwds, write_kwds):
+        self.name = format
+        &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
+
+        self._parser = __import__(format)
+        self._read_kwds = read_kwds or {}
+        self._write_kwds = write_kwds or {}
+
+    def read(self, fp):
+        &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
+        return self._parser.load(fp, **self._read_kwds)
+
+    def write(self, contents, fp):
+        &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
+        return self._parser.dump(contents, fp, **self._write_kwds)
+
+    def create(self):
+        &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
+        return {}
+
+    def as_dict(self, contents):
+        &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
+        return copy.deepcopy(contents)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="cfgs.ConfigparserFormat" href="#cfgs.ConfigparserFormat">ConfigparserFormat</a></li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cfgs.Format.name"><code class="name">var <span class="ident">name</span></code></dt>
+<dd>
+<section class="desc"><p>The name of this format</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.Format.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, format, read_kwds, write_kwds)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize self.
+See help(type(self)) for accurate signature.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, format, read_kwds, write_kwds):
+    self.name = format
+    &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
+
+    self._parser = __import__(format)
+    self._read_kwds = read_kwds or {}
+    self._write_kwds = write_kwds or {}</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Format.as_dict"><code class="name flex">
+<span>def <span class="ident">as_dict</span></span>(<span>self, contents)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Convert the contents to a dict</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def as_dict(self, contents):
+    &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
+    return copy.deepcopy(contents)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Format.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return new, empty contents</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def create(self):
+    &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
+    return {}</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Format.read"><code class="name flex">
+<span>def <span class="ident">read</span></span>(<span>self, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Read contents from an open file in this format</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def read(self, fp):
+    &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
+    return self._parser.load(fp, **self._read_kwds)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Format.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, contents, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Write contents in this format to an open file</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def write(self, contents, fp):
+    &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
+    return self._parser.dump(contents, fp, **self._write_kwds)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.XDG"><code class="flex name class">
+<span>class <span class="ident">XDG</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>The XDG Base Directory Spec mandates six directories for config and data
+files, caches and runtime files, with default values that can be overridden
+through environment variables.
+This class takes a snapshot of these six
+directories using the current environment.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class XDG:
+    &#34;&#34;&#34;
+    The XDG Base Directory Spec mandates six directories for config and data
+    files, caches and runtime files, with default values that can be overridden
+    through environment variables.  This class takes a snapshot of these six
+    directories using the current environment.
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        &#34;&#34;&#34;
+        Construct the class with a snapshot of the six XDG base directories
+        &#34;&#34;&#34;
+
+        def get(k, v):
+            return _getenv(k) or _expandvars(v)
+
+        self.XDG_CACHE_HOME = get(&#39;XDG_CACHE_HOME&#39;, &#39;$HOME/.cache&#39;)
+        &#34;&#34;&#34;Base directory relative to which
+           user-specific non-essential (cached) data should be written
+        &#34;&#34;&#34;
+
+        self.XDG_CONFIG_DIRS = get(&#39;XDG_CONFIG_DIRS&#39;, &#39;/etc/xdg&#39;)
+        &#34;&#34;&#34;A set of preference ordered base directories relative to which
+           configuration files should be searched
+        &#34;&#34;&#34;
+
+        self.XDG_CONFIG_HOME = get(&#39;XDG_CONFIG_HOME&#39;, &#39;$HOME/.config&#39;)
+        &#34;&#34;&#34;Base directory relative to which user-specific
+           configuration files should be written
+        &#34;&#34;&#34;
+
+        self.XDG_DATA_DIRS = get(
+            &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;)
+        &#34;&#34;&#34;A set of preference ordered base directories relative to which
+           data files should be searched
+        &#34;&#34;&#34;
+
+        self.XDG_DATA_HOME = get(&#39;XDG_DATA_HOME&#39;, &#39;$HOME/.local/share&#39;)
+        &#34;&#34;&#34;Base directory relative to which user-specific
+           data files should be written
+        &#34;&#34;&#34;
+
+        self.XDG_RUNTIME_DIR = get(&#39;XDG_RUNTIME_DIR&#39;, &#39;&#39;)
+        &#34;&#34;&#34;Base directory relative to which
+           user-specific runtime files and other file objects should be placed
+        &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cfgs.XDG.XDG_CACHE_HOME"><code class="name">var <span class="ident">XDG_CACHE_HOME</span></code></dt>
+<dd>
+<section class="desc"><p>Base directory relative to which
+user-specific non-essential (cached) data should be written</p></section>
+</dd>
+<dt id="cfgs.XDG.XDG_CONFIG_DIRS"><code class="name">var <span class="ident">XDG_CONFIG_DIRS</span></code></dt>
+<dd>
+<section class="desc"><p>A set of preference ordered base directories relative to which
+configuration files should be searched</p></section>
+</dd>
+<dt id="cfgs.XDG.XDG_CONFIG_HOME"><code class="name">var <span class="ident">XDG_CONFIG_HOME</span></code></dt>
+<dd>
+<section class="desc"><p>Base directory relative to which user-specific
+configuration files should be written</p></section>
+</dd>
+<dt id="cfgs.XDG.XDG_DATA_DIRS"><code class="name">var <span class="ident">XDG_DATA_DIRS</span></code></dt>
+<dd>
+<section class="desc"><p>A set of preference ordered base directories relative to which
+data files should be searched</p></section>
+</dd>
+<dt id="cfgs.XDG.XDG_DATA_HOME"><code class="name">var <span class="ident">XDG_DATA_HOME</span></code></dt>
+<dd>
+<section class="desc"><p>Base directory relative to which user-specific
+data files should be written</p></section>
+</dd>
+<dt id="cfgs.XDG.XDG_RUNTIME_DIR"><code class="name">var <span class="ident">XDG_RUNTIME_DIR</span></code></dt>
+<dd>
+<section class="desc"><p>Base directory relative to which
+user-specific runtime files and other file objects should be placed</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.XDG.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Construct the class with a snapshot of the six XDG base directories</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self):
+    &#34;&#34;&#34;
+    Construct the class with a snapshot of the six XDG base directories
+    &#34;&#34;&#34;
+
+    def get(k, v):
+        return _getenv(k) or _expandvars(v)
+
+    self.XDG_CACHE_HOME = get(&#39;XDG_CACHE_HOME&#39;, &#39;$HOME/.cache&#39;)
+    &#34;&#34;&#34;Base directory relative to which
+       user-specific non-essential (cached) data should be written
+    &#34;&#34;&#34;
+
+    self.XDG_CONFIG_DIRS = get(&#39;XDG_CONFIG_DIRS&#39;, &#39;/etc/xdg&#39;)
+    &#34;&#34;&#34;A set of preference ordered base directories relative to which
+       configuration files should be searched
+    &#34;&#34;&#34;
+
+    self.XDG_CONFIG_HOME = get(&#39;XDG_CONFIG_HOME&#39;, &#39;$HOME/.config&#39;)
+    &#34;&#34;&#34;Base directory relative to which user-specific
+       configuration files should be written
+    &#34;&#34;&#34;
+
+    self.XDG_DATA_DIRS = get(
+        &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;)
+    &#34;&#34;&#34;A set of preference ordered base directories relative to which
+       data files should be searched
+    &#34;&#34;&#34;
+
+    self.XDG_DATA_HOME = get(&#39;XDG_DATA_HOME&#39;, &#39;$HOME/.local/share&#39;)
+    &#34;&#34;&#34;Base directory relative to which user-specific
+       data files should be written
+    &#34;&#34;&#34;
+
+    self.XDG_RUNTIME_DIR = get(&#39;XDG_RUNTIME_DIR&#39;, &#39;&#39;)
+    &#34;&#34;&#34;Base directory relative to which
+       user-specific runtime files and other file objects should be placed
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="cfgs.FORMATS" href="#cfgs.FORMATS">FORMATS</a></code></li>
+<li><code><a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX">FORMAT_TO_SUFFIX</a></code></li>
+<li><code><a title="cfgs.SUFFIX_TO_FORMAT" href="#cfgs.SUFFIX_TO_FORMAT">SUFFIX_TO_FORMAT</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cfgs.App" href="#cfgs.App">App</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cfgs.App.DEFAULT_FORMAT" href="#cfgs.App.DEFAULT_FORMAT">DEFAULT_FORMAT</a></code></li>
+<li><code><a title="cfgs.App.__init__" href="#cfgs.App.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.App.cache" href="#cfgs.App.cache">cache</a></code></li>
+<li><code><a title="cfgs.App.config" href="#cfgs.App.config">config</a></code></li>
+<li><code><a title="cfgs.App.data" href="#cfgs.App.data">data</a></code></li>
+<li><code><a title="cfgs.App.name" href="#cfgs.App.name">name</a></code></li>
+<li><code><a title="cfgs.App.xdg" href="#cfgs.App.xdg">xdg</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.Cache" href="#cfgs.Cache">Cache</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.Cache.__init__" href="#cfgs.Cache.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.Cache.directory" href="#cfgs.Cache.directory">directory</a></code></li>
+<li><code><a title="cfgs.Cache.dirname" href="#cfgs.Cache.dirname">dirname</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory">CacheDirectory</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.CacheDirectory.__init__" href="#cfgs.CacheDirectory.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.CacheDirectory.cache_size" href="#cfgs.CacheDirectory.cache_size">cache_size</a></code></li>
+<li><code><a title="cfgs.CacheDirectory.dirname" href="#cfgs.CacheDirectory.dirname">dirname</a></code></li>
+<li><code><a title="cfgs.CacheDirectory.open" href="#cfgs.CacheDirectory.open">open</a></code></li>
+<li><code><a title="cfgs.CacheDirectory.prune" href="#cfgs.CacheDirectory.prune">prune</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.ConfigparserFormat" href="#cfgs.ConfigparserFormat">ConfigparserFormat</a></code></h4>
+</li>
+<li>
+<h4><code><a title="cfgs.Directory" href="#cfgs.Directory">Directory</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.Directory.__init__" href="#cfgs.Directory.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.Directory.all_files" href="#cfgs.Directory.all_files">all_files</a></code></li>
+<li><code><a title="cfgs.Directory.full_name" href="#cfgs.Directory.full_name">full_name</a></code></li>
+<li><code><a title="cfgs.Directory.open" href="#cfgs.Directory.open">open</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.File" href="#cfgs.File">File</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cfgs.File.__init__" href="#cfgs.File.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.File.as_dict" href="#cfgs.File.as_dict">as_dict</a></code></li>
+<li><code><a title="cfgs.File.clear" href="#cfgs.File.clear">clear</a></code></li>
+<li><code><a title="cfgs.File.contents" href="#cfgs.File.contents">contents</a></code></li>
+<li><code><a title="cfgs.File.filename" href="#cfgs.File.filename">filename</a></code></li>
+<li><code><a title="cfgs.File.read" href="#cfgs.File.read">read</a></code></li>
+<li><code><a title="cfgs.File.write" href="#cfgs.File.write">write</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.Format" href="#cfgs.Format">Format</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cfgs.Format.__init__" href="#cfgs.Format.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.Format.as_dict" href="#cfgs.Format.as_dict">as_dict</a></code></li>
+<li><code><a title="cfgs.Format.create" href="#cfgs.Format.create">create</a></code></li>
+<li><code><a title="cfgs.Format.name" href="#cfgs.Format.name">name</a></code></li>
+<li><code><a title="cfgs.Format.read" href="#cfgs.Format.read">read</a></code></li>
+<li><code><a title="cfgs.Format.write" href="#cfgs.Format.write">write</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.XDG" href="#cfgs.XDG">XDG</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cfgs.XDG.XDG_CACHE_HOME" href="#cfgs.XDG.XDG_CACHE_HOME">XDG_CACHE_HOME</a></code></li>
+<li><code><a title="cfgs.XDG.XDG_CONFIG_DIRS" href="#cfgs.XDG.XDG_CONFIG_DIRS">XDG_CONFIG_DIRS</a></code></li>
+<li><code><a title="cfgs.XDG.XDG_CONFIG_HOME" href="#cfgs.XDG.XDG_CONFIG_HOME">XDG_CONFIG_HOME</a></code></li>
+<li><code><a title="cfgs.XDG.XDG_DATA_DIRS" href="#cfgs.XDG.XDG_DATA_DIRS">XDG_DATA_DIRS</a></code></li>
+<li><code><a title="cfgs.XDG.XDG_DATA_HOME" href="#cfgs.XDG.XDG_DATA_HOME">XDG_DATA_HOME</a></code></li>
+<li><code><a title="cfgs.XDG.XDG_RUNTIME_DIR" href="#cfgs.XDG.XDG_RUNTIME_DIR">XDG_RUNTIME_DIR</a></code></li>
+<li><code><a title="cfgs.XDG.__init__" href="#cfgs.XDG.__init__">__init__</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.5.3.dev4+ge9f9892</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
