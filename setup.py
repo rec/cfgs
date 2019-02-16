@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import os, sys
 
@@ -62,8 +62,7 @@ setup(
     url=URL,
     download_url=DOWNLOAD_URL,
     license='MIT',
-    packages=find_packages(),
-    include_package_data=True,
+    py_modules=['cfgs'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
