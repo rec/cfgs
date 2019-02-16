@@ -45,7 +45,8 @@ class XDGTest(TestCase):
 
 class ConfigTest(TestCase):
     def test_simple(self):
-        with cfgs.App('test').config.open() as f:
+        with cfgs.App('test').config.open() as fp:
+            f = fp.contents
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
@@ -56,14 +57,15 @@ class ConfigTest(TestCase):
         self.assertEqual(actual, expected)
 
     def test_read_write(self):
-        with cfgs.App('test').config.open() as f:
+        with cfgs.App('test').config.open() as fp:
+            f = fp.contents
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
             f.update(zip='zap')
 
         with cfgs.App('test').config.open() as f:
-            self.assertEqual(f['zip'], 'zap')
+            self.assertEqual(f.contents['zip'], 'zap')
             self.assertEqual(f.as_dict(), {'baz': [2, 3, 4], 'zip': 'zap'})
             f.clear()
             self.assertEqual(f.as_dict(), {})
@@ -76,12 +78,13 @@ class ConfigTest(TestCase):
         read_kwds = {'object_hook': object_hook}
         write_kwds = {'sort_keys': True, 'indent': 1}
         app = cfgs.App('test', read_kwds=read_kwds, write_kwds=write_kwds)
-        with app.config.open() as f:
+        with app.config.open() as fp:
+            f = fp.contents
             f['foo'] = 'bar'
             f['baz'] = [2, 3, 4]
             del f['foo']
             f.update(zip='zap')
-            filename = f.filename
+            filename = fp.filename
 
         c = open(filename).read().count('\n')
         self.assertEqual(c, 7)
@@ -97,7 +100,8 @@ class ConfigTest(TestCase):
 
     if platform.python_version_tuple()[0] != '2':
         def test_guess_format(self):
-            with cfgs.App('test', format='yaml').data.open('special') as f:
+            with cfgs.App('test', format='yaml').data.open('special') as fp:
+                f = fp.contents
                 f['foo'] = 'bar'
                 f['baz'] = [2, 3, 4]
                 del f['foo']
@@ -110,7 +114,8 @@ class ConfigTest(TestCase):
 
         def test_configfile(self):
             pr = cfgs.App('test', format='configparser')
-            with pr.config.open() as f:
+            with pr.config.open() as fp:
+                f = fp.contents
                 f['foo'] = {'a': 1, 'b': 2}
                 f['bar'] = {}
 
