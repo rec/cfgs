@@ -381,7 +381,7 @@ and all the functionality is reachable from a single class, <tt class="docutils 
 <div class="section" id="how-it-works-in-one-sentence">
 <h1>How it works in one sentence</h1>
 <p>Create a <tt class="docutils literal">cfgs.App</tt> for your application, project, or script which
-handles finding, reading and writing your data and config files and
+handles finding, reading and writing your data and config files, and
 managing your cache directories.</p>
 </div>
 <div class="section" id="how-to-install">
@@ -428,6 +428,7 @@ right into your project.</p>
 <span class="name">cache_size</span> <span class="operator">=</span> <span class="literal number hex">0x10000000</span>
 <span class="name">app</span> <span class="operator">=</span> <span class="name">cfgs</span><span class="operator">.</span><span class="name">App</span><span class="punctuation">(</span><span class="literal string">'my-project'</span><span class="punctuation">)</span>
 <span class="name">directory</span> <span class="operator">=</span> <span class="name">app</span><span class="operator">.</span><span class="name">cache</span><span class="operator">.</span><span class="name">directory</span><span class="punctuation">(</span><span class="name">cache_size</span><span class="operator">=</span><span class="name">cache_size</span><span class="punctuation">)</span>
+<span class="comment"># TODO: rewrite cache or add features.</span>
 </pre>
 </div>
 <div class="section" id="using-cfgs-in-legacy-code">
