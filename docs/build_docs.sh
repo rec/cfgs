@@ -2,6 +2,6 @@
 set -Eeuxo pipefail
 
 pdoc --html --overwrite --html-dir build cfgs
-mv build/cfgs.html doc/
+mv build/cfgs.html docs/
 rm -Rf build
-doc/make_index_file.py README.rst doc/index.html
+docs/make_index_file.py README.rst docs/index.html
