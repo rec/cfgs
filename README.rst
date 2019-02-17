@@ -25,7 +25,7 @@ How it works in one sentence
 ===========================================
 
 Create a ``cfgs.App`` for your application, project, or script which
-handles finding, reading and writing your data and config files and
+handles finding, reading and writing your data and config files, and
 managing your cache directories.
 
 How to install
@@ -80,7 +80,7 @@ Cache
     cache_size = 0x10000000
     app = cfgs.App('my-project')
     directory = app.cache.directory(cache_size=cache_size)
-
+    # TODO: rewrite cache or add features.
 
 
 Using ``cfgs`` In legacy code
