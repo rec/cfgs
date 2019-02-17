@@ -173,6 +173,8 @@ class Directory:
             basename = os.path.basename(self.home)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = &#39;%s%s&#39; % (basename, suffix)
+        elif filename.startswith(&#39;/&#39;):
+            filename = filename[1:]
 
         return File(self.full_name(filename), self.format)
 
@@ -979,6 +981,8 @@ if this is possible.</p></section>
             basename = os.path.basename(self.home)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = &#39;%s%s&#39; % (basename, suffix)
+        elif filename.startswith(&#39;/&#39;):
+            filename = filename[1:]
 
         return File(self.full_name(filename), self.format)
 
@@ -1091,6 +1095,8 @@ first try to guess the filename from the filename, then use
         basename = os.path.basename(self.home)
         suffix = FORMAT_TO_SUFFIX[self.format.name]
         filename = &#39;%s%s&#39; % (basename, suffix)
+    elif filename.startswith(&#39;/&#39;):
+        filename = filename[1:]
 
     return File(self.full_name(filename), self.format)</code></pre>
 </details>

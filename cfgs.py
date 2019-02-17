@@ -146,6 +146,8 @@ class Directory:
             basename = os.path.basename(self.home)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = '%s%s' % (basename, suffix)
+        elif filename.startswith('/'):
+            filename = filename[1:]
 
         return File(self.full_name(filename), self.format)
 
