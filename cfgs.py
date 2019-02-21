@@ -5,7 +5,7 @@ Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 """
 
-import abc, copy, json, os, string
+import abc, copy, hashlib, json, os, string
 
 _getenv = os.environ.get
 _expandvars = os.path.expandvars
@@ -17,11 +17,7 @@ class App:
     `config`, `data`, `cache` and `xdg` objects.
     """
 
-    DEFAULT_FORMAT = 'json'
-    """The default file format for all Apps"""
-
-    def __init__(self, name, format=DEFAULT_FORMAT,
-                 read_kwds=None, write_kwds=None):
+    def __init__(self, name, format=None, read_kwds=None, write_kwds=None):
         """
         Arguments:
 
@@ -45,10 +41,10 @@ class App:
         self.xdg = XDG()
         """A `cfg.XFG` as of when the App was constructed."""
 
-        self.cache = Cache(path('XDG_CACHE_HOME'))
-        """A `cfg.Cache` that manages cache directories"""
+        self.cachedir = path('XDG_CACHE_HOME')
+        # """A `cfg.Cache` that manages cache directories"""
 
-        if format not in FORMATS:
+        if format and format not in FORMATS:
             raise ValueError('Unknown format', format)
 
         if format == 'configparser':
@@ -64,6 +60,19 @@ class App:
         h, d = path('XDG_DATA_HOME'), path('XDG_DATA_DIRS')
         self.data = Directory(h, d, self.format)
         """A `cfgs.Directory` for data files"""
+
+    def cache(self, name='cache', cache_size=0):
+        """
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means "unlimited cache size"
+        """
+        name = os.path.join(self.cachedir, name)
+        return CacheDirectory(name, cache_size)
 
 
 class XDG:
@@ -251,12 +260,43 @@ FORMATS = set(SUFFIX_TO_FORMAT.values())
 """A list of all formats that `cfgs` understands."""
 
 
+def make_format(format=None, read_kwds=None, write_kwds=None):
+    """
+    Return a new instance of Format
+
+    Arguments
+      format:
+        the name of the format or None for the default format
+
+      read_kwds:
+        a dictionary of kwds for the format reader, or None
+
+      write_kwds:
+        a dictionary of kwds for the format writer, or None
+    """
+    if format and format not in FORMATS:
+        raise ValueError('Unknown format', format)
+
+    if format == 'configparser':
+        if read_kwds or write_kwds:
+            raise ValueError('configparser has no kwds')
+        return ConfigparserFormat()
+
+    return Format(format, read_kwds, write_kwds)
+
+
 class Format:
+    DEFAULT_FORMAT = 'json'
+
     def __init__(self, format, read_kwds, write_kwds):
-        self.name = format
+        """Don't call this directly: use `cfgs.make_format`"""
+        self.name = format or self.DEFAULT_FORMAT
         """The name of this format"""
 
-        self._parser = __import__(format)
+        self.suffix = FORMAT_TO_SUFFIX[self.name]
+        """The file suffix for these files"""
+
+        self._parser = __import__(self.name)
         self._read_kwds = read_kwds or {}
         self._write_kwds = write_kwds or {}
 
@@ -279,7 +319,7 @@ class Format:
 
 class ConfigparserFormat(Format):
     name = 'configparser'
-    """The name of the configparser format"""
+    suffix = '.ini'
 
     def __init__(self):
         try:
@@ -306,34 +346,8 @@ class ConfigparserFormat(Format):
         return {k: dict(v) for k, v in contents.items()}
 
 
-class Cache:
-    """
-    A class that creates caches
-    """
-    def __init__(self, dirname):
-        """Do not call this constructor - instead use `cfgs.App.cache` """
-
-        self.dirname = dirname
-        """The full path of the root directory for all cache directories"""
-
-    def directory(self, name='cache', cache_size=0):
-        """
-        Return a `cfgs.CacheDirectory`
-
-        Arguments:
-          name: The relative pathname of the cache directory
-
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means "unlimited cache size"
-        """
-        name = os.path.join(self.dirname, name)
-        return CacheDirectory(name, cache_size)
-
-
 class CacheDirectory:
     def __init__(self, dirname, cache_size):
-        """Do not call this constructor - use `cfgs.Cache.directory`"""
-
         self.dirname = dirname
         """The full path to this cache directory"""
 
@@ -396,7 +410,7 @@ class CacheDirectory:
                 return
 
 
-class FunctionCache:
+class Cache:
     __metaclass__ = abc.ABCMeta
     binary = False
 
@@ -410,10 +424,10 @@ class FunctionCache:
         size_guess = self.size_guess(input)
         with self.open(filename, size_guess, self.binary) as fp:
             if 'r' in fp.mode:
-                output = self.unserialize(fp)
+                output = self.read(fp)
             else:
                 output = self.compute(input)
-                self.serialize(output, fp)
+                self.write(output, fp)
             return output
 
     def function(self, input):
@@ -424,11 +438,11 @@ class FunctionCache:
         return 0
 
     @abc.abstractmethod
-    def serialize(self, output, fp):
+    def write(self, output, fp):
         """Writes the output to a file handle"""
 
     @abc.abstractmethod
-    def unserialize(self, fp):
+    def read(self, fp):
         """Reads an output from a file handle"""
 
     @abc.abstractmethod
@@ -436,20 +450,22 @@ class FunctionCache:
         """Return a unique, persistent filename representing this data"""
 
 
-class JsonFunctionCache(FunctionCache):
-    def serialize(self, output, fp):
-        """Writes the output to a file handle"""
-        json.dump(output, fp, indent=2, sort_keys=True)
+class FormatCache(Cache):
+    """A Function cache that uses a Format to read and write"""
+    def __init__(self, cache_directory, format=None, function=None):
+        Cache.__init__(self, cache_directory, function)
+        self.format = Format(format)
 
-    def unserialize(self, fp):
-        return json.load(fp)
+    def write(self, output, fp):
+        return self.format.write(output, fp)
+
+    def read(self, fp):
+        return self.format.read(fp)
 
     def filename(self, input):
-        """
-        Return a unique, persistent filename representing this data.
-
-        The heuristic here doesn't guarantee a unique file name, so beware!
-        """
+        h = hashlib.sha256()
+        h.update(json.dumps(input, sort_keys=True))
+        return h.hexdigest() + format.suffix
 
 
 def _makedirs(f):  # For Python 2 compatibility

@@ -32,7 +32,7 @@ Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 &#34;&#34;&#34;
 
-import abc, copy, json, os, string
+import abc, copy, hashlib, json, os, string
 
 _getenv = os.environ.get
 _expandvars = os.path.expandvars
@@ -44,11 +44,7 @@ class App:
     `config`, `data`, `cache` and `xdg` objects.
     &#34;&#34;&#34;
 
-    DEFAULT_FORMAT = &#39;json&#39;
-    &#34;&#34;&#34;The default file format for all Apps&#34;&#34;&#34;
-
-    def __init__(self, name, format=DEFAULT_FORMAT,
-                 read_kwds=None, write_kwds=None):
+    def __init__(self, name, format=None, read_kwds=None, write_kwds=None):
         &#34;&#34;&#34;
         Arguments:
 
@@ -72,10 +68,10 @@ class App:
         self.xdg = XDG()
         &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
 
-        self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
-        &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
+        self.cachedir = path(&#39;XDG_CACHE_HOME&#39;)
+        # &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
 
-        if format not in FORMATS:
+        if format and format not in FORMATS:
             raise ValueError(&#39;Unknown format&#39;, format)
 
         if format == &#39;configparser&#39;:
@@ -91,6 +87,19 @@ class App:
         h, d = path(&#39;XDG_DATA_HOME&#39;), path(&#39;XDG_DATA_DIRS&#39;)
         self.data = Directory(h, d, self.format)
         &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;
+
+    def cache(self, name=&#39;cache&#39;, cache_size=0):
+        &#34;&#34;&#34;
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+        name = os.path.join(self.cachedir, name)
+        return CacheDirectory(name, cache_size)
 
 
 class XDG:
@@ -278,12 +287,43 @@ FORMATS = set(SUFFIX_TO_FORMAT.values())
 &#34;&#34;&#34;A list of all formats that `cfgs` understands.&#34;&#34;&#34;
 
 
+def make_format(format=None, read_kwds=None, write_kwds=None):
+    &#34;&#34;&#34;
+    Return a new instance of Format
+
+    Arguments
+      format:
+        the name of the format or None for the default format
+
+      read_kwds:
+        a dictionary of kwds for the format reader, or None
+
+      write_kwds:
+        a dictionary of kwds for the format writer, or None
+    &#34;&#34;&#34;
+    if format and format not in FORMATS:
+        raise ValueError(&#39;Unknown format&#39;, format)
+
+    if format == &#39;configparser&#39;:
+        if read_kwds or write_kwds:
+            raise ValueError(&#39;configparser has no kwds&#39;)
+        return ConfigparserFormat()
+
+    return Format(format, read_kwds, write_kwds)
+
+
 class Format:
+    DEFAULT_FORMAT = &#39;json&#39;
+
     def __init__(self, format, read_kwds, write_kwds):
-        self.name = format
+        &#34;&#34;&#34;Don&#39;t call this directly: use `cfgs.make_format`&#34;&#34;&#34;
+        self.name = format or self.DEFAULT_FORMAT
         &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
-        self._parser = __import__(format)
+        self.suffix = FORMAT_TO_SUFFIX[self.name]
+        &#34;&#34;&#34;The file suffix for these files&#34;&#34;&#34;
+
+        self._parser = __import__(self.name)
         self._read_kwds = read_kwds or {}
         self._write_kwds = write_kwds or {}
 
@@ -306,7 +346,7 @@ class Format:
 
 class ConfigparserFormat(Format):
     name = &#39;configparser&#39;
-    &#34;&#34;&#34;The name of the configparser format&#34;&#34;&#34;
+    suffix = &#39;.ini&#39;
 
     def __init__(self):
         try:
@@ -333,34 +373,8 @@ class ConfigparserFormat(Format):
         return {k: dict(v) for k, v in contents.items()}
 
 
-class Cache:
-    &#34;&#34;&#34;
-    A class that creates caches
-    &#34;&#34;&#34;
-    def __init__(self, dirname):
-        &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
-
-        self.dirname = dirname
-        &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;
-
-    def directory(self, name=&#39;cache&#39;, cache_size=0):
-        &#34;&#34;&#34;
-        Return a `cfgs.CacheDirectory`
-
-        Arguments:
-          name: The relative pathname of the cache directory
-
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means &#34;unlimited cache size&#34;
-        &#34;&#34;&#34;
-        name = os.path.join(self.dirname, name)
-        return CacheDirectory(name, cache_size)
-
-
 class CacheDirectory:
     def __init__(self, dirname, cache_size):
-        &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
-
         self.dirname = dirname
         &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
 
@@ -423,7 +437,8 @@ class CacheDirectory:
                 return
 
 
-class FunctionCache(abc.ABC):
+class Cache:
+    __metaclass__ = abc.ABCMeta
     binary = False
 
     def __init__(self, cache_directory, function=None):
@@ -436,10 +451,10 @@ class FunctionCache(abc.ABC):
         size_guess = self.size_guess(input)
         with self.open(filename, size_guess, self.binary) as fp:
             if &#39;r&#39; in fp.mode:
-                output = self.unserialize(fp)
+                output = self.read(fp)
             else:
                 output = self.compute(input)
-                self.serialize(output, fp)
+                self.write(output, fp)
             return output
 
     def function(self, input):
@@ -450,11 +465,11 @@ class FunctionCache(abc.ABC):
         return 0
 
     @abc.abstractmethod
-    def serialize(self, output, fp):
+    def write(self, output, fp):
         &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
 
     @abc.abstractmethod
-    def unserialize(self, fp):
+    def read(self, fp):
         &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
 
     @abc.abstractmethod
@@ -462,21 +477,22 @@ class FunctionCache(abc.ABC):
         &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;
 
 
-class JsonFunctionCache(FunctionCache):
-    def serialize(self, output, fp):
-        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
-        json.dump(output, fp, indent=2, sort_keys=True)
+class FormatCache(Cache):
+    &#34;&#34;&#34;A Function cache that uses a Format to read and write&#34;&#34;&#34;
+    def __init__(self, cache_directory, format=None, function=None):
+        Cache.__init__(self, cache_directory, function)
+        self.format = Format(format)
 
-    def unserialize(self, fp):
-        return json.load(fp)
+    def write(self, output, fp):
+        return self.format.write(output, fp)
+
+    def read(self, fp):
+        return self.format.read(fp)
 
     def filename(self, input):
-        &#34;&#34;&#34;
-        Return a unique, persistent filename representing this data.
-
-        The heuristic here doesn&#39;t guarantee a unique file
-
-        &#34;&#34;&#34;
+        h = hashlib.sha256()
+        h.update(json.dumps(input, sort_keys=True))
+        return h.hexdigest() + format.suffix
 
 
 def _makedirs(f):  # For Python 2 compatibility
@@ -520,6 +536,48 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="cfgs.make_format"><code class="name flex">
+<span>def <span class="ident">make_format</span></span>(<span>format=None, read_kwds=None, write_kwds=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a new instance of Format</p>
+<p>Arguments
+format:
+the name of the format or None for the default format</p>
+<p>read_kwds:
+a dictionary of kwds for the format reader, or None</p>
+<p>write_kwds:
+a dictionary of kwds for the format writer, or None</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def make_format(format=None, read_kwds=None, write_kwds=None):
+    &#34;&#34;&#34;
+    Return a new instance of Format
+
+    Arguments
+      format:
+        the name of the format or None for the default format
+
+      read_kwds:
+        a dictionary of kwds for the format reader, or None
+
+      write_kwds:
+        a dictionary of kwds for the format writer, or None
+    &#34;&#34;&#34;
+    if format and format not in FORMATS:
+        raise ValueError(&#39;Unknown format&#39;, format)
+
+    if format == &#39;configparser&#39;:
+        if read_kwds or write_kwds:
+            raise ValueError(&#39;configparser has no kwds&#39;)
+        return ConfigparserFormat()
+
+    return Format(format, read_kwds, write_kwds)</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -538,11 +596,7 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
     `config`, `data`, `cache` and `xdg` objects.
     &#34;&#34;&#34;
 
-    DEFAULT_FORMAT = &#39;json&#39;
-    &#34;&#34;&#34;The default file format for all Apps&#34;&#34;&#34;
-
-    def __init__(self, name, format=DEFAULT_FORMAT,
-                 read_kwds=None, write_kwds=None):
+    def __init__(self, name, format=None, read_kwds=None, write_kwds=None):
         &#34;&#34;&#34;
         Arguments:
 
@@ -566,10 +620,10 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
         self.xdg = XDG()
         &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
 
-        self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
-        &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
+        self.cachedir = path(&#39;XDG_CACHE_HOME&#39;)
+        # &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
 
-        if format not in FORMATS:
+        if format and format not in FORMATS:
             raise ValueError(&#39;Unknown format&#39;, format)
 
         if format == &#39;configparser&#39;:
@@ -584,21 +638,23 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 
         h, d = path(&#39;XDG_DATA_HOME&#39;), path(&#39;XDG_DATA_DIRS&#39;)
         self.data = Directory(h, d, self.format)
-        &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;</code></pre>
+        &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;
+
+    def cache(self, name=&#39;cache&#39;, cache_size=0):
+        &#34;&#34;&#34;
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+        name = os.path.join(self.cachedir, name)
+        return CacheDirectory(name, cache_size)</code></pre>
 </details>
-<h3>Class variables</h3>
-<dl>
-<dt id="cfgs.App.DEFAULT_FORMAT"><code class="name">var <span class="ident">DEFAULT_FORMAT</span></code></dt>
-<dd>
-<section class="desc"><p>The default file format for all Apps</p></section>
-</dd>
-</dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="cfgs.App.cache"><code class="name">var <span class="ident">cache</span></code></dt>
-<dd>
-<section class="desc"><p>A <code>cfg.Cache</code> that manages cache directories</p></section>
-</dd>
 <dt id="cfgs.App.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
 <section class="desc"><p>A <a title="cfgs.Directory" href="#cfgs.Directory"><code>Directory</code></a> for config files</p></section>
@@ -619,7 +675,7 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 <h3>Methods</h3>
 <dl>
 <dt id="cfgs.App.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, name, format=&#39;json&#39;, read_kwds=None, write_kwds=None)</span>
+<span>def <span class="ident">__init__</span></span>(<span>self, name, format=None, read_kwds=None, write_kwds=None)</span>
 </code></dt>
 <dd>
 <section class="desc"><h2 id="arguments">Arguments</h2>
@@ -634,8 +690,7 @@ pathnames</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def __init__(self, name, format=DEFAULT_FORMAT,
-             read_kwds=None, write_kwds=None):
+<pre><code class="python">def __init__(self, name, format=None, read_kwds=None, write_kwds=None):
     &#34;&#34;&#34;
     Arguments:
 
@@ -659,10 +714,10 @@ pathnames</dd>
     self.xdg = XDG()
     &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
 
-    self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
-    &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
+    self.cachedir = path(&#39;XDG_CACHE_HOME&#39;)
+    # &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
 
-    if format not in FORMATS:
+    if format and format not in FORMATS:
         raise ValueError(&#39;Unknown format&#39;, format)
 
     if format == &#39;configparser&#39;:
@@ -680,63 +735,8 @@ pathnames</dd>
     &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;</code></pre>
 </details>
 </dd>
-</dl>
-</dd>
-<dt id="cfgs.Cache"><code class="flex name class">
-<span>class <span class="ident">Cache</span></span>
-</code></dt>
-<dd>
-<section class="desc"><p>A class that creates caches</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">class Cache:
-    &#34;&#34;&#34;
-    A class that creates caches
-    &#34;&#34;&#34;
-    def __init__(self, dirname):
-        &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
-
-        self.dirname = dirname
-        &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;
-
-    def directory(self, name=&#39;cache&#39;, cache_size=0):
-        &#34;&#34;&#34;
-        Return a `cfgs.CacheDirectory`
-
-        Arguments:
-          name: The relative pathname of the cache directory
-
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means &#34;unlimited cache size&#34;
-        &#34;&#34;&#34;
-        name = os.path.join(self.dirname, name)
-        return CacheDirectory(name, cache_size)</code></pre>
-</details>
-<h3>Instance variables</h3>
-<dl>
-<dt id="cfgs.Cache.dirname"><code class="name">var <span class="ident">dirname</span></code></dt>
-<dd>
-<section class="desc"><p>The full path of the root directory for all cache directories</p></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="cfgs.Cache.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, dirname)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Do not call this constructor - instead use <a title="cfgs.App.cache" href="#cfgs.App.cache"><code>App.cache</code></a></p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, dirname):
-    &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
-
-    self.dirname = dirname
-    &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Cache.directory"><code class="name flex">
-<span>def <span class="ident">directory</span></span>(<span>self, name=&#39;cache&#39;, cache_size=0)</span>
+<dt id="cfgs.App.cache"><code class="name flex">
+<span>def <span class="ident">cache</span></span>(<span>self, name=&#39;cache&#39;, cache_size=0)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Return a <a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory"><code>CacheDirectory</code></a></p>
@@ -750,7 +750,7 @@ The default of 0 means "unlimited cache size"</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def directory(self, name=&#39;cache&#39;, cache_size=0):
+<pre><code class="python">def cache(self, name=&#39;cache&#39;, cache_size=0):
     &#34;&#34;&#34;
     Return a `cfgs.CacheDirectory`
 
@@ -760,8 +760,161 @@ The default of 0 means "unlimited cache size"</dd>
       cache_size: The number of bytes allowed in the cache.
           The default of 0 means &#34;unlimited cache size&#34;
     &#34;&#34;&#34;
-    name = os.path.join(self.dirname, name)
+    name = os.path.join(self.cachedir, name)
     return CacheDirectory(name, cache_size)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.Cache"><code class="flex name class">
+<span>class <span class="ident">Cache</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Cache:
+    __metaclass__ = abc.ABCMeta
+    binary = False
+
+    def __init__(self, cache_directory, function=None):
+        self.open = cache_directory.open
+        if function:
+            self.function = function
+
+    def get(self, input):
+        filename = self.filename(input)
+        size_guess = self.size_guess(input)
+        with self.open(filename, size_guess, self.binary) as fp:
+            if &#39;r&#39; in fp.mode:
+                output = self.read(fp)
+            else:
+                output = self.compute(input)
+                self.write(output, fp)
+            return output
+
+    def function(self, input):
+        raise NotImplementedError
+
+    def size_guess(self, input):
+        &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+        return 0
+
+    @abc.abstractmethod
+    def write(self, output, fp):
+        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def read(self, fp):
+        &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def filename(self, input):
+        &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="cfgs.FormatCache" href="#cfgs.FormatCache">FormatCache</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="cfgs.Cache.binary"><code class="name">var <span class="ident">binary</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.Cache.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, cache_directory, function=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize self.
+See help(type(self)) for accurate signature.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, cache_directory, function=None):
+    self.open = cache_directory.open
+    if function:
+        self.function = function</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.filename"><code class="name flex">
+<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a unique, persistent filename representing this data</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def filename(self, input):
+    &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.function"><code class="name flex">
+<span>def <span class="ident">function</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def function(self, input):
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get(self, input):
+    filename = self.filename(input)
+    size_guess = self.size_guess(input)
+    with self.open(filename, size_guess, self.binary) as fp:
+        if &#39;r&#39; in fp.mode:
+            output = self.read(fp)
+        else:
+            output = self.compute(input)
+            self.write(output, fp)
+        return output</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.read"><code class="name flex">
+<span>def <span class="ident">read</span></span>(<span>self, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reads an output from a file handle</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def read(self, fp):
+    &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.size_guess"><code class="name flex">
+<span>def <span class="ident">size_guess</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An estimate of how large the file representing input will be</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def size_guess(self, input):
+    &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+    return 0</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Cache.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, output, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Writes the output to a file handle</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def write(self, output, fp):
+    &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;</code></pre>
 </details>
 </dd>
 </dl>
@@ -775,8 +928,6 @@ The default of 0 means "unlimited cache size"</dd>
 <summary>Source code</summary>
 <pre><code class="python">class CacheDirectory:
     def __init__(self, dirname, cache_size):
-        &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
-
         self.dirname = dirname
         &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
 
@@ -856,12 +1007,11 @@ The default of 0 means "unlimited cache size"</dd>
 <span>def <span class="ident">__init__</span></span>(<span>self, dirname, cache_size)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Do not call this constructor - use <a title="cfgs.Cache.directory" href="#cfgs.Cache.directory"><code>Cache.directory()</code></a></p></section>
+<section class="desc"><p>Initialize self.
+See help(type(self)) for accurate signature.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def __init__(self, dirname, cache_size):
-    &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
-
     self.dirname = dirname
     &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
 
@@ -972,7 +1122,7 @@ if this is possible.</p></section>
 <summary>Source code</summary>
 <pre><code class="python">class ConfigparserFormat(Format):
     name = &#39;configparser&#39;
-    &#34;&#34;&#34;The name of the configparser format&#34;&#34;&#34;
+    suffix = &#39;.ini&#39;
 
     def __init__(self):
         try:
@@ -1007,6 +1157,7 @@ if this is possible.</p></section>
 <li><code><a title="cfgs.Format.create" href="#cfgs.Format.create">create</a></code></li>
 <li><code><a title="cfgs.Format.name" href="#cfgs.Format.name">name</a></code></li>
 <li><code><a title="cfgs.Format.read" href="#cfgs.Format.read">read</a></code></li>
+<li><code><a title="cfgs.Format.suffix" href="#cfgs.Format.suffix">suffix</a></code></li>
 <li><code><a title="cfgs.Format.write" href="#cfgs.Format.write">write</a></code></li>
 </ul>
 </li>
@@ -1339,11 +1490,17 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Format:
+    DEFAULT_FORMAT = &#39;json&#39;
+
     def __init__(self, format, read_kwds, write_kwds):
-        self.name = format
+        &#34;&#34;&#34;Don&#39;t call this directly: use `cfgs.make_format`&#34;&#34;&#34;
+        self.name = format or self.DEFAULT_FORMAT
         &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
-        self._parser = __import__(format)
+        self.suffix = FORMAT_TO_SUFFIX[self.name]
+        &#34;&#34;&#34;The file suffix for these files&#34;&#34;&#34;
+
+        self._parser = __import__(self.name)
         self._read_kwds = read_kwds or {}
         self._write_kwds = write_kwds or {}
 
@@ -1367,11 +1524,22 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <ul class="hlist">
 <li><a title="cfgs.ConfigparserFormat" href="#cfgs.ConfigparserFormat">ConfigparserFormat</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="cfgs.Format.DEFAULT_FORMAT"><code class="name">var <span class="ident">DEFAULT_FORMAT</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="cfgs.Format.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
 <section class="desc"><p>The name of this format</p></section>
+</dd>
+<dt id="cfgs.Format.suffix"><code class="name">var <span class="ident">suffix</span></code></dt>
+<dd>
+<section class="desc"><p>The file suffix for these files</p></section>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1380,15 +1548,18 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <span>def <span class="ident">__init__</span></span>(<span>self, format, read_kwds, write_kwds)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Initialize self.
-See help(type(self)) for accurate signature.</p></section>
+<section class="desc"><p>Don't call this directly: use <a title="cfgs.make_format" href="#cfgs.make_format"><code>make_format()</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def __init__(self, format, read_kwds, write_kwds):
-    self.name = format
+    &#34;&#34;&#34;Don&#39;t call this directly: use `cfgs.make_format`&#34;&#34;&#34;
+    self.name = format or self.DEFAULT_FORMAT
     &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
-    self._parser = __import__(format)
+    self.suffix = FORMAT_TO_SUFFIX[self.name]
+    &#34;&#34;&#34;The file suffix for these files&#34;&#34;&#34;
+
+    self._parser = __import__(self.name)
     self._read_kwds = read_kwds or {}
     self._write_kwds = write_kwds or {}</code></pre>
 </details>
@@ -1443,213 +1614,40 @@ See help(type(self)) for accurate signature.</p></section>
 </dd>
 </dl>
 </dd>
-<dt id="cfgs.FunctionCache"><code class="flex name class">
-<span>class <span class="ident">FunctionCache</span></span>
-<span>(</span><span><small>ancestors:</small> abc.ABC)</span>
+<dt id="cfgs.FormatCache"><code class="flex name class">
+<span>class <span class="ident">FormatCache</span></span>
+<span>(</span><span><small>ancestors:</small> <a title="cfgs.Cache" href="#cfgs.Cache">Cache</a>)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></section>
+<section class="desc"><p>A Function cache that uses a Format to read and write</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class FunctionCache(abc.ABC):
-    binary = False
+<pre><code class="python">class FormatCache(Cache):
+    &#34;&#34;&#34;A Function cache that uses a Format to read and write&#34;&#34;&#34;
+    def __init__(self, cache_directory, format=None, function=None):
+        Cache.__init__(self, cache_directory, function)
+        self.format = Format(format)
 
-    def __init__(self, cache_directory, function=None):
-        self.open = cache_directory.open
-        if function:
-            self.function = function
+    def write(self, output, fp):
+        return self.format.write(output, fp)
 
-    def get(self, input):
-        filename = self.filename(input)
-        size_guess = self.size_guess(input)
-        with self.open(filename, size_guess, self.binary) as fp:
-            if &#39;r&#39; in fp.mode:
-                output = self.unserialize(fp)
-            else:
-                output = self.compute(input)
-                self.serialize(output, fp)
-            return output
-
-    def function(self, input):
-        raise NotImplementedError
-
-    def size_guess(self, input):
-        &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
-        return 0
-
-    @abc.abstractmethod
-    def serialize(self, output, fp):
-        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
-
-    @abc.abstractmethod
-    def unserialize(self, fp):
-        &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
-
-    @abc.abstractmethod
-    def filename(self, input):
-        &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
-</details>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="cfgs.JsonFunctionCache" href="#cfgs.JsonFunctionCache">JsonFunctionCache</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="cfgs.FunctionCache.binary"><code class="name">var <span class="ident">binary</span></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="cfgs.FunctionCache.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, cache_directory, function=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Initialize self.
-See help(type(self)) for accurate signature.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, cache_directory, function=None):
-    self.open = cache_directory.open
-    if function:
-        self.function = function</code></pre>
-</details>
-</dd>
-<dt id="cfgs.FunctionCache.filename"><code class="name flex">
-<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return a unique, persistent filename representing this data</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def filename(self, input):
-    &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="cfgs.FunctionCache.function"><code class="name flex">
-<span>def <span class="ident">function</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def function(self, input):
-    raise NotImplementedError</code></pre>
-</details>
-</dd>
-<dt id="cfgs.FunctionCache.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def get(self, input):
-    filename = self.filename(input)
-    size_guess = self.size_guess(input)
-    with self.open(filename, size_guess, self.binary) as fp:
-        if &#39;r&#39; in fp.mode:
-            output = self.unserialize(fp)
-        else:
-            output = self.compute(input)
-            self.serialize(output, fp)
-        return output</code></pre>
-</details>
-</dd>
-<dt id="cfgs.FunctionCache.serialize"><code class="name flex">
-<span>def <span class="ident">serialize</span></span>(<span>self, output, fp)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Writes the output to a file handle</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def serialize(self, output, fp):
-    &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="cfgs.FunctionCache.size_guess"><code class="name flex">
-<span>def <span class="ident">size_guess</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An estimate of how large the file representing input will be</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def size_guess(self, input):
-    &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
-    return 0</code></pre>
-</details>
-</dd>
-<dt id="cfgs.FunctionCache.unserialize"><code class="name flex">
-<span>def <span class="ident">unserialize</span></span>(<span>self, fp)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Reads an output from a file handle</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def unserialize(self, fp):
-    &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="cfgs.JsonFunctionCache"><code class="flex name class">
-<span>class <span class="ident">JsonFunctionCache</span></span>
-<span>(</span><span><small>ancestors:</small> <a title="cfgs.FunctionCache" href="#cfgs.FunctionCache">FunctionCache</a>, abc.ABC)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Helper class that provides a standard way to create an ABC using
-inheritance.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">class JsonFunctionCache(FunctionCache):
-    def serialize(self, output, fp):
-        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
-        json.dump(output, fp, indent=2, sort_keys=True)
-
-    def unserialize(self, fp):
-        return json.load(fp)
+    def read(self, fp):
+        return self.format.read(fp)
 
     def filename(self, input):
-        &#34;&#34;&#34;
-        Return a unique, persistent filename representing this data.
-
-        The heuristic here doesn&#39;t guarantee a unique file
-
-        &#34;&#34;&#34;</code></pre>
+        h = hashlib.sha256()
+        h.update(json.dumps(input, sort_keys=True))
+        return h.hexdigest() + format.suffix</code></pre>
 </details>
-<h3>Methods</h3>
-<dl>
-<dt id="cfgs.JsonFunctionCache.filename"><code class="name flex">
-<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return a unique, persistent filename representing this data.</p>
-<p>The heuristic here doesn't guarantee a unique file</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def filename(self, input):
-    &#34;&#34;&#34;
-    Return a unique, persistent filename representing this data.
-
-    The heuristic here doesn&#39;t guarantee a unique file
-
-    &#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="cfgs.FunctionCache" href="#cfgs.FunctionCache">FunctionCache</a></b></code>:
+<li><code><b><a title="cfgs.Cache" href="#cfgs.Cache">Cache</a></b></code>:
 <ul class="hlist">
-<li><code><a title="cfgs.FunctionCache.__init__" href="#cfgs.FunctionCache.__init__">__init__</a></code></li>
-<li><code><a title="cfgs.FunctionCache.serialize" href="#cfgs.FunctionCache.serialize">serialize</a></code></li>
-<li><code><a title="cfgs.FunctionCache.size_guess" href="#cfgs.FunctionCache.size_guess">size_guess</a></code></li>
-<li><code><a title="cfgs.FunctionCache.unserialize" href="#cfgs.FunctionCache.unserialize">unserialize</a></code></li>
+<li><code><a title="cfgs.Cache.__init__" href="#cfgs.Cache.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.Cache.filename" href="#cfgs.Cache.filename">filename</a></code></li>
+<li><code><a title="cfgs.Cache.read" href="#cfgs.Cache.read">read</a></code></li>
+<li><code><a title="cfgs.Cache.size_guess" href="#cfgs.Cache.size_guess">size_guess</a></code></li>
+<li><code><a title="cfgs.Cache.write" href="#cfgs.Cache.write">write</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1812,12 +1810,16 @@ user-specific runtime files and other file objects should be placed</p></section
 <li><code><a title="cfgs.SUFFIX_TO_FORMAT" href="#cfgs.SUFFIX_TO_FORMAT">SUFFIX_TO_FORMAT</a></code></li>
 </ul>
 </li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="cfgs.make_format" href="#cfgs.make_format">make_format</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
 <h4><code><a title="cfgs.App" href="#cfgs.App">App</a></code></h4>
 <ul class="two-column">
-<li><code><a title="cfgs.App.DEFAULT_FORMAT" href="#cfgs.App.DEFAULT_FORMAT">DEFAULT_FORMAT</a></code></li>
 <li><code><a title="cfgs.App.__init__" href="#cfgs.App.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.App.cache" href="#cfgs.App.cache">cache</a></code></li>
 <li><code><a title="cfgs.App.config" href="#cfgs.App.config">config</a></code></li>
@@ -1828,10 +1830,15 @@ user-specific runtime files and other file objects should be placed</p></section
 </li>
 <li>
 <h4><code><a title="cfgs.Cache" href="#cfgs.Cache">Cache</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="cfgs.Cache.__init__" href="#cfgs.Cache.__init__">__init__</a></code></li>
-<li><code><a title="cfgs.Cache.directory" href="#cfgs.Cache.directory">directory</a></code></li>
-<li><code><a title="cfgs.Cache.dirname" href="#cfgs.Cache.dirname">dirname</a></code></li>
+<li><code><a title="cfgs.Cache.binary" href="#cfgs.Cache.binary">binary</a></code></li>
+<li><code><a title="cfgs.Cache.filename" href="#cfgs.Cache.filename">filename</a></code></li>
+<li><code><a title="cfgs.Cache.function" href="#cfgs.Cache.function">function</a></code></li>
+<li><code><a title="cfgs.Cache.get" href="#cfgs.Cache.get">get</a></code></li>
+<li><code><a title="cfgs.Cache.read" href="#cfgs.Cache.read">read</a></code></li>
+<li><code><a title="cfgs.Cache.size_guess" href="#cfgs.Cache.size_guess">size_guess</a></code></li>
+<li><code><a title="cfgs.Cache.write" href="#cfgs.Cache.write">write</a></code></li>
 </ul>
 </li>
 <li>
@@ -1872,32 +1879,18 @@ user-specific runtime files and other file objects should be placed</p></section
 <li>
 <h4><code><a title="cfgs.Format" href="#cfgs.Format">Format</a></code></h4>
 <ul class="two-column">
+<li><code><a title="cfgs.Format.DEFAULT_FORMAT" href="#cfgs.Format.DEFAULT_FORMAT">DEFAULT_FORMAT</a></code></li>
 <li><code><a title="cfgs.Format.__init__" href="#cfgs.Format.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.Format.as_dict" href="#cfgs.Format.as_dict">as_dict</a></code></li>
 <li><code><a title="cfgs.Format.create" href="#cfgs.Format.create">create</a></code></li>
 <li><code><a title="cfgs.Format.name" href="#cfgs.Format.name">name</a></code></li>
 <li><code><a title="cfgs.Format.read" href="#cfgs.Format.read">read</a></code></li>
+<li><code><a title="cfgs.Format.suffix" href="#cfgs.Format.suffix">suffix</a></code></li>
 <li><code><a title="cfgs.Format.write" href="#cfgs.Format.write">write</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="cfgs.FunctionCache" href="#cfgs.FunctionCache">FunctionCache</a></code></h4>
-<ul class="two-column">
-<li><code><a title="cfgs.FunctionCache.__init__" href="#cfgs.FunctionCache.__init__">__init__</a></code></li>
-<li><code><a title="cfgs.FunctionCache.binary" href="#cfgs.FunctionCache.binary">binary</a></code></li>
-<li><code><a title="cfgs.FunctionCache.filename" href="#cfgs.FunctionCache.filename">filename</a></code></li>
-<li><code><a title="cfgs.FunctionCache.function" href="#cfgs.FunctionCache.function">function</a></code></li>
-<li><code><a title="cfgs.FunctionCache.get" href="#cfgs.FunctionCache.get">get</a></code></li>
-<li><code><a title="cfgs.FunctionCache.serialize" href="#cfgs.FunctionCache.serialize">serialize</a></code></li>
-<li><code><a title="cfgs.FunctionCache.size_guess" href="#cfgs.FunctionCache.size_guess">size_guess</a></code></li>
-<li><code><a title="cfgs.FunctionCache.unserialize" href="#cfgs.FunctionCache.unserialize">unserialize</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="cfgs.JsonFunctionCache" href="#cfgs.JsonFunctionCache">JsonFunctionCache</a></code></h4>
-<ul class="">
-<li><code><a title="cfgs.JsonFunctionCache.filename" href="#cfgs.JsonFunctionCache.filename">filename</a></code></li>
-</ul>
+<h4><code><a title="cfgs.FormatCache" href="#cfgs.FormatCache">FormatCache</a></code></h4>
 </li>
 <li>
 <h4><code><a title="cfgs.XDG" href="#cfgs.XDG">XDG</a></code></h4>
