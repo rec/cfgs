@@ -396,7 +396,8 @@ class CacheDirectory:
                 return
 
 
-class FunctionCache(abc.ABC):
+class FunctionCache:
+    __metaclass__ = abc.ABCMeta
     binary = False
 
     def __init__(self, cache_directory, function=None):
@@ -447,8 +448,7 @@ class JsonFunctionCache(FunctionCache):
         """
         Return a unique, persistent filename representing this data.
 
-        The heuristic here doesn't guarantee a unique file
-
+        The heuristic here doesn't guarantee a unique file name, so beware!
         """
 
 
