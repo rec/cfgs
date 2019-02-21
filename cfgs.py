@@ -5,7 +5,7 @@ Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 """
 
-import copy, os
+import abc, copy, json, os, string
 
 _getenv = os.environ.get
 _expandvars = os.path.expandvars
@@ -18,7 +18,7 @@ class App:
     """
 
     DEFAULT_FORMAT = 'json'
-    """The default, default file format for all Apps"""
+    """The default file format for all Apps"""
 
     def __init__(self, name, format=DEFAULT_FORMAT,
                  read_kwds=None, write_kwds=None):
@@ -119,16 +119,16 @@ class Directory:
     An XDG directory of persistent, formatted files
     """
 
-    def __init__(self, home, dirs, format):
+    def __init__(self, dirname, dirs, format):
         """
         Don't call this constructor directly - use either
         `cfgs.App.config` or `cfgs.App.data` instead.
         """
-        self.home = home
+        self.dirname = dirname
         self.dirs = dirs
         assert not isinstance(format, str)
         self.format = format
-        self.dirs.insert(0, self.home)
+        self.dirs.insert(0, self.dirname)
 
     def open(self, filename=None):
         """
@@ -143,13 +143,13 @@ class Directory:
              `self.format`
         """
         if not filename:
-            basename = os.path.basename(self.home)
+            basename = os.path.basename(self.dirname)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = '%s%s' % (basename, suffix)
         elif filename.startswith('/'):
             filename = filename[1:]
 
-        return File(self.full_name(filename), self.format)
+        return File(self.path_to(filename), self.format)
 
     def all_files(self, filename):
         """
@@ -163,11 +163,11 @@ class Directory:
             except IOError:
                 pass
 
-    def full_name(self, filename):
+    def path_to(self, filename):
         """
         Return the full name of a file with respect to this XDG directory
         """
-        return os.path.join(self.home, filename)
+        return os.path.join(self.dirname, filename)
 
 
 class File:
@@ -221,103 +221,6 @@ class File:
 
     def __exit__(self, *args):
         self.write()
-
-
-class Cache:
-    """
-    A class that creates caches
-    """
-    def __init__(self, dirname):
-        """Do not call this constructor - instead use `cfgs.App.cache` """
-
-        self.dirname = dirname
-        """The full path of the root directory for all cache directories"""
-
-    def directory(self, name='cache', cache_size=0):
-        """
-        Return a `cfgs.CacheDirectory`
-
-        Arguments:
-          name: The relative pathname of the cache directory
-
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means "unlimited cache size"
-        """
-        name = os.path.join(self.dirname, name)
-        return CacheDirectory(name, cache_size)
-
-
-class CacheDirectory:
-    def __init__(self, dirname, cache_size):
-        """Do not call this constructor - use `cfgs.Cache.directory`"""
-
-        self.dirname = dirname
-        """The full path to this cache directory"""
-
-        self.cache_size = cache_size
-        """
-        The number of bytes allowed in the cache.
-        0 means "unlimited cache size"
-        """
-
-        _makedirs(self.dirname)
-        self.prune()
-
-    def open(self, filename, size_guess=0, binary=False):
-        """
-        Open a cached file in this directory.
-
-        If the file already exists, it is opened for read.
-
-        Otherwise the cache is pruned and the file is opened for write.
-
-        Arguments:
-          filename: the name of the file, relative to the cache directory
-          size_guess: A guess as to how large the file will be, in bytes
-          binary: if True, the file is opened in binary mode
-
-        """
-        if '/' in filename:
-            raise ValueError('Subdirectories are not allowed in caches')
-
-        bin = 'b' if binary else ''
-
-        full = os.path.join(self.dirname, filename)
-        if os.path.exists(full):
-            return open(full, 'r' + bin)
-
-        self.prune(size_guess)
-        return open(full, 'w' + bin)
-
-    def prune(self, bytes_needed=0):
-        """
-        Prune the cache to generate at least `bytes_needed` of free space,
-        if this is possible.
-        """
-        if not self.cache_size:
-            return
-
-        files = os.listdir(self.dirname)
-        info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
-        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
-        if required_size <= self.cache_size:
-            return
-
-        # Delete oldest items first
-        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
-            os.remove(os.path.join(self.dirname, f))
-            required_size -= s.st_size
-            if required_size <= self.cache_size:
-                return
-
-
-def _check_filename(filename):
-    # Just a heuristic - names might pass this test and still not
-    # be valid i.e. CON on Windows.
-    bad_chars = _BAD_CHARS.intersection(set(filename))
-    if bad_chars:
-        bad_chars = ''.join(sorted(bad_chars))
-        raise ValueError('Invalid characters in filename: "%s"' % bad_chars)
 
 
 SUFFIX_TO_FORMAT = {
@@ -403,6 +306,152 @@ class ConfigparserFormat(Format):
         return {k: dict(v) for k, v in contents.items()}
 
 
+class Cache:
+    """
+    A class that creates caches
+    """
+    def __init__(self, dirname):
+        """Do not call this constructor - instead use `cfgs.App.cache` """
+
+        self.dirname = dirname
+        """The full path of the root directory for all cache directories"""
+
+    def directory(self, name='cache', cache_size=0):
+        """
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means "unlimited cache size"
+        """
+        name = os.path.join(self.dirname, name)
+        return CacheDirectory(name, cache_size)
+
+
+class CacheDirectory:
+    def __init__(self, dirname, cache_size):
+        """Do not call this constructor - use `cfgs.Cache.directory`"""
+
+        self.dirname = dirname
+        """The full path to this cache directory"""
+
+        self.cache_size = cache_size
+        """
+        The number of bytes allowed in the cache.
+        0 means "unlimited cache size"
+        """
+
+        _makedirs(self.dirname)
+        self.prune()
+
+    def open(self, filename, size_guess=0, binary=False):
+        """
+        Open a cached file in this directory.
+
+        If the file already exists, it is opened for read.
+        Otherwise the cache is pruned and the file is opened for write.
+
+        Arguments:
+          filename: the name of the file, relative to the cache directory
+          size_guess: A guess as to how large the file will be, in bytes
+          binary: if True, the file is opened in binary mode
+
+        """
+        if '/' in filename:
+            raise ValueError('Subdirectories are not allowed in caches')
+
+        bin = 'b' if binary else ''
+
+        full = self.path_to(filename)
+        if os.path.exists(full):
+            return open(full, 'r' + bin)
+
+        self.prune(size_guess)
+        return open(full, 'w' + bin)
+
+    def path_to(self, p):
+        return os.path.join(self.dirname, p)
+
+    def prune(self, bytes_needed=0):
+        """
+        Prune the cache to generate at least `bytes_needed` of free space,
+        if this is possible.
+        """
+        if not self.cache_size:
+            return
+
+        files = os.listdir(self.dirname)
+        info = {f: os.stat(self.path_to(f)) for f in files}
+        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
+        if required_size <= self.cache_size:
+            return
+
+        # Delete oldest items first
+        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
+            os.remove(self.path_to(f))
+            required_size -= s.st_size
+            if required_size <= self.cache_size:
+                return
+
+
+class FunctionCache(abc.ABC):
+    binary = False
+
+    def __init__(self, cache_directory, function=None):
+        self.open = cache_directory.open
+        if function:
+            self.function = function
+
+    def get(self, input):
+        filename = self.filename(input)
+        size_guess = self.size_guess(input)
+        with self.open(filename, size_guess, self.binary) as fp:
+            if 'r' in fp.mode:
+                output = self.unserialize(fp)
+            else:
+                output = self.compute(input)
+                self.serialize(output, fp)
+            return output
+
+    def function(self, input):
+        raise NotImplementedError
+
+    def size_guess(self, input):
+        """An estimate of how large the file representing input will be"""
+        return 0
+
+    @abc.abstractmethod
+    def serialize(self, output, fp):
+        """Writes the output to a file handle"""
+
+    @abc.abstractmethod
+    def unserialize(self, fp):
+        """Reads an output from a file handle"""
+
+    @abc.abstractmethod
+    def filename(self, input):
+        """Return a unique, persistent filename representing this data"""
+
+
+class JsonFunctionCache(FunctionCache):
+    def serialize(self, output, fp):
+        """Writes the output to a file handle"""
+        json.dump(output, fp, indent=2, sort_keys=True)
+
+    def unserialize(self, fp):
+        return json.load(fp)
+
+    def filename(self, input):
+        """
+        Return a unique, persistent filename representing this data.
+
+        The heuristic here doesn't guarantee a unique file
+
+        """
+
+
 def _makedirs(f):  # For Python 2 compatibility
     try:
         os.makedirs(f)
@@ -410,4 +459,13 @@ def _makedirs(f):  # For Python 2 compatibility
         pass
 
 
-_BAD_CHARS = set('/\\?%*:|"<>\';')
+def _check_filename(filename):
+    # Just a heuristic - names might pass this test and still not
+    # be valid i.e. CON on Windows.
+    bad_chars = _INVALID_FILENAME_CHARS.intersection(set(filename))
+    if bad_chars:
+        bad_chars = ''.join(sorted(bad_chars))
+        raise ValueError('Invalid characters in filename: "%s"' % bad_chars)
+
+
+_INVALID_FILENAME_CHARS = set('/\\?%*:|"<>\';' + string.whitespace[1:])
