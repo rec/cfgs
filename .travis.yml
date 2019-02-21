@@ -18,3 +18,10 @@ install:
 script:
 - flake8
 - python -m unittest test.cfgs_test
+
+# Don't compile "experimental" branches starting with x-, y-, or z-.
+branches:
+  except:
+    - /^x-.*$/
+    - /^y-.*$/
+    - /^z-.*$/
