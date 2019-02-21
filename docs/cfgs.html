@@ -88,18 +88,30 @@ class App:
         self.data = Directory(h, d, self.format)
         &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;
 
-    def cache(self, name=&#39;cache&#39;, cache_size=0):
-        &#34;&#34;&#34;
-        Return a `cfgs.CacheDirectory`
-
-        Arguments:
-          name: The relative pathname of the cache directory
-
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means &#34;unlimited cache size&#34;
-        &#34;&#34;&#34;
+    def cache_directory(self, name=&#39;cache&#39;, cache_size=0):
         name = os.path.join(self.cachedir, name)
         return CacheDirectory(name, cache_size)
+
+    def cache(self, function, io, name=&#39;cache&#39;, cache_size=0):
+        &#34;&#34;&#34;
+        Return a `cfgs.Cache`
+
+        Arguments:
+          function:
+            The function whose value is being cached to disk
+
+          io:
+            an instance of `cgfs.IO` that reads and writes function outputs
+
+          name:
+            The relative pathname of the cache directory
+
+          cache_size:
+            The number of bytes allowed in the cache.
+            The default of 0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+        cd = self.cache_dir(name, cache_size)
+        return Cache(cd, function, io)
 
 
 class XDG:
@@ -316,7 +328,7 @@ class Format:
     DEFAULT_FORMAT = &#39;json&#39;
 
     def __init__(self, format, read_kwds, write_kwds):
-        &#34;&#34;&#34;Don&#39;t call this directly: use `cfgs.make_format`&#34;&#34;&#34;
+        &#34;&#34;&#34;Don&#39;t call this constructor directly: use `cfgs.make_format`&#34;&#34;&#34;
         self.name = format or self.DEFAULT_FORMAT
         &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
@@ -387,6 +399,17 @@ class CacheDirectory:
         _makedirs(self.dirname)
         self.prune()
 
+    def get(self, input, io):
+        filename = self.io.filename(input)
+        size_guess = self.io.size_guess(input)
+        with self.open(filename, size_guess, self.io.binary) as fp:
+            if &#39;r&#39; in fp.mode:
+                return self.io.read(fp)
+
+            output = self.function(input)
+            self.io.write(output, fp)
+            return output
+
     def open(self, filename, size_guess=0, binary=False):
         &#34;&#34;&#34;
         Open a cached file in this directory.
@@ -438,27 +461,30 @@ class CacheDirectory:
 
 
 class Cache:
-    __metaclass__ = abc.ABCMeta
-    binary = False
-
-    def __init__(self, cache_directory, function=None):
+    def __init__(self, cache_directory, function, io):
         self.open = cache_directory.open
-        if function:
-            self.function = function
+        self.function = function
+        self.io = io
 
     def get(self, input):
-        filename = self.filename(input)
-        size_guess = self.size_guess(input)
-        with self.open(filename, size_guess, self.binary) as fp:
+        &#34;&#34;&#34;
+        Returns an output for the input, reading it from cache if it exists,
+        otherwise computing it and writing it to cache.
+        &#34;&#34;&#34;
+        filename = self.io.filename(input)
+        size_guess = self.io.size_guess(input)
+        with self.open(filename, size_guess, self.io.binary) as fp:
             if &#39;r&#39; in fp.mode:
-                output = self.read(fp)
-            else:
-                output = self.compute(input)
-                self.write(output, fp)
+                return self.io.read(fp)
+
+            output = self.function(input)
+            self.io.write(output, fp)
             return output
 
-    def function(self, input):
-        raise NotImplementedError
+
+class IO:
+    binary = False
+    __metaclass__ = abc.ABCMeta
 
     def size_guess(self, input):
         &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
@@ -477,11 +503,10 @@ class Cache:
         &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;
 
 
-class FormatCache(Cache):
+class FormatIO(IO):
     &#34;&#34;&#34;A Function cache that uses a Format to read and write&#34;&#34;&#34;
-    def __init__(self, cache_directory, format=None, function=None):
-        Cache.__init__(self, cache_directory, function)
-        self.format = Format(format)
+    def __init__(self, format=None):
+        self.format = make_format(format)
 
     def write(self, output, fp):
         return self.format.write(output, fp)
@@ -640,18 +665,30 @@ a dictionary of kwds for the format writer, or None</p></section>
         self.data = Directory(h, d, self.format)
         &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;
 
-    def cache(self, name=&#39;cache&#39;, cache_size=0):
+    def cache_directory(self, name=&#39;cache&#39;, cache_size=0):
+        name = os.path.join(self.cachedir, name)
+        return CacheDirectory(name, cache_size)
+
+    def cache(self, function, io, name=&#39;cache&#39;, cache_size=0):
         &#34;&#34;&#34;
-        Return a `cfgs.CacheDirectory`
+        Return a `cfgs.Cache`
 
         Arguments:
-          name: The relative pathname of the cache directory
+          function:
+            The function whose value is being cached to disk
 
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means &#34;unlimited cache size&#34;
+          io:
+            an instance of `cgfs.IO` that reads and writes function outputs
+
+          name:
+            The relative pathname of the cache directory
+
+          cache_size:
+            The number of bytes allowed in the cache.
+            The default of 0 means &#34;unlimited cache size&#34;
         &#34;&#34;&#34;
-        name = os.path.join(self.cachedir, name)
-        return CacheDirectory(name, cache_size)</code></pre>
+        cd = self.cache_dir(name, cache_size)
+        return Cache(cd, function, io)</code></pre>
 </details>
 <h3>Instance variables</h3>
 <dl>
@@ -736,30 +773,52 @@ pathnames</dd>
 </details>
 </dd>
 <dt id="cfgs.App.cache"><code class="name flex">
-<span>def <span class="ident">cache</span></span>(<span>self, name=&#39;cache&#39;, cache_size=0)</span>
+<span>def <span class="ident">cache</span></span>(<span>self, function, io, name=&#39;cache&#39;, cache_size=0)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return a <a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory"><code>CacheDirectory</code></a></p>
+<section class="desc"><p>Return a <a title="cfgs.Cache" href="#cfgs.Cache"><code>Cache</code></a></p>
 <h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>name</code></strong></dt>
-<dd>The relative pathname of the cache directory</dd>
-<dt><strong><code>cache_size</code></strong></dt>
-<dd>The number of bytes allowed in the cache.
-The default of 0 means "unlimited cache size"</dd>
-</dl></section>
+<p>function:
+The function whose value is being cached to disk</p>
+<p>io:
+an instance of <code>cgfs.IO</code> that reads and writes function outputs</p>
+<p>name:
+The relative pathname of the cache directory</p>
+<p>cache_size:
+The number of bytes allowed in the cache.
+The default of 0 means "unlimited cache size"</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def cache(self, name=&#39;cache&#39;, cache_size=0):
+<pre><code class="python">def cache(self, function, io, name=&#39;cache&#39;, cache_size=0):
     &#34;&#34;&#34;
-    Return a `cfgs.CacheDirectory`
+    Return a `cfgs.Cache`
 
     Arguments:
-      name: The relative pathname of the cache directory
+      function:
+        The function whose value is being cached to disk
 
-      cache_size: The number of bytes allowed in the cache.
-          The default of 0 means &#34;unlimited cache size&#34;
+      io:
+        an instance of `cgfs.IO` that reads and writes function outputs
+
+      name:
+        The relative pathname of the cache directory
+
+      cache_size:
+        The number of bytes allowed in the cache.
+        The default of 0 means &#34;unlimited cache size&#34;
     &#34;&#34;&#34;
+    cd = self.cache_dir(name, cache_size)
+    return Cache(cd, function, io)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.App.cache_directory"><code class="name flex">
+<span>def <span class="ident">cache_directory</span></span>(<span>self, name=&#39;cache&#39;, cache_size=0)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def cache_directory(self, name=&#39;cache&#39;, cache_size=0):
     name = os.path.join(self.cachedir, name)
     return CacheDirectory(name, cache_size)</code></pre>
 </details>
@@ -774,147 +833,64 @@ The default of 0 means "unlimited cache size"</dd>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">class Cache:
-    __metaclass__ = abc.ABCMeta
-    binary = False
-
-    def __init__(self, cache_directory, function=None):
+    def __init__(self, cache_directory, function, io):
         self.open = cache_directory.open
-        if function:
-            self.function = function
+        self.function = function
+        self.io = io
 
     def get(self, input):
-        filename = self.filename(input)
-        size_guess = self.size_guess(input)
-        with self.open(filename, size_guess, self.binary) as fp:
+        &#34;&#34;&#34;
+        Returns an output for the input, reading it from cache if it exists,
+        otherwise computing it and writing it to cache.
+        &#34;&#34;&#34;
+        filename = self.io.filename(input)
+        size_guess = self.io.size_guess(input)
+        with self.open(filename, size_guess, self.io.binary) as fp:
             if &#39;r&#39; in fp.mode:
-                output = self.read(fp)
-            else:
-                output = self.compute(input)
-                self.write(output, fp)
-            return output
+                return self.io.read(fp)
 
-    def function(self, input):
-        raise NotImplementedError
-
-    def size_guess(self, input):
-        &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
-        return 0
-
-    @abc.abstractmethod
-    def write(self, output, fp):
-        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
-
-    @abc.abstractmethod
-    def read(self, fp):
-        &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
-
-    @abc.abstractmethod
-    def filename(self, input):
-        &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+            output = self.function(input)
+            self.io.write(output, fp)
+            return output</code></pre>
 </details>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="cfgs.FormatCache" href="#cfgs.FormatCache">FormatCache</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="cfgs.Cache.binary"><code class="name">var <span class="ident">binary</span></code></dt>
-<dd>
-<section class="desc"></section>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="cfgs.Cache.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, cache_directory, function=None)</span>
+<span>def <span class="ident">__init__</span></span>(<span>self, cache_directory, function, io)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Initialize self.
 See help(type(self)) for accurate signature.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def __init__(self, cache_directory, function=None):
+<pre><code class="python">def __init__(self, cache_directory, function, io):
     self.open = cache_directory.open
-    if function:
-        self.function = function</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Cache.filename"><code class="name flex">
-<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return a unique, persistent filename representing this data</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def filename(self, input):
-    &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Cache.function"><code class="name flex">
-<span>def <span class="ident">function</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def function(self, input):
-    raise NotImplementedError</code></pre>
+    self.function = function
+    self.io = io</code></pre>
 </details>
 </dd>
 <dt id="cfgs.Cache.get"><code class="name flex">
 <span>def <span class="ident">get</span></span>(<span>self, input)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Returns an output for the input, reading it from cache if it exists,
+otherwise computing it and writing it to cache.</p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def get(self, input):
-    filename = self.filename(input)
-    size_guess = self.size_guess(input)
-    with self.open(filename, size_guess, self.binary) as fp:
+    &#34;&#34;&#34;
+    Returns an output for the input, reading it from cache if it exists,
+    otherwise computing it and writing it to cache.
+    &#34;&#34;&#34;
+    filename = self.io.filename(input)
+    size_guess = self.io.size_guess(input)
+    with self.open(filename, size_guess, self.io.binary) as fp:
         if &#39;r&#39; in fp.mode:
-            output = self.read(fp)
-        else:
-            output = self.compute(input)
-            self.write(output, fp)
+            return self.io.read(fp)
+
+        output = self.function(input)
+        self.io.write(output, fp)
         return output</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Cache.read"><code class="name flex">
-<span>def <span class="ident">read</span></span>(<span>self, fp)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Reads an output from a file handle</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def read(self, fp):
-    &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Cache.size_guess"><code class="name flex">
-<span>def <span class="ident">size_guess</span></span>(<span>self, input)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>An estimate of how large the file representing input will be</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def size_guess(self, input):
-    &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
-    return 0</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Cache.write"><code class="name flex">
-<span>def <span class="ident">write</span></span>(<span>self, output, fp)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Writes the output to a file handle</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">@abc.abstractmethod
-def write(self, output, fp):
-    &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;</code></pre>
 </details>
 </dd>
 </dl>
@@ -939,6 +915,17 @@ def write(self, output, fp):
 
         _makedirs(self.dirname)
         self.prune()
+
+    def get(self, input, io):
+        filename = self.io.filename(input)
+        size_guess = self.io.size_guess(input)
+        with self.open(filename, size_guess, self.io.binary) as fp:
+            if &#39;r&#39; in fp.mode:
+                return self.io.read(fp)
+
+            output = self.function(input)
+            self.io.write(output, fp)
+            return output
 
     def open(self, filename, size_guess=0, binary=False):
         &#34;&#34;&#34;
@@ -1023,6 +1010,25 @@ See help(type(self)) for accurate signature.</p></section>
 
     _makedirs(self.dirname)
     self.prune()</code></pre>
+</details>
+</dd>
+<dt id="cfgs.CacheDirectory.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, input, io)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get(self, input, io):
+    filename = self.io.filename(input)
+    size_guess = self.io.size_guess(input)
+    with self.open(filename, size_guess, self.io.binary) as fp:
+        if &#39;r&#39; in fp.mode:
+            return self.io.read(fp)
+
+        output = self.function(input)
+        self.io.write(output, fp)
+        return output</code></pre>
 </details>
 </dd>
 <dt id="cfgs.CacheDirectory.open"><code class="name flex">
@@ -1493,7 +1499,7 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
     DEFAULT_FORMAT = &#39;json&#39;
 
     def __init__(self, format, read_kwds, write_kwds):
-        &#34;&#34;&#34;Don&#39;t call this directly: use `cfgs.make_format`&#34;&#34;&#34;
+        &#34;&#34;&#34;Don&#39;t call this constructor directly: use `cfgs.make_format`&#34;&#34;&#34;
         self.name = format or self.DEFAULT_FORMAT
         &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
@@ -1548,11 +1554,11 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <span>def <span class="ident">__init__</span></span>(<span>self, format, read_kwds, write_kwds)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Don't call this directly: use <a title="cfgs.make_format" href="#cfgs.make_format"><code>make_format()</code></a></p></section>
+<section class="desc"><p>Don't call this constructor directly: use <a title="cfgs.make_format" href="#cfgs.make_format"><code>make_format()</code></a></p></section>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def __init__(self, format, read_kwds, write_kwds):
-    &#34;&#34;&#34;Don&#39;t call this directly: use `cfgs.make_format`&#34;&#34;&#34;
+    &#34;&#34;&#34;Don&#39;t call this constructor directly: use `cfgs.make_format`&#34;&#34;&#34;
     self.name = format or self.DEFAULT_FORMAT
     &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
@@ -1614,19 +1620,18 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 </dd>
 </dl>
 </dd>
-<dt id="cfgs.FormatCache"><code class="flex name class">
-<span>class <span class="ident">FormatCache</span></span>
-<span>(</span><span><small>ancestors:</small> <a title="cfgs.Cache" href="#cfgs.Cache">Cache</a>)</span>
+<dt id="cfgs.FormatIO"><code class="flex name class">
+<span>class <span class="ident">FormatIO</span></span>
+<span>(</span><span><small>ancestors:</small> <a title="cfgs.IO" href="#cfgs.IO">IO</a>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>A Function cache that uses a Format to read and write</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class FormatCache(Cache):
+<pre><code class="python">class FormatIO(IO):
     &#34;&#34;&#34;A Function cache that uses a Format to read and write&#34;&#34;&#34;
-    def __init__(self, cache_directory, format=None, function=None):
-        Cache.__init__(self, cache_directory, function)
-        self.format = Format(format)
+    def __init__(self, format=None):
+        self.format = make_format(format)
 
     def write(self, output, fp):
         return self.format.write(output, fp)
@@ -1639,18 +1644,122 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
         h.update(json.dumps(input, sort_keys=True))
         return h.hexdigest() + format.suffix</code></pre>
 </details>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.FormatIO.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, format=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize self.
+See help(type(self)) for accurate signature.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, format=None):
+    self.format = make_format(format)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="cfgs.Cache" href="#cfgs.Cache">Cache</a></b></code>:
+<li><code><b><a title="cfgs.IO" href="#cfgs.IO">IO</a></b></code>:
 <ul class="hlist">
-<li><code><a title="cfgs.Cache.__init__" href="#cfgs.Cache.__init__">__init__</a></code></li>
-<li><code><a title="cfgs.Cache.filename" href="#cfgs.Cache.filename">filename</a></code></li>
-<li><code><a title="cfgs.Cache.read" href="#cfgs.Cache.read">read</a></code></li>
-<li><code><a title="cfgs.Cache.size_guess" href="#cfgs.Cache.size_guess">size_guess</a></code></li>
-<li><code><a title="cfgs.Cache.write" href="#cfgs.Cache.write">write</a></code></li>
+<li><code><a title="cfgs.IO.filename" href="#cfgs.IO.filename">filename</a></code></li>
+<li><code><a title="cfgs.IO.read" href="#cfgs.IO.read">read</a></code></li>
+<li><code><a title="cfgs.IO.size_guess" href="#cfgs.IO.size_guess">size_guess</a></code></li>
+<li><code><a title="cfgs.IO.write" href="#cfgs.IO.write">write</a></code></li>
 </ul>
 </li>
 </ul>
+</dd>
+<dt id="cfgs.IO"><code class="flex name class">
+<span>class <span class="ident">IO</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class IO:
+    binary = False
+    __metaclass__ = abc.ABCMeta
+
+    def size_guess(self, input):
+        &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+        return 0
+
+    @abc.abstractmethod
+    def write(self, output, fp):
+        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def read(self, fp):
+        &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def filename(self, input):
+        &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="cfgs.FormatIO" href="#cfgs.FormatIO">FormatIO</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="cfgs.IO.binary"><code class="name">var <span class="ident">binary</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.IO.filename"><code class="name flex">
+<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a unique, persistent filename representing this data</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def filename(self, input):
+    &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.IO.read"><code class="name flex">
+<span>def <span class="ident">read</span></span>(<span>self, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reads an output from a file handle</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def read(self, fp):
+    &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.IO.size_guess"><code class="name flex">
+<span>def <span class="ident">size_guess</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An estimate of how large the file representing input will be</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def size_guess(self, input):
+    &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+    return 0</code></pre>
+</details>
+</dd>
+<dt id="cfgs.IO.write"><code class="name flex">
+<span>def <span class="ident">write</span></span>(<span>self, output, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Writes the output to a file handle</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def write(self, output, fp):
+    &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
 </dd>
 <dt id="cfgs.XDG"><code class="flex name class">
 <span>class <span class="ident">XDG</span></span>
@@ -1822,6 +1931,7 @@ user-specific runtime files and other file objects should be placed</p></section
 <ul class="two-column">
 <li><code><a title="cfgs.App.__init__" href="#cfgs.App.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.App.cache" href="#cfgs.App.cache">cache</a></code></li>
+<li><code><a title="cfgs.App.cache_directory" href="#cfgs.App.cache_directory">cache_directory</a></code></li>
 <li><code><a title="cfgs.App.config" href="#cfgs.App.config">config</a></code></li>
 <li><code><a title="cfgs.App.data" href="#cfgs.App.data">data</a></code></li>
 <li><code><a title="cfgs.App.name" href="#cfgs.App.name">name</a></code></li>
@@ -1830,15 +1940,9 @@ user-specific runtime files and other file objects should be placed</p></section
 </li>
 <li>
 <h4><code><a title="cfgs.Cache" href="#cfgs.Cache">Cache</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="cfgs.Cache.__init__" href="#cfgs.Cache.__init__">__init__</a></code></li>
-<li><code><a title="cfgs.Cache.binary" href="#cfgs.Cache.binary">binary</a></code></li>
-<li><code><a title="cfgs.Cache.filename" href="#cfgs.Cache.filename">filename</a></code></li>
-<li><code><a title="cfgs.Cache.function" href="#cfgs.Cache.function">function</a></code></li>
 <li><code><a title="cfgs.Cache.get" href="#cfgs.Cache.get">get</a></code></li>
-<li><code><a title="cfgs.Cache.read" href="#cfgs.Cache.read">read</a></code></li>
-<li><code><a title="cfgs.Cache.size_guess" href="#cfgs.Cache.size_guess">size_guess</a></code></li>
-<li><code><a title="cfgs.Cache.write" href="#cfgs.Cache.write">write</a></code></li>
 </ul>
 </li>
 <li>
@@ -1847,6 +1951,7 @@ user-specific runtime files and other file objects should be placed</p></section
 <li><code><a title="cfgs.CacheDirectory.__init__" href="#cfgs.CacheDirectory.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.cache_size" href="#cfgs.CacheDirectory.cache_size">cache_size</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.dirname" href="#cfgs.CacheDirectory.dirname">dirname</a></code></li>
+<li><code><a title="cfgs.CacheDirectory.get" href="#cfgs.CacheDirectory.get">get</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.open" href="#cfgs.CacheDirectory.open">open</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.path_to" href="#cfgs.CacheDirectory.path_to">path_to</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.prune" href="#cfgs.CacheDirectory.prune">prune</a></code></li>
@@ -1890,7 +1995,20 @@ user-specific runtime files and other file objects should be placed</p></section
 </ul>
 </li>
 <li>
-<h4><code><a title="cfgs.FormatCache" href="#cfgs.FormatCache">FormatCache</a></code></h4>
+<h4><code><a title="cfgs.FormatIO" href="#cfgs.FormatIO">FormatIO</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.FormatIO.__init__" href="#cfgs.FormatIO.__init__">__init__</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.IO" href="#cfgs.IO">IO</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.IO.binary" href="#cfgs.IO.binary">binary</a></code></li>
+<li><code><a title="cfgs.IO.filename" href="#cfgs.IO.filename">filename</a></code></li>
+<li><code><a title="cfgs.IO.read" href="#cfgs.IO.read">read</a></code></li>
+<li><code><a title="cfgs.IO.size_guess" href="#cfgs.IO.size_guess">size_guess</a></code></li>
+<li><code><a title="cfgs.IO.write" href="#cfgs.IO.write">write</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="cfgs.XDG" href="#cfgs.XDG">XDG</a></code></h4>

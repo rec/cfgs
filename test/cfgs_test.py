@@ -184,7 +184,7 @@ class CacheTest(TestCase):
 
     def _create_cache(self, cache_size=0, use_size_guess=True):
         p = cfgs.App('test')
-        cache = p.cache(cache_size=cache_size)
+        cache = p.cache_directory(cache_size=cache_size)
 
         for file, contents in self.FILE_CONTENTS:
             size_guess = len(contents) if use_size_guess else 0

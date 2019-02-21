@@ -61,18 +61,41 @@ class App:
         self.data = Directory(h, d, self.format)
         """A `cfgs.Directory` for data files"""
 
-    def cache(self, name='cache', cache_size=0):
+    def cache_directory(self, name='cache', cache_size=0):
         """
         Return a `cfgs.CacheDirectory`
 
         Arguments:
-          name: The relative pathname of the cache directory
+          name:
+            The relative pathname of the cache directory
 
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means "unlimited cache size"
+          cache_size:
+            The number of bytes allowed in the cache.
+            The default of 0 means "unlimited cache size"
         """
         name = os.path.join(self.cachedir, name)
         return CacheDirectory(name, cache_size)
+
+    def cache(self, function, io, name='cache', cache_size=0):
+        """
+        Return a `cfgs.Cache`
+
+        Arguments:
+          function:
+            The function whose value is being cached to disk
+
+          io:
+            an instance of `cgfs.IO` that reads and writes function outputs
+
+          name:
+            The relative pathname of the cache directory
+
+          cache_size:
+            The number of bytes allowed in the cache.
+            The default of 0 means "unlimited cache size"
+        """
+        cd = self.cache_dir(name, cache_size)
+        return Cache(cd, function, io)
 
 
 class XDG:
@@ -289,7 +312,7 @@ class Format:
     DEFAULT_FORMAT = 'json'
 
     def __init__(self, format, read_kwds, write_kwds):
-        """Don't call this directly: use `cfgs.make_format`"""
+        """Don't call this constructor directly: use `cfgs.make_format`"""
         self.name = format or self.DEFAULT_FORMAT
         """The name of this format"""
 
@@ -360,6 +383,17 @@ class CacheDirectory:
         _makedirs(self.dirname)
         self.prune()
 
+    def get(self, input, io):
+        filename = self.io.filename(input)
+        size_guess = self.io.size_guess(input)
+        with self.open(filename, size_guess, self.io.binary) as fp:
+            if 'r' in fp.mode:
+                return self.io.read(fp)
+
+            output = self.function(input)
+            self.io.write(output, fp)
+            return output
+
     def open(self, filename, size_guess=0, binary=False):
         """
         Open a cached file in this directory.
@@ -411,27 +445,34 @@ class CacheDirectory:
 
 
 class Cache:
-    __metaclass__ = abc.ABCMeta
-    binary = False
-
-    def __init__(self, cache_directory, function=None):
+    def __init__(self, cache_directory, function, io):
         self.open = cache_directory.open
-        if function:
-            self.function = function
+        self.function = function
+        self.io = io
 
     def get(self, input):
-        filename = self.filename(input)
-        size_guess = self.size_guess(input)
-        with self.open(filename, size_guess, self.binary) as fp:
+        """
+        Returns an output for the input, reading it from cache if it exists,
+        otherwise computing it and writing it to cache.
+        """
+        filename = self.io.filename(input)
+        size_guess = self.io.size_guess(input)
+        with self.open(filename, size_guess, self.io.binary) as fp:
             if 'r' in fp.mode:
-                output = self.read(fp)
-            else:
-                output = self.compute(input)
-                self.write(output, fp)
+                return self.io.read(fp)
+
+            output = self.function(input)
+            self.io.write(output, fp)
             return output
 
-    def function(self, input):
-        raise NotImplementedError
+
+class IO:
+    """
+    An IO class reads and writes some sort of data to disk, and optionally
+    estimates how large the disk file will be.
+    """
+    binary = False
+    __metaclass__ = abc.ABCMeta
 
     def size_guess(self, input):
         """An estimate of how large the file representing input will be"""
@@ -450,11 +491,10 @@ class Cache:
         """Return a unique, persistent filename representing this data"""
 
 
-class FormatCache(Cache):
+class FormatIO(IO):
     """A Function cache that uses a Format to read and write"""
-    def __init__(self, cache_directory, format=None, function=None):
-        Cache.__init__(self, cache_directory, function)
-        self.format = Format(format)
+    def __init__(self, format=None):
+        self.format = make_format(format)
 
     def write(self, output, fp):
         return self.format.write(output, fp)
