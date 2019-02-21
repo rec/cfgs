@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.5.3.dev4+ge9f9892" />
+<meta name="generator" content="pdoc 0.5.2" />
 <title>cfgs API documentation</title>
 <meta name="description" content="`cfgs` …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.name small{font-weight:normal}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}#index .two-column{column-count:2}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.name small{font-weight:normal}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
 </head>
@@ -32,7 +32,7 @@ Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 &#34;&#34;&#34;
 
-import copy, os
+import abc, copy, json, os, string
 
 _getenv = os.environ.get
 _expandvars = os.path.expandvars
@@ -45,7 +45,7 @@ class App:
     &#34;&#34;&#34;
 
     DEFAULT_FORMAT = &#39;json&#39;
-    &#34;&#34;&#34;The default, default file format for all Apps&#34;&#34;&#34;
+    &#34;&#34;&#34;The default file format for all Apps&#34;&#34;&#34;
 
     def __init__(self, name, format=DEFAULT_FORMAT,
                  read_kwds=None, write_kwds=None):
@@ -146,16 +146,16 @@ class Directory:
     An XDG directory of persistent, formatted files
     &#34;&#34;&#34;
 
-    def __init__(self, home, dirs, format):
+    def __init__(self, dirname, dirs, format):
         &#34;&#34;&#34;
         Don&#39;t call this constructor directly - use either
         `cfgs.App.config` or `cfgs.App.data` instead.
         &#34;&#34;&#34;
-        self.home = home
+        self.dirname = dirname
         self.dirs = dirs
         assert not isinstance(format, str)
         self.format = format
-        self.dirs.insert(0, self.home)
+        self.dirs.insert(0, self.dirname)
 
     def open(self, filename=None):
         &#34;&#34;&#34;
@@ -170,13 +170,13 @@ class Directory:
              `self.format`
         &#34;&#34;&#34;
         if not filename:
-            basename = os.path.basename(self.home)
+            basename = os.path.basename(self.dirname)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = &#39;%s%s&#39; % (basename, suffix)
         elif filename.startswith(&#39;/&#39;):
             filename = filename[1:]
 
-        return File(self.full_name(filename), self.format)
+        return File(self.path_to(filename), self.format)
 
     def all_files(self, filename):
         &#34;&#34;&#34;
@@ -190,11 +190,11 @@ class Directory:
             except IOError:
                 pass
 
-    def full_name(self, filename):
+    def path_to(self, filename):
         &#34;&#34;&#34;
         Return the full name of a file with respect to this XDG directory
         &#34;&#34;&#34;
-        return os.path.join(self.home, filename)
+        return os.path.join(self.dirname, filename)
 
 
 class File:
@@ -248,103 +248,6 @@ class File:
 
     def __exit__(self, *args):
         self.write()
-
-
-class Cache:
-    &#34;&#34;&#34;
-    A class that creates caches
-    &#34;&#34;&#34;
-    def __init__(self, dirname):
-        &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
-
-        self.dirname = dirname
-        &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;
-
-    def directory(self, name=&#39;cache&#39;, cache_size=0):
-        &#34;&#34;&#34;
-        Return a `cfgs.CacheDirectory`
-
-        Arguments:
-          name: The relative pathname of the cache directory
-
-          cache_size: The number of bytes allowed in the cache.
-              The default of 0 means &#34;unlimited cache size&#34;
-        &#34;&#34;&#34;
-        name = os.path.join(self.dirname, name)
-        return CacheDirectory(name, cache_size)
-
-
-class CacheDirectory:
-    def __init__(self, dirname, cache_size):
-        &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
-
-        self.dirname = dirname
-        &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
-
-        self.cache_size = cache_size
-        &#34;&#34;&#34;
-        The number of bytes allowed in the cache.
-        0 means &#34;unlimited cache size&#34;
-        &#34;&#34;&#34;
-
-        _makedirs(self.dirname)
-        self.prune()
-
-    def open(self, filename, size_guess=0, binary=False):
-        &#34;&#34;&#34;
-        Open a cached file in this directory.
-
-        If the file already exists, it is opened for read.
-
-        Otherwise the cache is pruned and the file is opened for write.
-
-        Arguments:
-          filename: the name of the file, relative to the cache directory
-          size_guess: A guess as to how large the file will be, in bytes
-          binary: if True, the file is opened in binary mode
-
-        &#34;&#34;&#34;
-        if &#39;/&#39; in filename:
-            raise ValueError(&#39;Subdirectories are not allowed in caches&#39;)
-
-        bin = &#39;b&#39; if binary else &#39;&#39;
-
-        full = os.path.join(self.dirname, filename)
-        if os.path.exists(full):
-            return open(full, &#39;r&#39; + bin)
-
-        self.prune(size_guess)
-        return open(full, &#39;w&#39; + bin)
-
-    def prune(self, bytes_needed=0):
-        &#34;&#34;&#34;
-        Prune the cache to generate at least `bytes_needed` of free space,
-        if this is possible.
-        &#34;&#34;&#34;
-        if not self.cache_size:
-            return
-
-        files = os.listdir(self.dirname)
-        info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
-        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
-        if required_size &lt;= self.cache_size:
-            return
-
-        # Delete oldest items first
-        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
-            os.remove(os.path.join(self.dirname, f))
-            required_size -= s.st_size
-            if required_size &lt;= self.cache_size:
-                return
-
-
-def _check_filename(filename):
-    # Just a heuristic - names might pass this test and still not
-    # be valid i.e. CON on Windows.
-    bad_chars = _BAD_CHARS.intersection(set(filename))
-    if bad_chars:
-        bad_chars = &#39;&#39;.join(sorted(bad_chars))
-        raise ValueError(&#39;Invalid characters in filename: &#34;%s&#34;&#39; % bad_chars)
 
 
 SUFFIX_TO_FORMAT = {
@@ -430,6 +333,152 @@ class ConfigparserFormat(Format):
         return {k: dict(v) for k, v in contents.items()}
 
 
+class Cache:
+    &#34;&#34;&#34;
+    A class that creates caches
+    &#34;&#34;&#34;
+    def __init__(self, dirname):
+        &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
+
+        self.dirname = dirname
+        &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;
+
+    def directory(self, name=&#39;cache&#39;, cache_size=0):
+        &#34;&#34;&#34;
+        Return a `cfgs.CacheDirectory`
+
+        Arguments:
+          name: The relative pathname of the cache directory
+
+          cache_size: The number of bytes allowed in the cache.
+              The default of 0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+        name = os.path.join(self.dirname, name)
+        return CacheDirectory(name, cache_size)
+
+
+class CacheDirectory:
+    def __init__(self, dirname, cache_size):
+        &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
+
+        self.dirname = dirname
+        &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
+
+        self.cache_size = cache_size
+        &#34;&#34;&#34;
+        The number of bytes allowed in the cache.
+        0 means &#34;unlimited cache size&#34;
+        &#34;&#34;&#34;
+
+        _makedirs(self.dirname)
+        self.prune()
+
+    def open(self, filename, size_guess=0, binary=False):
+        &#34;&#34;&#34;
+        Open a cached file in this directory.
+
+        If the file already exists, it is opened for read.
+        Otherwise the cache is pruned and the file is opened for write.
+
+        Arguments:
+          filename: the name of the file, relative to the cache directory
+          size_guess: A guess as to how large the file will be, in bytes
+          binary: if True, the file is opened in binary mode
+
+        &#34;&#34;&#34;
+        if &#39;/&#39; in filename:
+            raise ValueError(&#39;Subdirectories are not allowed in caches&#39;)
+
+        bin = &#39;b&#39; if binary else &#39;&#39;
+
+        full = self.path_to(filename)
+        if os.path.exists(full):
+            return open(full, &#39;r&#39; + bin)
+
+        self.prune(size_guess)
+        return open(full, &#39;w&#39; + bin)
+
+    def path_to(self, p):
+        return os.path.join(self.dirname, p)
+
+    def prune(self, bytes_needed=0):
+        &#34;&#34;&#34;
+        Prune the cache to generate at least `bytes_needed` of free space,
+        if this is possible.
+        &#34;&#34;&#34;
+        if not self.cache_size:
+            return
+
+        files = os.listdir(self.dirname)
+        info = {f: os.stat(self.path_to(f)) for f in files}
+        required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
+        if required_size &lt;= self.cache_size:
+            return
+
+        # Delete oldest items first
+        for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
+            os.remove(self.path_to(f))
+            required_size -= s.st_size
+            if required_size &lt;= self.cache_size:
+                return
+
+
+class FunctionCache(abc.ABC):
+    binary = False
+
+    def __init__(self, cache_directory, function=None):
+        self.open = cache_directory.open
+        if function:
+            self.function = function
+
+    def get(self, input):
+        filename = self.filename(input)
+        size_guess = self.size_guess(input)
+        with self.open(filename, size_guess, self.binary) as fp:
+            if &#39;r&#39; in fp.mode:
+                output = self.unserialize(fp)
+            else:
+                output = self.compute(input)
+                self.serialize(output, fp)
+            return output
+
+    def function(self, input):
+        raise NotImplementedError
+
+    def size_guess(self, input):
+        &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+        return 0
+
+    @abc.abstractmethod
+    def serialize(self, output, fp):
+        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def unserialize(self, fp):
+        &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def filename(self, input):
+        &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;
+
+
+class JsonFunctionCache(FunctionCache):
+    def serialize(self, output, fp):
+        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
+        json.dump(output, fp, indent=2, sort_keys=True)
+
+    def unserialize(self, fp):
+        return json.load(fp)
+
+    def filename(self, input):
+        &#34;&#34;&#34;
+        Return a unique, persistent filename representing this data.
+
+        The heuristic here doesn&#39;t guarantee a unique file
+
+        &#34;&#34;&#34;
+
+
 def _makedirs(f):  # For Python 2 compatibility
     try:
         os.makedirs(f)
@@ -437,7 +486,16 @@ def _makedirs(f):  # For Python 2 compatibility
         pass
 
 
-_BAD_CHARS = set(&#39;/\\?%*:|&#34;&lt;&gt;\&#39;;&#39;)</code></pre>
+def _check_filename(filename):
+    # Just a heuristic - names might pass this test and still not
+    # be valid i.e. CON on Windows.
+    bad_chars = _INVALID_FILENAME_CHARS.intersection(set(filename))
+    if bad_chars:
+        bad_chars = &#39;&#39;.join(sorted(bad_chars))
+        raise ValueError(&#39;Invalid characters in filename: &#34;%s&#34;&#39; % bad_chars)
+
+
+_INVALID_FILENAME_CHARS = set(&#39;/\\?%*:|&#34;&lt;&gt;\&#39;;&#39; + string.whitespace[1:])</code></pre>
 </details>
 </section>
 <section>
@@ -481,7 +539,7 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
     &#34;&#34;&#34;
 
     DEFAULT_FORMAT = &#39;json&#39;
-    &#34;&#34;&#34;The default, default file format for all Apps&#34;&#34;&#34;
+    &#34;&#34;&#34;The default file format for all Apps&#34;&#34;&#34;
 
     def __init__(self, name, format=DEFAULT_FORMAT,
                  read_kwds=None, write_kwds=None):
@@ -532,7 +590,7 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 <dl>
 <dt id="cfgs.App.DEFAULT_FORMAT"><code class="name">var <span class="ident">DEFAULT_FORMAT</span></code></dt>
 <dd>
-<section class="desc"><p>The default, default file format for all Apps</p></section>
+<section class="desc"><p>The default file format for all Apps</p></section>
 </dd>
 </dl>
 <h3>Instance variables</h3>
@@ -736,7 +794,6 @@ The default of 0 means "unlimited cache size"</dd>
         Open a cached file in this directory.
 
         If the file already exists, it is opened for read.
-
         Otherwise the cache is pruned and the file is opened for write.
 
         Arguments:
@@ -750,12 +807,15 @@ The default of 0 means "unlimited cache size"</dd>
 
         bin = &#39;b&#39; if binary else &#39;&#39;
 
-        full = os.path.join(self.dirname, filename)
+        full = self.path_to(filename)
         if os.path.exists(full):
             return open(full, &#39;r&#39; + bin)
 
         self.prune(size_guess)
         return open(full, &#39;w&#39; + bin)
+
+    def path_to(self, p):
+        return os.path.join(self.dirname, p)
 
     def prune(self, bytes_needed=0):
         &#34;&#34;&#34;
@@ -766,14 +826,14 @@ The default of 0 means "unlimited cache size"</dd>
             return
 
         files = os.listdir(self.dirname)
-        info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
+        info = {f: os.stat(self.path_to(f)) for f in files}
         required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
         if required_size &lt;= self.cache_size:
             return
 
         # Delete oldest items first
         for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
-            os.remove(os.path.join(self.dirname, f))
+            os.remove(self.path_to(f))
             required_size -= s.st_size
             if required_size &lt;= self.cache_size:
                 return</code></pre>
@@ -820,8 +880,8 @@ The default of 0 means "unlimited cache size"</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Open a cached file in this directory.</p>
-<p>If the file already exists, it is opened for read.</p>
-<p>Otherwise the cache is pruned and the file is opened for write.</p>
+<p>If the file already exists, it is opened for read.
+Otherwise the cache is pruned and the file is opened for write.</p>
 <h2 id="arguments">Arguments</h2>
 <dl>
 <dt><strong><code>filename</code></strong></dt>
@@ -838,7 +898,6 @@ The default of 0 means "unlimited cache size"</dd>
     Open a cached file in this directory.
 
     If the file already exists, it is opened for read.
-
     Otherwise the cache is pruned and the file is opened for write.
 
     Arguments:
@@ -852,12 +911,23 @@ The default of 0 means "unlimited cache size"</dd>
 
     bin = &#39;b&#39; if binary else &#39;&#39;
 
-    full = os.path.join(self.dirname, filename)
+    full = self.path_to(filename)
     if os.path.exists(full):
         return open(full, &#39;r&#39; + bin)
 
     self.prune(size_guess)
     return open(full, &#39;w&#39; + bin)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.CacheDirectory.path_to"><code class="name flex">
+<span>def <span class="ident">path_to</span></span>(<span>self, p)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def path_to(self, p):
+    return os.path.join(self.dirname, p)</code></pre>
 </details>
 </dd>
 <dt id="cfgs.CacheDirectory.prune"><code class="name flex">
@@ -877,14 +947,14 @@ if this is possible.</p></section>
         return
 
     files = os.listdir(self.dirname)
-    info = {f: os.stat(os.path.join(self.dirname, f)) for f in files}
+    info = {f: os.stat(self.path_to(f)) for f in files}
     required_size = sum(s.st_size for f, s in info.items()) + bytes_needed
     if required_size &lt;= self.cache_size:
         return
 
     # Delete oldest items first
     for f, s in sorted(info.items(), key=lambda x: x[1].st_mtime):
-        os.remove(os.path.join(self.dirname, f))
+        os.remove(self.path_to(f))
         required_size -= s.st_size
         if required_size &lt;= self.cache_size:
             return</code></pre>
@@ -954,16 +1024,16 @@ if this is possible.</p></section>
     An XDG directory of persistent, formatted files
     &#34;&#34;&#34;
 
-    def __init__(self, home, dirs, format):
+    def __init__(self, dirname, dirs, format):
         &#34;&#34;&#34;
         Don&#39;t call this constructor directly - use either
         `cfgs.App.config` or `cfgs.App.data` instead.
         &#34;&#34;&#34;
-        self.home = home
+        self.dirname = dirname
         self.dirs = dirs
         assert not isinstance(format, str)
         self.format = format
-        self.dirs.insert(0, self.home)
+        self.dirs.insert(0, self.dirname)
 
     def open(self, filename=None):
         &#34;&#34;&#34;
@@ -978,13 +1048,13 @@ if this is possible.</p></section>
              `self.format`
         &#34;&#34;&#34;
         if not filename:
-            basename = os.path.basename(self.home)
+            basename = os.path.basename(self.dirname)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
             filename = &#39;%s%s&#39; % (basename, suffix)
         elif filename.startswith(&#39;/&#39;):
             filename = filename[1:]
 
-        return File(self.full_name(filename), self.format)
+        return File(self.path_to(filename), self.format)
 
     def all_files(self, filename):
         &#34;&#34;&#34;
@@ -998,32 +1068,32 @@ if this is possible.</p></section>
             except IOError:
                 pass
 
-    def full_name(self, filename):
+    def path_to(self, filename):
         &#34;&#34;&#34;
         Return the full name of a file with respect to this XDG directory
         &#34;&#34;&#34;
-        return os.path.join(self.home, filename)</code></pre>
+        return os.path.join(self.dirname, filename)</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
 <dt id="cfgs.Directory.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, home, dirs, format)</span>
+<span>def <span class="ident">__init__</span></span>(<span>self, dirname, dirs, format)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Don't call this constructor directly - use either
 <a title="cfgs.App.config" href="#cfgs.App.config"><code>App.config</code></a> or <a title="cfgs.App.data" href="#cfgs.App.data"><code>App.data</code></a> instead.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def __init__(self, home, dirs, format):
+<pre><code class="python">def __init__(self, dirname, dirs, format):
     &#34;&#34;&#34;
     Don&#39;t call this constructor directly - use either
     `cfgs.App.config` or `cfgs.App.data` instead.
     &#34;&#34;&#34;
-    self.home = home
+    self.dirname = dirname
     self.dirs = dirs
     assert not isinstance(format, str)
     self.format = format
-    self.dirs.insert(0, self.home)</code></pre>
+    self.dirs.insert(0, self.dirname)</code></pre>
 </details>
 </dd>
 <dt id="cfgs.Directory.all_files"><code class="name flex">
@@ -1045,20 +1115,6 @@ directory or any of the search directories</p></section>
             yield open(full_path) and full_path
         except IOError:
             pass</code></pre>
-</details>
-</dd>
-<dt id="cfgs.Directory.full_name"><code class="name flex">
-<span>def <span class="ident">full_name</span></span>(<span>self, filename)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Return the full name of a file with respect to this XDG directory</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def full_name(self, filename):
-    &#34;&#34;&#34;
-    Return the full name of a file with respect to this XDG directory
-    &#34;&#34;&#34;
-    return os.path.join(self.home, filename)</code></pre>
 </details>
 </dd>
 <dt id="cfgs.Directory.open"><code class="name flex">
@@ -1092,13 +1148,27 @@ first try to guess the filename from the filename, then use
          `self.format`
     &#34;&#34;&#34;
     if not filename:
-        basename = os.path.basename(self.home)
+        basename = os.path.basename(self.dirname)
         suffix = FORMAT_TO_SUFFIX[self.format.name]
         filename = &#39;%s%s&#39; % (basename, suffix)
     elif filename.startswith(&#39;/&#39;):
         filename = filename[1:]
 
-    return File(self.full_name(filename), self.format)</code></pre>
+    return File(self.path_to(filename), self.format)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Directory.path_to"><code class="name flex">
+<span>def <span class="ident">path_to</span></span>(<span>self, filename)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return the full name of a file with respect to this XDG directory</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def path_to(self, filename):
+    &#34;&#34;&#34;
+    Return the full name of a file with respect to this XDG directory
+    &#34;&#34;&#34;
+    return os.path.join(self.dirname, filename)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1373,6 +1443,217 @@ See help(type(self)) for accurate signature.</p></section>
 </dd>
 </dl>
 </dd>
+<dt id="cfgs.FunctionCache"><code class="flex name class">
+<span>class <span class="ident">FunctionCache</span></span>
+<span>(</span><span><small>ancestors:</small> abc.ABC)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class FunctionCache(abc.ABC):
+    binary = False
+
+    def __init__(self, cache_directory, function=None):
+        self.open = cache_directory.open
+        if function:
+            self.function = function
+
+    def get(self, input):
+        filename = self.filename(input)
+        size_guess = self.size_guess(input)
+        with self.open(filename, size_guess, self.binary) as fp:
+            if &#39;r&#39; in fp.mode:
+                output = self.unserialize(fp)
+            else:
+                output = self.compute(input)
+                self.serialize(output, fp)
+            return output
+
+    def function(self, input):
+        raise NotImplementedError
+
+    def size_guess(self, input):
+        &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+        return 0
+
+    @abc.abstractmethod
+    def serialize(self, output, fp):
+        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def unserialize(self, fp):
+        &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;
+
+    @abc.abstractmethod
+    def filename(self, input):
+        &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="cfgs.JsonFunctionCache" href="#cfgs.JsonFunctionCache">JsonFunctionCache</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="cfgs.FunctionCache.binary"><code class="name">var <span class="ident">binary</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.FunctionCache.__init__"><code class="name flex">
+<span>def <span class="ident">__init__</span></span>(<span>self, cache_directory, function=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Initialize self.
+See help(type(self)) for accurate signature.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def __init__(self, cache_directory, function=None):
+    self.open = cache_directory.open
+    if function:
+        self.function = function</code></pre>
+</details>
+</dd>
+<dt id="cfgs.FunctionCache.filename"><code class="name flex">
+<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a unique, persistent filename representing this data</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def filename(self, input):
+    &#34;&#34;&#34;Return a unique, persistent filename representing this data&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.FunctionCache.function"><code class="name flex">
+<span>def <span class="ident">function</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def function(self, input):
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+<dt id="cfgs.FunctionCache.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get(self, input):
+    filename = self.filename(input)
+    size_guess = self.size_guess(input)
+    with self.open(filename, size_guess, self.binary) as fp:
+        if &#39;r&#39; in fp.mode:
+            output = self.unserialize(fp)
+        else:
+            output = self.compute(input)
+            self.serialize(output, fp)
+        return output</code></pre>
+</details>
+</dd>
+<dt id="cfgs.FunctionCache.serialize"><code class="name flex">
+<span>def <span class="ident">serialize</span></span>(<span>self, output, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Writes the output to a file handle</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def serialize(self, output, fp):
+    &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="cfgs.FunctionCache.size_guess"><code class="name flex">
+<span>def <span class="ident">size_guess</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An estimate of how large the file representing input will be</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def size_guess(self, input):
+    &#34;&#34;&#34;An estimate of how large the file representing input will be&#34;&#34;&#34;
+    return 0</code></pre>
+</details>
+</dd>
+<dt id="cfgs.FunctionCache.unserialize"><code class="name flex">
+<span>def <span class="ident">unserialize</span></span>(<span>self, fp)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Reads an output from a file handle</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">@abc.abstractmethod
+def unserialize(self, fp):
+    &#34;&#34;&#34;Reads an output from a file handle&#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.JsonFunctionCache"><code class="flex name class">
+<span>class <span class="ident">JsonFunctionCache</span></span>
+<span>(</span><span><small>ancestors:</small> <a title="cfgs.FunctionCache" href="#cfgs.FunctionCache">FunctionCache</a>, abc.ABC)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Helper class that provides a standard way to create an ABC using
+inheritance.</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class JsonFunctionCache(FunctionCache):
+    def serialize(self, output, fp):
+        &#34;&#34;&#34;Writes the output to a file handle&#34;&#34;&#34;
+        json.dump(output, fp, indent=2, sort_keys=True)
+
+    def unserialize(self, fp):
+        return json.load(fp)
+
+    def filename(self, input):
+        &#34;&#34;&#34;
+        Return a unique, persistent filename representing this data.
+
+        The heuristic here doesn&#39;t guarantee a unique file
+
+        &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.JsonFunctionCache.filename"><code class="name flex">
+<span>def <span class="ident">filename</span></span>(<span>self, input)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Return a unique, persistent filename representing this data.</p>
+<p>The heuristic here doesn't guarantee a unique file</p></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def filename(self, input):
+    &#34;&#34;&#34;
+    Return a unique, persistent filename representing this data.
+
+    The heuristic here doesn&#39;t guarantee a unique file
+
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="cfgs.FunctionCache" href="#cfgs.FunctionCache">FunctionCache</a></b></code>:
+<ul class="hlist">
+<li><code><a title="cfgs.FunctionCache.__init__" href="#cfgs.FunctionCache.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.FunctionCache.serialize" href="#cfgs.FunctionCache.serialize">serialize</a></code></li>
+<li><code><a title="cfgs.FunctionCache.size_guess" href="#cfgs.FunctionCache.size_guess">size_guess</a></code></li>
+<li><code><a title="cfgs.FunctionCache.unserialize" href="#cfgs.FunctionCache.unserialize">unserialize</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="cfgs.XDG"><code class="flex name class">
 <span>class <span class="ident">XDG</span></span>
 </code></dt>
@@ -1555,11 +1836,12 @@ user-specific runtime files and other file objects should be placed</p></section
 </li>
 <li>
 <h4><code><a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory">CacheDirectory</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="cfgs.CacheDirectory.__init__" href="#cfgs.CacheDirectory.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.cache_size" href="#cfgs.CacheDirectory.cache_size">cache_size</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.dirname" href="#cfgs.CacheDirectory.dirname">dirname</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.open" href="#cfgs.CacheDirectory.open">open</a></code></li>
+<li><code><a title="cfgs.CacheDirectory.path_to" href="#cfgs.CacheDirectory.path_to">path_to</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.prune" href="#cfgs.CacheDirectory.prune">prune</a></code></li>
 </ul>
 </li>
@@ -1571,8 +1853,8 @@ user-specific runtime files and other file objects should be placed</p></section
 <ul class="">
 <li><code><a title="cfgs.Directory.__init__" href="#cfgs.Directory.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.Directory.all_files" href="#cfgs.Directory.all_files">all_files</a></code></li>
-<li><code><a title="cfgs.Directory.full_name" href="#cfgs.Directory.full_name">full_name</a></code></li>
 <li><code><a title="cfgs.Directory.open" href="#cfgs.Directory.open">open</a></code></li>
+<li><code><a title="cfgs.Directory.path_to" href="#cfgs.Directory.path_to">path_to</a></code></li>
 </ul>
 </li>
 <li>
@@ -1599,6 +1881,25 @@ user-specific runtime files and other file objects should be placed</p></section
 </ul>
 </li>
 <li>
+<h4><code><a title="cfgs.FunctionCache" href="#cfgs.FunctionCache">FunctionCache</a></code></h4>
+<ul class="two-column">
+<li><code><a title="cfgs.FunctionCache.__init__" href="#cfgs.FunctionCache.__init__">__init__</a></code></li>
+<li><code><a title="cfgs.FunctionCache.binary" href="#cfgs.FunctionCache.binary">binary</a></code></li>
+<li><code><a title="cfgs.FunctionCache.filename" href="#cfgs.FunctionCache.filename">filename</a></code></li>
+<li><code><a title="cfgs.FunctionCache.function" href="#cfgs.FunctionCache.function">function</a></code></li>
+<li><code><a title="cfgs.FunctionCache.get" href="#cfgs.FunctionCache.get">get</a></code></li>
+<li><code><a title="cfgs.FunctionCache.serialize" href="#cfgs.FunctionCache.serialize">serialize</a></code></li>
+<li><code><a title="cfgs.FunctionCache.size_guess" href="#cfgs.FunctionCache.size_guess">size_guess</a></code></li>
+<li><code><a title="cfgs.FunctionCache.unserialize" href="#cfgs.FunctionCache.unserialize">unserialize</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cfgs.JsonFunctionCache" href="#cfgs.JsonFunctionCache">JsonFunctionCache</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.JsonFunctionCache.filename" href="#cfgs.JsonFunctionCache.filename">filename</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="cfgs.XDG" href="#cfgs.XDG">XDG</a></code></h4>
 <ul class="two-column">
 <li><code><a title="cfgs.XDG.XDG_CACHE_HOME" href="#cfgs.XDG.XDG_CACHE_HOME">XDG_CACHE_HOME</a></code></li>
@@ -1616,7 +1917,7 @@ user-specific runtime files and other file objects should be placed</p></section
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.5.3.dev4+ge9f9892</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.5.2</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad()</script>
