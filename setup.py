@@ -39,7 +39,7 @@ class RunCoverage(RunTests):
 
 
 NAME = 'cfgs'
-OWNER = 'timedata-org'
+OWNER = 'rec'
 FILENAME = os.path.join(os.path.dirname(__file__), 'VERSION')
 VERSION = open(FILENAME).read().strip()
 
@@ -51,7 +51,7 @@ with open('test_requirements.txt') as f:
 
 
 setup(
-    name='cfgs',
+    name=NAMEAXS,
     version=open('VERSION').read().strip(),
     description=(
         'cfgs is a pure Python library for data and config files which '
