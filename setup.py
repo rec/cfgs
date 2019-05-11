@@ -15,6 +15,7 @@ class RunTests(TestCommand):
     def run_tests(self):
         # Import here, because outside the eggs aren't loaded.
         import pytest
+
         errno = pytest.main(self.test_args)
         if errno:
             raise SystemExit(errno)
@@ -23,6 +24,7 @@ class RunTests(TestCommand):
 class RunCoverage(RunTests):
     def run_tests(self):
         import coverage
+
         cov = coverage.Coverage(config_file=True)
 
         cov.start()
@@ -33,8 +35,10 @@ class RunCoverage(RunTests):
         coverage = cov.html_report(directory='htmlcov')
         fail_under = cov.get_option('report:fail_under')
         if coverage < fail_under:
-            print('ERROR: coverage %.2f%% was less than fail_under=%s%%' % (
-                  coverage, fail_under))
+            print(
+                'ERROR: coverage %.2f%% was less than fail_under=%s%%'
+                % (coverage, fail_under)
+            )
             raise SystemExit(1)
 
 
@@ -55,7 +59,8 @@ setup(
     version=open('VERSION').read().strip(),
     description=(
         'cfgs is a pure Python library for data and config files which '
-        'implements the XDG standard for persistent files'),
+        'implements the XDG standard for persistent files'
+    ),
     long_description=open('README.rst').read(),
     author='Tom Ritchford',
     author_email='tom@swirly.com',
@@ -72,10 +77,13 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     tests_require=TESTS_REQUIRE,
-    cmdclass={
-        'coverage': RunCoverage,
-        'test': RunTests,
-    },
+    cmdclass={'coverage': RunCoverage, 'test': RunTests},
     keywords=[
-        'configuration', 'cache', 'configparser', 'json', 'toml', 'yaml'],
+        'configuration',
+        'cache',
+        'configparser',
+        'json',
+        'toml',
+        'yaml',
+    ],
 )

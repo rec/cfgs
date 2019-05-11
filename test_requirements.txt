@@ -1,5 +1,6 @@
 coverage
 flake8
-pytest
+import_all
 pyfakefs
+pytest
 pyyaml

@@ -9,11 +9,12 @@ matrix:
       dist: xenial
 
 install:
+- pip install -r requirements.txt
 - pip install -r test_requirements.txt
 
 script:
-- flake8
-- python -m unittest test.cfgs_test
+- flake8 cfgs.py test
+- pytest test
 
 # Don't compile "experimental" branches starting with x-, y-, or z-.
 branches:
