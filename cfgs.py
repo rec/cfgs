@@ -20,8 +20,9 @@ class App:
     DEFAULT_FORMAT = 'json'
     """The default, default file format for all Apps"""
 
-    def __init__(self, name, format=DEFAULT_FORMAT,
-                 read_kwds=None, write_kwds=None):
+    def __init__(
+        self, name, format=DEFAULT_FORMAT, read_kwds=None, write_kwds=None
+    ):
         """
         Arguments:
 
@@ -31,6 +32,7 @@ class App:
 
           format: the format for config and data files from this App
         """
+
         def path(attrname):
             path = getattr(self.xdg, attrname)
             if attrname.endswith('DIRS'):
@@ -98,7 +100,8 @@ class XDG:
         """
 
         self.XDG_DATA_DIRS = get(
-            'XDG_DATA_DIRS', '/usr/local/share/:/usr/share/')
+            'XDG_DATA_DIRS', '/usr/local/share/:/usr/share/'
+        )
         """A set of preference ordered base directories relative to which
            data files should be searched
         """
@@ -227,6 +230,7 @@ class Cache:
     """
     A class that creates caches
     """
+
     def __init__(self, dirname):
         """Do not call this constructor - instead use `cfgs.App.cache` """
 
@@ -353,17 +357,19 @@ class Format:
         self.name = format
         """The name of this format"""
 
-        self._parser = __import__(format)
         self._read_kwds = read_kwds or {}
         self._write_kwds = write_kwds or {}
+        self._parser = __import__(format)
 
     def read(self, fp):
         """Read contents from an open file in this format"""
-        return self._parser.load(fp, **self._read_kwds)
+        load = getattr(self._parser, 'safe_load', self._parser.load)
+        return load(fp, **self._read_kwds)
 
     def write(self, contents, fp):
         """Write contents in this format to an open file"""
-        return self._parser.dump(contents, fp, **self._write_kwds)
+        dump = getattr(self._parser, 'safe_dump', self._parser.dump)
+        return dump(contents, fp, **self._write_kwds)
 
     def create(self):
         """Return new, empty contents"""
@@ -382,7 +388,7 @@ class ConfigparserFormat(Format):
         try:
             self._parser = __import__('configparser')
         except ImportError:
-            self.__import__ = __import__('ConfigParser')
+            self._parser = __import__('ConfigParser')
 
     def read(self, fp):
         """Read contents from an open file in this format"""

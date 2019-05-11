@@ -99,6 +99,7 @@ class ConfigTest(TestCase):
         self.assertIn('"%*/:<?\\|', cm.exception.args[0])
 
     if platform.python_version_tuple()[0] != '2':
+
         def test_guess_format(self):
             with cfgs.App('test', format='yaml').data.open('special') as fp:
                 f = fp.contents
@@ -122,8 +123,11 @@ class ConfigTest(TestCase):
             pr = cfgs.App('test', format='configparser')
             with pr.config.open() as f:
                 actual = f.as_dict()
-                expected = {'DEFAULT': {}, 'foo': {'a': '1', 'b': '2'},
-                            'bar': {}}
+                expected = {
+                    'DEFAULT': {},
+                    'foo': {'a': '1', 'b': '2'},
+                    'bar': {},
+                }
                 self.assertEqual(expected, actual)
 
                 f.clear()
@@ -132,8 +136,11 @@ class ConfigTest(TestCase):
 
 class AllFilesTest(TestCase):
     def test_data(self):
-        files = ('/usr/share/wombat.json', '/etc/xdg/test/wombat.json',
-                 '/wombat.json')
+        files = (
+            '/usr/share/wombat.json',
+            '/etc/xdg/test/wombat.json',
+            '/wombat.json',
+        )
         for f in files:
             self.fs.create_file(f)
         cfg = cfgs.App('test')
@@ -149,7 +156,8 @@ class CacheTest(TestCase):
         ('three', '333'),
         ('four', '4444'),
         ('five', '55555'),
-        ('six', '666666'))
+        ('six', '666666'),
+    )
     EXPECTED = set(f for (f, c) in FILE_CONTENTS)
 
     def test_cache1(self):
