@@ -1,6 +1,7 @@
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
-import os, sys
+import os
+import sys
 
 
 # From here: http://pytest.org/2.2.4/goodpractises.html

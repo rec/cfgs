@@ -1,4 +1,6 @@
-import cfgs, json, platform
+import cfgs
+import json
+import platform
 from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
 
 

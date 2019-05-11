@@ -5,7 +5,8 @@ Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 """
 
-import copy, os
+import copy
+import os
 
 _getenv = os.environ.get
 _expandvars = os.path.expandvars
@@ -412,7 +413,7 @@ class ConfigparserFormat(Format):
 def _makedirs(f):  # For Python 2 compatibility
     try:
         os.makedirs(f)
-    except:
+    except Exception:
         pass
 
 
