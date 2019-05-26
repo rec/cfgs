@@ -194,7 +194,7 @@ class File:
         where it will be a `configparser.SafeConfigParser`.
         """
 
-        _makedirs(os.path.dirname(self.filename))
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         self.format = format
         self.read()
 
@@ -386,10 +386,7 @@ class ConfigparserFormat(Format):
     """The name of the configparser format"""
 
     def __init__(self):
-        try:
-            self._parser = __import__('configparser')
-        except ImportError:
-            self._parser = __import__('ConfigParser')
+        self._parser = __import__(self.name)
 
     def read(self, fp):
         """Read contents from an open file in this format"""
