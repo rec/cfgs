@@ -12,7 +12,7 @@ Then I read
 `this article <https://0x46.net/thoughts/2019/02/01/dotfile-madness/>`_.
 
 Great was my embarrasment to discover that there was a
-`neat little specification <https://0x46.net/thoughts/2019/02/01/dotfile-madness/>`_
+`neat little specification <https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_
 for data, config and cache directories in Linux that prevents this problem, and
 that I was not using it:
 
