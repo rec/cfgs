@@ -1,7 +1,7 @@
+from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
 import cfgs
 import json
 import platform
-from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
 
 
 class TestCase(FakeTestCase):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import sys
 from docutils.core import publish_string
+import sys
 
 
 def make(input, output):
