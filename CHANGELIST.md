@@ -21,3 +21,14 @@
 
 ## v0.9.1 2019-02-13
  - New MANIFEST.in
+
+## v0.10.0 - 20/05/28
+
+* Sort imports with simp
+* Add Python 3.8 to .travis.yml
+* Update a link in README.rst
+* Remove Python 2 workarounds
+* Stop supporting Python 2.7
+* More rigid PEP8 compliance
+* Stop supporting Python 3.4
+* Make style changes suggested by black
