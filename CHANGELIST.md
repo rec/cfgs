@@ -22,6 +22,10 @@
 ## v0.9.1 2019-02-13
  - New MANIFEST.in
 
+## v0.10.1 - 20/09/06
+
+* Modify MANIFEST.in
+
 ## v0.10.0 - 20/05/28
 
 * Sort imports with simp
