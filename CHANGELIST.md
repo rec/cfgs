@@ -1,3 +1,22 @@
+## v0.10.2 - 20/10/07
+
+* Enable Python 3.9
+
+## v0.10.1 - 20/09/06
+
+* Modify MANIFEST.in
+
+## v0.10.0 - 20/05/28
+
+* Sort imports with simp
+* Add Python 3.8 to .travis.yml
+* Update a link in README.rst
+* Remove Python 2 workarounds
+* Stop supporting Python 2.7
+* More rigid PEP8 compliance
+* Stop supporting Python 3.4
+* Make style changes suggested by black
+
 ## v0.9.7 2019-02-16
 - Change setup.py to fix #6
 
@@ -21,18 +40,3 @@
 
 ## v0.9.1 2019-02-13
  - New MANIFEST.in
-
-## v0.10.1 - 20/09/06
-
-* Modify MANIFEST.in
-
-## v0.10.0 - 20/05/28
-
-* Sort imports with simp
-* Add Python 3.8 to .travis.yml
-* Update a link in README.rst
-* Remove Python 2 workarounds
-* Stop supporting Python 2.7
-* More rigid PEP8 compliance
-* Stop supporting Python 3.4
-* Make style changes suggested by black
