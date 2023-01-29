@@ -2,3 +2,18 @@
 line-length = 79
 skip-string-normalization = true
 target-version = ['py37']
+
+[tool.poetry]
+name = "cfgs"
+version = "0.10.2"
+description = "🍇 Implements the XDG standard for persistent files 🍇"
+authors = ["Tom Ritchford <tom@swirly.com>"]
+license = "MIT"
+readme = "README.rst"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
