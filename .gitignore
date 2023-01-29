@@ -109,3 +109,6 @@ build/
 # MacOS
 
 .DS_Store
+
+.direnv
+.envrc
