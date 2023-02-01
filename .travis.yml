@@ -1,7 +1,7 @@
 language: python
 
 python:
-- '3.5'
+- '3.7'
 
 matrix:
   include:
@@ -16,9 +16,6 @@ script:
 - flake8 cfgs.py test
 - pytest test
 
-# Don't compile "experimental" branches starting with x-, y-, or z-.
 branches:
-  except:
-    - /^x-.*$/
-    - /^y-.*$/
-    - /^z-.*$/
+  allow:
+    - main
