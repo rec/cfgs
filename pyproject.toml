@@ -5,7 +5,7 @@ target-version = ['py37']
 
 [tool.poetry]
 name = "cfgs"
-version = "0.11.0"
+version = "0.12.0"
 description = "🍇 XDG standard config files 🍇"
 authors = ["Tom Ritchford <tom@swirly.com>"]
 license = "MIT"
