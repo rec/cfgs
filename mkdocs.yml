@@ -1,0 +1,19 @@
+site_name: '🍇: `cfgs`: XDG standard config files 🍇'
+
+theme:
+  name: material
+
+  palette:
+    primary:
+      'red'
+
+  font:
+    text:
+      Roboto
+    code:
+      Roboto Mono
+
+extra_css: [extra.css]
+
+plugins:
+    - mkdocstrings
