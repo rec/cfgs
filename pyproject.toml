@@ -22,6 +22,15 @@ pyfakefs = "^5.1.0"
 pytest = "^7.2.1"
 pyyaml = "^6.0"
 
+
+[tool.coverage]
+[tool.coverage.run]
+branch = "True"
+include = "cfgs.py"
+
+[tool.coverage.report]
+fail_under = "63"
+skip_covered = "True"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
