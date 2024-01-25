@@ -26,6 +26,9 @@ include = "cfgs.py"
 [tool.coverage.report]
 fail_under = "63"
 skip_covered = "True"
+
+[tool.mypy]
+strict = true
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
