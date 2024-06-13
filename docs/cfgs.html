@@ -3,36 +3,162 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.5.3.dev4+ge9f9892" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>cfgs API documentation</title>
-<meta name="description" content="`cfgs` …" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.name small{font-weight:normal}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<meta name="description" content="`cfgs`: ⚙ Serializable hierarchical dataclass settings ⚙ …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
 <article id="content">
 <header>
-<h1 class="title"><code>cfgs</code> module</h1>
+<h1 class="title">Module <code>cfgs</code></h1>
 </header>
 <section id="section-intro">
-<p><a title="cfgs" href="#cfgs"><code>cfgs</code></a></p>
+<p><code><a title="cfgs" href="#cfgs">cfgs</a></code>: ⚙ Serializable hierarchical dataclass settings ⚙</p>
+<p>Also:</p>
 <p>Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.</p>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">&#34;&#34;&#34;
-`cfgs`
+`cfgs`: ⚙ Serializable hierarchical dataclass settings ⚙
+
+Also:
 
 Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 &#34;&#34;&#34;
 
-import copy, os
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple, Union
+import copy
+import dataclasses as dc
+import json
+import os
+import os
+import sys
+
+File = Tuple[Union[Path, str]]
+_NONE = object()
+
+
+class Configs:
+    def diff(self, other: Any):
+        assert self.__class__ is other.__class__
+        result = {}
+        for f in dc.fields(self):
+            s, o = getattr(self, f.name), getattr(other, f.name)
+            if s != o:
+                if isinstance(s, Configs):
+                    assert isinstance(o, Configs)
+                    o = s.diff(o)
+                result[f.name] = o
+
+        return result
+
+    def copy_from(self, **kwargs):
+        for k, v in kwargs.items():
+            attr = getattr(self, k)
+            if isinstance(attr, Configs):
+                attr.copy_from(**v)
+            else:
+                setattr(self, k, v)
+
+    def load(self, *files: File):
+        for f in files:
+            self.copy_from(_load(f))
+
+    def load_from_environ(
+        self,
+        prefix: str,
+        environ: Optional[Dict] = None,
+        verbose: bool = True,
+    ):
+        if environ is None:
+            environ = os.environ
+        pre = prefix.strip(&#39;_&#39;).upper() + &#39;_&#39;
+        items = sorted(environ.items())
+        items = ((k, v) for k, v in items if k.startswith(pre))
+
+        for k, v in items:
+            attr_name = k[len(pre):].lower()
+            splits = list(_split_address(v, attr_name))
+            if len(splits) == 1:
+                parent, attr = splits[0]
+                str_val = getattr(parent, attr)
+                val = _string_value(k, v, str_val)
+                setattr(parent, attr, val)
+            elif not verbose:
+                continue
+            elif not splits:
+                print(&#39;No configs match&#39;, k, file=sys.err)
+            else:
+                print(&#39;More than one config matches&#39;, k, file=sys.err)
+
+
+def _split_address(parent, key):
+    if key in dir(parent):
+        yield parent, key
+    else:
+        for k in dir(parent):
+            if k.startswith(key + &#39;_&#39;):
+                k = key[len(key) + 1:]
+                new_parent = getattr(parent, k)
+                yield from _split_address(new_parent, k)
+
+
+def _string_value(name, v, original_value):
+    if original_value is None or isinstance(v, str):
+        return v
+
+    if isinstance(original_value, int):
+        return int(v)
+
+    if isinstance(original_value, float):
+        return float(v)
+
+    if isinstance(original_value, bool):
+        if v.lower() in (&#39;t&#39;, &#39;true&#39;):
+            return True
+        if v.lower() in (&#39;f&#39;, &#39;false&#39;):
+            return False
+        raise ValueError(f&#39;Cannot understand bool {name}={v}&#39;)
+
+    if isinstance(original_value, Enum):
+        return type(original_value)[v]
+
+    return json.loads(v)
+
+
+def _load(p):
+    if p.suffix == &#39;.json&#39;:
+        return json.loads(p.read_text())
+
+    if p.suffix == &#39;.toml&#39;:
+        try:
+            import tomllib
+            return tomllib.loads(p.read_text())
+        except ImportError:
+            import tomlkit
+            return tomlkit.loads(p.read_text())
+
+    if p.suffix == &#39;.yaml&#39;:
+        import yaml
+        return yaml.safe_load(p.read_text())
+
+    raise ValueError(&#39;Do not understand suffix=&#39; + p.suffix)
+
 
 _getenv = os.environ.get
 _expandvars = os.path.expandvars
@@ -47,8 +173,9 @@ class App:
     DEFAULT_FORMAT = &#39;json&#39;
     &#34;&#34;&#34;The default, default file format for all Apps&#34;&#34;&#34;
 
-    def __init__(self, name, format=DEFAULT_FORMAT,
-                 read_kwds=None, write_kwds=None):
+    def __init__(
+        self, name, format=DEFAULT_FORMAT, read_kwds=None, write_kwds=None
+    ):
         &#34;&#34;&#34;
         Arguments:
 
@@ -58,6 +185,7 @@ class App:
 
           format: the format for config and data files from this App
         &#34;&#34;&#34;
+
         def path(attrname):
             path = getattr(self.xdg, attrname)
             if attrname.endswith(&#39;DIRS&#39;):
@@ -125,7 +253,8 @@ class XDG:
         &#34;&#34;&#34;
 
         self.XDG_DATA_DIRS = get(
-            &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;)
+            &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;
+        )
         &#34;&#34;&#34;A set of preference ordered base directories relative to which
            data files should be searched
         &#34;&#34;&#34;
@@ -217,7 +346,7 @@ class File:
         where it will be a `configparser.SafeConfigParser`.
         &#34;&#34;&#34;
 
-        _makedirs(os.path.dirname(self.filename))
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         self.format = format
         self.read()
 
@@ -254,6 +383,7 @@ class Cache:
     &#34;&#34;&#34;
     A class that creates caches
     &#34;&#34;&#34;
+
     def __init__(self, dirname):
         &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
 
@@ -380,17 +510,19 @@ class Format:
         self.name = format
         &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
-        self._parser = __import__(format)
         self._read_kwds = read_kwds or {}
         self._write_kwds = write_kwds or {}
+        self._parser = __import__(format)
 
     def read(self, fp):
         &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
-        return self._parser.load(fp, **self._read_kwds)
+        load = getattr(self._parser, &#39;safe_load&#39;, self._parser.load)
+        return load(fp, **self._read_kwds)
 
     def write(self, contents, fp):
         &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
-        return self._parser.dump(contents, fp, **self._write_kwds)
+        dump = getattr(self._parser, &#39;safe_dump&#39;, self._parser.dump)
+        return dump(contents, fp, **self._write_kwds)
 
     def create(self):
         &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
@@ -406,10 +538,7 @@ class ConfigparserFormat(Format):
     &#34;&#34;&#34;The name of the configparser format&#34;&#34;&#34;
 
     def __init__(self):
-        try:
-            self._parser = __import__(&#39;configparser&#39;)
-        except ImportError:
-            self.__import__ = __import__(&#39;ConfigParser&#39;)
+        self._parser = __import__(self.name)
 
     def read(self, fp):
         &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
@@ -433,7 +562,7 @@ class ConfigparserFormat(Format):
 def _makedirs(f):  # For Python 2 compatibility
     try:
         os.makedirs(f)
-    except:
+    except Exception:
         pass
 
 
@@ -447,17 +576,17 @@ _BAD_CHARS = set(&#39;/\\?%*:|&#34;&lt;&gt;\&#39;;&#39;)</code></pre>
 <dl>
 <dt id="cfgs.FORMATS"><code class="name">var <span class="ident">FORMATS</span></code></dt>
 <dd>
-<section class="desc"><p>A list of all formats that <a title="cfgs" href="#cfgs"><code>cfgs</code></a> understands.</p></section>
+<div class="desc"><p>A list of all formats that <code><a title="cfgs" href="#cfgs">cfgs</a></code> understands.</p></div>
 </dd>
 <dt id="cfgs.FORMAT_TO_SUFFIX"><code class="name">var <span class="ident">FORMAT_TO_SUFFIX</span></code></dt>
 <dd>
-<section class="desc"><p>Map file formats to file suffix - the partial inverse
-to <a title="cfgs.SUFFIX_TO_FORMAT" href="#cfgs.SUFFIX_TO_FORMAT"><code>SUFFIX_TO_FORMAT</code></a></p></section>
+<div class="desc"><p>Map file formats to file suffix - the partial inverse
+to <code><a title="cfgs.SUFFIX_TO_FORMAT" href="#cfgs.SUFFIX_TO_FORMAT">SUFFIX_TO_FORMAT</a></code></p></div>
 </dd>
 <dt id="cfgs.SUFFIX_TO_FORMAT"><code class="name">var <span class="ident">SUFFIX_TO_FORMAT</span></code></dt>
 <dd>
-<section class="desc"><p>Map file suffixes to the file format - the partial inverse
-to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_TO_SUFFIX</code></a></p></section>
+<div class="desc"><p>Map file suffixes to the file format - the partial inverse
+to <code><a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX">FORMAT_TO_SUFFIX</a></code></p></div>
 </dd>
 </dl>
 </section>
@@ -468,12 +597,21 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 <dl>
 <dt id="cfgs.App"><code class="flex name class">
 <span>class <span class="ident">App</span></span>
+<span>(</span><span>name, format='json', read_kwds=None, write_kwds=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p><code>cfg.App</code> is the main class, but it has no methods - it just holds the
-<code>config</code>, <code>data</code>, <code>cache</code> and <code>xdg</code> objects.</p></section>
+<div class="desc"><p><code>cfg.App</code> is the main class, but it has no methods - it just holds the
+<code>config</code>, <code>data</code>, <code>cache</code> and <code>xdg</code> objects.</p>
+<h2 id="arguments">Arguments</h2>
+<p>name: the name of the App.
+<code>name</code> is used as a directory
+name so it should not contain any characters illegal in
+pathnames</p>
+<p>format: the format for config and data files from this App</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class App:
     &#34;&#34;&#34;
     `cfg.App` is the main class, but it has no methods - it just holds the
@@ -483,8 +621,9 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
     DEFAULT_FORMAT = &#39;json&#39;
     &#34;&#34;&#34;The default, default file format for all Apps&#34;&#34;&#34;
 
-    def __init__(self, name, format=DEFAULT_FORMAT,
-                 read_kwds=None, write_kwds=None):
+    def __init__(
+        self, name, format=DEFAULT_FORMAT, read_kwds=None, write_kwds=None
+    ):
         &#34;&#34;&#34;
         Arguments:
 
@@ -494,6 +633,7 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 
           format: the format for config and data files from this App
         &#34;&#34;&#34;
+
         def path(attrname):
             path = getattr(self.xdg, attrname)
             if attrname.endswith(&#39;DIRS&#39;):
@@ -532,109 +672,49 @@ to <a title="cfgs.FORMAT_TO_SUFFIX" href="#cfgs.FORMAT_TO_SUFFIX"><code>FORMAT_T
 <dl>
 <dt id="cfgs.App.DEFAULT_FORMAT"><code class="name">var <span class="ident">DEFAULT_FORMAT</span></code></dt>
 <dd>
-<section class="desc"><p>The default, default file format for all Apps</p></section>
+<div class="desc"><p>The default, default file format for all Apps</p></div>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
 <dt id="cfgs.App.cache"><code class="name">var <span class="ident">cache</span></code></dt>
 <dd>
-<section class="desc"><p>A <code>cfg.Cache</code> that manages cache directories</p></section>
+<div class="desc"><p>A <code>cfg.Cache</code> that manages cache directories</p></div>
 </dd>
 <dt id="cfgs.App.config"><code class="name">var <span class="ident">config</span></code></dt>
 <dd>
-<section class="desc"><p>A <a title="cfgs.Directory" href="#cfgs.Directory"><code>Directory</code></a> for config files</p></section>
+<div class="desc"><p>A <code><a title="cfgs.Directory" href="#cfgs.Directory">Directory</a></code> for config files</p></div>
 </dd>
 <dt id="cfgs.App.data"><code class="name">var <span class="ident">data</span></code></dt>
 <dd>
-<section class="desc"><p>A <a title="cfgs.Directory" href="#cfgs.Directory"><code>Directory</code></a> for data files</p></section>
+<div class="desc"><p>A <code><a title="cfgs.Directory" href="#cfgs.Directory">Directory</a></code> for data files</p></div>
 </dd>
 <dt id="cfgs.App.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"><p>The text name of the App</p></section>
+<div class="desc"><p>The text name of the App</p></div>
 </dd>
 <dt id="cfgs.App.xdg"><code class="name">var <span class="ident">xdg</span></code></dt>
 <dd>
-<section class="desc"><p>A <code>cfg.XFG</code> as of when the App was constructed.</p></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="cfgs.App.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, name, format=&#39;json&#39;, read_kwds=None, write_kwds=None)</span>
-</code></dt>
-<dd>
-<section class="desc"><h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>name</code></strong></dt>
-<dd>the name of the App.
-<code>name</code> is used as a directory
-name so it should not contain any characters illegal in
-pathnames</dd>
-<dt><strong><code>format</code></strong></dt>
-<dd>the format for config and data files from this App</dd>
-</dl></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, name, format=DEFAULT_FORMAT,
-             read_kwds=None, write_kwds=None):
-    &#34;&#34;&#34;
-    Arguments:
-
-      name: the name of the App.  `name` is used as a directory
-            name so it should not contain any characters illegal in
-            pathnames
-
-      format: the format for config and data files from this App
-    &#34;&#34;&#34;
-    def path(attrname):
-        path = getattr(self.xdg, attrname)
-        if attrname.endswith(&#39;DIRS&#39;):
-            return [os.path.join(i, self.name) for i in path.split(&#39;:&#39;)]
-        return os.path.join(path, self.name)
-
-    _check_filename(name)
-
-    self.name = name
-    &#34;&#34;&#34;The text name of the App&#34;&#34;&#34;
-
-    self.xdg = XDG()
-    &#34;&#34;&#34;A `cfg.XFG` as of when the App was constructed.&#34;&#34;&#34;
-
-    self.cache = Cache(path(&#39;XDG_CACHE_HOME&#39;))
-    &#34;&#34;&#34;A `cfg.Cache` that manages cache directories&#34;&#34;&#34;
-
-    if format not in FORMATS:
-        raise ValueError(&#39;Unknown format&#39;, format)
-
-    if format == &#39;configparser&#39;:
-        self.format = ConfigparserFormat()
-        &#34;&#34;&#34;A `cfgs.Format` representing the data format.&#34;&#34;&#34;
-    else:
-        self.format = Format(format, read_kwds, write_kwds)
-
-    h, d = path(&#39;XDG_CONFIG_HOME&#39;), path(&#39;XDG_CONFIG_DIRS&#39;)
-    self.config = Directory(h, d, self.format)
-    &#34;&#34;&#34;A `cfgs.Directory` for config files&#34;&#34;&#34;
-
-    h, d = path(&#39;XDG_DATA_HOME&#39;), path(&#39;XDG_DATA_DIRS&#39;)
-    self.data = Directory(h, d, self.format)
-    &#34;&#34;&#34;A `cfgs.Directory` for data files&#34;&#34;&#34;</code></pre>
-</details>
+<div class="desc"><p>A <code>cfg.XFG</code> as of when the App was constructed.</p></div>
 </dd>
 </dl>
 </dd>
 <dt id="cfgs.Cache"><code class="flex name class">
 <span>class <span class="ident">Cache</span></span>
+<span>(</span><span>dirname)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>A class that creates caches</p></section>
+<div class="desc"><p>A class that creates caches</p>
+<p>Do not call this constructor - instead use <code><a title="cfgs.App.cache" href="#cfgs.App.cache">App.cache</a></code></p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class Cache:
     &#34;&#34;&#34;
     A class that creates caches
     &#34;&#34;&#34;
+
     def __init__(self, dirname):
         &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
 
@@ -658,40 +738,24 @@ pathnames</dd>
 <dl>
 <dt id="cfgs.Cache.dirname"><code class="name">var <span class="ident">dirname</span></code></dt>
 <dd>
-<section class="desc"><p>The full path of the root directory for all cache directories</p></section>
+<div class="desc"><p>The full path of the root directory for all cache directories</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="cfgs.Cache.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, dirname)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Do not call this constructor - instead use <a title="cfgs.App.cache" href="#cfgs.App.cache"><code>App.cache</code></a></p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, dirname):
-    &#34;&#34;&#34;Do not call this constructor - instead use `cfgs.App.cache` &#34;&#34;&#34;
-
-    self.dirname = dirname
-    &#34;&#34;&#34;The full path of the root directory for all cache directories&#34;&#34;&#34;</code></pre>
-</details>
-</dd>
 <dt id="cfgs.Cache.directory"><code class="name flex">
-<span>def <span class="ident">directory</span></span>(<span>self, name=&#39;cache&#39;, cache_size=0)</span>
+<span>def <span class="ident">directory</span></span>(<span>self, name='cache', cache_size=0)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return a <a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory"><code>CacheDirectory</code></a></p>
+<div class="desc"><p>Return a <code><a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory">CacheDirectory</a></code></p>
 <h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>name</code></strong></dt>
-<dd>The relative pathname of the cache directory</dd>
-<dt><strong><code>cache_size</code></strong></dt>
-<dd>The number of bytes allowed in the cache.
-The default of 0 means "unlimited cache size"</dd>
-</dl></section>
+<p>name: The relative pathname of the cache directory</p>
+<p>cache_size: The number of bytes allowed in the cache.
+The default of 0 means "unlimited cache size"</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def directory(self, name=&#39;cache&#39;, cache_size=0):
     &#34;&#34;&#34;
     Return a `cfgs.CacheDirectory`
@@ -710,11 +774,14 @@ The default of 0 means "unlimited cache size"</dd>
 </dd>
 <dt id="cfgs.CacheDirectory"><code class="flex name class">
 <span>class <span class="ident">CacheDirectory</span></span>
+<span>(</span><span>dirname, cache_size)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"><p>Do not call this constructor - use <code><a title="cfgs.Cache.directory" href="#cfgs.Cache.directory">Cache.directory()</a></code></p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class CacheDirectory:
     def __init__(self, dirname, cache_size):
         &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
@@ -782,57 +849,31 @@ The default of 0 means "unlimited cache size"</dd>
 <dl>
 <dt id="cfgs.CacheDirectory.cache_size"><code class="name">var <span class="ident">cache_size</span></code></dt>
 <dd>
-<section class="desc"><p>The number of bytes allowed in the cache.
-0 means "unlimited cache size"</p></section>
+<div class="desc"><p>The number of bytes allowed in the cache.
+0 means "unlimited cache size"</p></div>
 </dd>
 <dt id="cfgs.CacheDirectory.dirname"><code class="name">var <span class="ident">dirname</span></code></dt>
 <dd>
-<section class="desc"><p>The full path to this cache directory</p></section>
+<div class="desc"><p>The full path to this cache directory</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="cfgs.CacheDirectory.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, dirname, cache_size)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Do not call this constructor - use <a title="cfgs.Cache.directory" href="#cfgs.Cache.directory"><code>Cache.directory()</code></a></p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, dirname, cache_size):
-    &#34;&#34;&#34;Do not call this constructor - use `cfgs.Cache.directory`&#34;&#34;&#34;
-
-    self.dirname = dirname
-    &#34;&#34;&#34;The full path to this cache directory&#34;&#34;&#34;
-
-    self.cache_size = cache_size
-    &#34;&#34;&#34;
-    The number of bytes allowed in the cache.
-    0 means &#34;unlimited cache size&#34;
-    &#34;&#34;&#34;
-
-    _makedirs(self.dirname)
-    self.prune()</code></pre>
-</details>
-</dd>
 <dt id="cfgs.CacheDirectory.open"><code class="name flex">
 <span>def <span class="ident">open</span></span>(<span>self, filename, size_guess=0, binary=False)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Open a cached file in this directory.</p>
+<div class="desc"><p>Open a cached file in this directory.</p>
 <p>If the file already exists, it is opened for read.</p>
 <p>Otherwise the cache is pruned and the file is opened for write.</p>
 <h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>filename</code></strong></dt>
-<dd>the name of the file, relative to the cache directory</dd>
-<dt><strong><code>size_guess</code></strong></dt>
-<dd>A guess as to how large the file will be, in bytes</dd>
-<dt><strong><code>binary</code></strong></dt>
-<dd>if True, the file is opened in binary mode</dd>
-</dl></section>
+<p>filename: the name of the file, relative to the cache directory
+size_guess: A guess as to how large the file will be, in bytes
+binary: if True, the file is opened in binary mode</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def open(self, filename, size_guess=0, binary=False):
     &#34;&#34;&#34;
     Open a cached file in this directory.
@@ -864,10 +905,12 @@ The default of 0 means "unlimited cache size"</dd>
 <span>def <span class="ident">prune</span></span>(<span>self, bytes_needed=0)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Prune the cache to generate at least <code>bytes_needed</code> of free space,
-if this is possible.</p></section>
+<div class="desc"><p>Prune the cache to generate at least <code>bytes_needed</code> of free space,
+if this is possible.</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def prune(self, bytes_needed=0):
     &#34;&#34;&#34;
     Prune the cache to generate at least `bytes_needed` of free space,
@@ -894,21 +937,19 @@ if this is possible.</p></section>
 </dd>
 <dt id="cfgs.ConfigparserFormat"><code class="flex name class">
 <span>class <span class="ident">ConfigparserFormat</span></span>
-<span>(</span><span><small>ancestors:</small> <a title="cfgs.Format" href="#cfgs.Format">Format</a>)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class ConfigparserFormat(Format):
     name = &#39;configparser&#39;
     &#34;&#34;&#34;The name of the configparser format&#34;&#34;&#34;
 
     def __init__(self):
-        try:
-            self._parser = __import__(&#39;configparser&#39;)
-        except ImportError:
-            self.__import__ = __import__(&#39;ConfigParser&#39;)
+        self._parser = __import__(self.name)
 
     def read(self, fp):
         &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
@@ -928,11 +969,14 @@ if this is possible.</p></section>
         &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
         return {k: dict(v) for k, v in contents.items()}</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="cfgs.Format" href="#cfgs.Format">Format</a></li>
+</ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="cfgs.Format" href="#cfgs.Format">Format</a></b></code>:
 <ul class="hlist">
-<li><code><a title="cfgs.Format.__init__" href="#cfgs.Format.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.Format.as_dict" href="#cfgs.Format.as_dict">as_dict</a></code></li>
 <li><code><a title="cfgs.Format.create" href="#cfgs.Format.create">create</a></code></li>
 <li><code><a title="cfgs.Format.name" href="#cfgs.Format.name">name</a></code></li>
@@ -942,13 +986,176 @@ if this is possible.</p></section>
 </li>
 </ul>
 </dd>
-<dt id="cfgs.Directory"><code class="flex name class">
-<span>class <span class="ident">Directory</span></span>
+<dt id="cfgs.Configs"><code class="flex name class">
+<span>class <span class="ident">Configs</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>An XDG directory of persistent, formatted files</p></section>
+<div class="desc"></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Configs:
+    def diff(self, other: Any):
+        assert self.__class__ is other.__class__
+        result = {}
+        for f in dc.fields(self):
+            s, o = getattr(self, f.name), getattr(other, f.name)
+            if s != o:
+                if isinstance(s, Configs):
+                    assert isinstance(o, Configs)
+                    o = s.diff(o)
+                result[f.name] = o
+
+        return result
+
+    def copy_from(self, **kwargs):
+        for k, v in kwargs.items():
+            attr = getattr(self, k)
+            if isinstance(attr, Configs):
+                attr.copy_from(**v)
+            else:
+                setattr(self, k, v)
+
+    def load(self, *files: File):
+        for f in files:
+            self.copy_from(_load(f))
+
+    def load_from_environ(
+        self,
+        prefix: str,
+        environ: Optional[Dict] = None,
+        verbose: bool = True,
+    ):
+        if environ is None:
+            environ = os.environ
+        pre = prefix.strip(&#39;_&#39;).upper() + &#39;_&#39;
+        items = sorted(environ.items())
+        items = ((k, v) for k, v in items if k.startswith(pre))
+
+        for k, v in items:
+            attr_name = k[len(pre):].lower()
+            splits = list(_split_address(v, attr_name))
+            if len(splits) == 1:
+                parent, attr = splits[0]
+                str_val = getattr(parent, attr)
+                val = _string_value(k, v, str_val)
+                setattr(parent, attr, val)
+            elif not verbose:
+                continue
+            elif not splits:
+                print(&#39;No configs match&#39;, k, file=sys.err)
+            else:
+                print(&#39;More than one config matches&#39;, k, file=sys.err)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="cfgs.Configs.copy_from"><code class="name flex">
+<span>def <span class="ident">copy_from</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy_from(self, **kwargs):
+    for k, v in kwargs.items():
+        attr = getattr(self, k)
+        if isinstance(attr, Configs):
+            attr.copy_from(**v)
+        else:
+            setattr(self, k, v)</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Configs.diff"><code class="name flex">
+<span>def <span class="ident">diff</span></span>(<span>self, other: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def diff(self, other: Any):
+    assert self.__class__ is other.__class__
+    result = {}
+    for f in dc.fields(self):
+        s, o = getattr(self, f.name), getattr(other, f.name)
+        if s != o:
+            if isinstance(s, Configs):
+                assert isinstance(o, Configs)
+                o = s.diff(o)
+            result[f.name] = o
+
+    return result</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Configs.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, *files: Tuple[Union[pathlib.Path, str]])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, *files: File):
+    for f in files:
+        self.copy_from(_load(f))</code></pre>
+</details>
+</dd>
+<dt id="cfgs.Configs.load_from_environ"><code class="name flex">
+<span>def <span class="ident">load_from_environ</span></span>(<span>self, prefix: str, environ: Optional[Dict] = None, verbose: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_from_environ(
+    self,
+    prefix: str,
+    environ: Optional[Dict] = None,
+    verbose: bool = True,
+):
+    if environ is None:
+        environ = os.environ
+    pre = prefix.strip(&#39;_&#39;).upper() + &#39;_&#39;
+    items = sorted(environ.items())
+    items = ((k, v) for k, v in items if k.startswith(pre))
+
+    for k, v in items:
+        attr_name = k[len(pre):].lower()
+        splits = list(_split_address(v, attr_name))
+        if len(splits) == 1:
+            parent, attr = splits[0]
+            str_val = getattr(parent, attr)
+            val = _string_value(k, v, str_val)
+            setattr(parent, attr, val)
+        elif not verbose:
+            continue
+        elif not splits:
+            print(&#39;No configs match&#39;, k, file=sys.err)
+        else:
+            print(&#39;More than one config matches&#39;, k, file=sys.err)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cfgs.Directory"><code class="flex name class">
+<span>class <span class="ident">Directory</span></span>
+<span>(</span><span>home, dirs, format)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An XDG directory of persistent, formatted files</p>
+<p>Don't call this constructor directly - use either
+<code><a title="cfgs.App.config" href="#cfgs.App.config">App.config</a></code> or <code><a title="cfgs.App.data" href="#cfgs.App.data">App.data</a></code> instead.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class Directory:
     &#34;&#34;&#34;
     An XDG directory of persistent, formatted files
@@ -1006,34 +1213,16 @@ if this is possible.</p></section>
 </details>
 <h3>Methods</h3>
 <dl>
-<dt id="cfgs.Directory.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, home, dirs, format)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Don't call this constructor directly - use either
-<a title="cfgs.App.config" href="#cfgs.App.config"><code>App.config</code></a> or <a title="cfgs.App.data" href="#cfgs.App.data"><code>App.data</code></a> instead.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, home, dirs, format):
-    &#34;&#34;&#34;
-    Don&#39;t call this constructor directly - use either
-    `cfgs.App.config` or `cfgs.App.data` instead.
-    &#34;&#34;&#34;
-    self.home = home
-    self.dirs = dirs
-    assert not isinstance(format, str)
-    self.format = format
-    self.dirs.insert(0, self.home)</code></pre>
-</details>
-</dd>
 <dt id="cfgs.Directory.all_files"><code class="name flex">
 <span>def <span class="ident">all_files</span></span>(<span>self, filename)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Yield all filenames matching the argument in either the home
-directory or any of the search directories</p></section>
+<div class="desc"><p>Yield all filenames matching the argument in either the home
+directory or any of the search directories</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def all_files(self, filename):
     &#34;&#34;&#34;
     Yield all filenames matching the argument in either the home
@@ -1051,9 +1240,11 @@ directory or any of the search directories</p></section>
 <span>def <span class="ident">full_name</span></span>(<span>self, filename)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return the full name of a file with respect to this XDG directory</p></section>
+<div class="desc"><p>Return the full name of a file with respect to this XDG directory</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def full_name(self, filename):
     &#34;&#34;&#34;
     Return the full name of a file with respect to this XDG directory
@@ -1065,20 +1256,18 @@ directory or any of the search directories</p></section>
 <span>def <span class="ident">open</span></span>(<span>self, filename=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Open a persistent <code>cfg.File</code>.</p>
+<div class="desc"><p>Open a persistent <code>cfg.File</code>.</p>
 <h2 id="arguments">Arguments</h2>
-<dl>
-<dt><strong><code>filename</code></strong></dt>
-<dd>The name of the persistent file. If None,
-<code>filename</code> defaults to <code>cfg.App.name</code> plus the format suffix</dd>
-<dt><strong><code>format</code></strong></dt>
-<dd>A string representing the file format.
+<p>filename: The name of the persistent file. If None,
+<code>filename</code> defaults to <code>cfg.App.name</code> plus the format suffix</p>
+<p>format: A string representing the file format.
 If None,
 first try to guess the filename from the filename, then use
-<code>self.format</code></dd>
-</dl></section>
+<code>self.format</code></p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def open(self, filename=None):
     &#34;&#34;&#34;
     Open a persistent `cfg.File`.
@@ -1105,12 +1294,17 @@ first try to guess the filename from the filename, then use
 </dd>
 <dt id="cfgs.File"><code class="flex name class">
 <span>class <span class="ident">File</span></span>
+<span>(</span><span>filename, format)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>A formatted data or config file where you can set and get items,
-and read or write.</p></section>
+<div class="desc"><p>A formatted data or config file where you can set and get items,
+and read or write.</p>
+<p>Do not call this constructor directly but use
+<code>cfg.Directory.open</code> instead</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class File:
     &#34;&#34;&#34;
     A formatted data or config file where you can set and get items,
@@ -1131,7 +1325,7 @@ and read or write.</p></section>
         where it will be a `configparser.SafeConfigParser`.
         &#34;&#34;&#34;
 
-        _makedirs(os.path.dirname(self.filename))
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
         self.format = format
         self.read()
 
@@ -1167,51 +1361,26 @@ and read or write.</p></section>
 <dl>
 <dt id="cfgs.File.contents"><code class="name">var <span class="ident">contents</span></code></dt>
 <dd>
-<section class="desc"><p>The contents of the formatted file, read and parsed.</p>
+<div class="desc"><p>The contents of the formatted file, read and parsed.</p>
 <p>This will be a <code>dict</code> for all formats except <code>configparser</code>,
-where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
+where it will be a <code>configparser.SafeConfigParser</code>.</p></div>
 </dd>
 <dt id="cfgs.File.filename"><code class="name">var <span class="ident">filename</span></code></dt>
 <dd>
-<section class="desc"><p>The full pathname to the data file</p></section>
+<div class="desc"><p>The full pathname to the data file</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="cfgs.File.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, filename, format)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Do not call this constructor directly but use
-<code>cfg.Directory.open</code> instead</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, filename, format):
-    &#34;&#34;&#34;Do not call this constructor directly but use
-    `cfg.Directory.open` instead&#34;&#34;&#34;
-
-    self.filename = filename
-    &#34;&#34;&#34;The full pathname to the data file&#34;&#34;&#34;
-
-    self.contents = {}
-    &#34;&#34;&#34;The contents of the formatted file, read and parsed.
-
-    This will be a `dict` for all formats except `configparser`,
-    where it will be a `configparser.SafeConfigParser`.
-    &#34;&#34;&#34;
-
-    _makedirs(os.path.dirname(self.filename))
-    self.format = format
-    self.read()</code></pre>
-</details>
-</dd>
 <dt id="cfgs.File.as_dict"><code class="name flex">
 <span>def <span class="ident">as_dict</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return a deep copy of the contents as a dict</p></section>
+<div class="desc"><p>Return a deep copy of the contents as a dict</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def as_dict(self):
     &#34;&#34;&#34;Return a deep copy of the contents as a dict&#34;&#34;&#34;
     return self.format.as_dict(self.contents)</code></pre>
@@ -1221,9 +1390,11 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <span>def <span class="ident">clear</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Clear the contents without writing</p></section>
+<div class="desc"><p>Clear the contents without writing</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def clear(self):
     &#34;&#34;&#34;Clear the contents without writing&#34;&#34;&#34;
     self.contents.clear()</code></pre>
@@ -1233,9 +1404,11 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <span>def <span class="ident">read</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Re-read the contents from the file</p></section>
+<div class="desc"><p>Re-read the contents from the file</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def read(self):
     &#34;&#34;&#34;Re-read the contents from the file&#34;&#34;&#34;
     try:
@@ -1250,9 +1423,11 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <span>def <span class="ident">write</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write the contents to the file</p></section>
+<div class="desc"><p>Write the contents to the file</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def write(self):
     &#34;&#34;&#34;Write the contents to the file&#34;&#34;&#34;
     with open(self.filename, &#39;w&#39;) as fp:
@@ -1263,27 +1438,32 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 </dd>
 <dt id="cfgs.Format"><code class="flex name class">
 <span>class <span class="ident">Format</span></span>
+<span>(</span><span>format, read_kwds, write_kwds)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<div class="desc"></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class Format:
     def __init__(self, format, read_kwds, write_kwds):
         self.name = format
         &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
 
-        self._parser = __import__(format)
         self._read_kwds = read_kwds or {}
         self._write_kwds = write_kwds or {}
+        self._parser = __import__(format)
 
     def read(self, fp):
         &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
-        return self._parser.load(fp, **self._read_kwds)
+        load = getattr(self._parser, &#39;safe_load&#39;, self._parser.load)
+        return load(fp, **self._read_kwds)
 
     def write(self, contents, fp):
         &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
-        return self._parser.dump(contents, fp, **self._write_kwds)
+        dump = getattr(self._parser, &#39;safe_dump&#39;, self._parser.dump)
+        return dump(contents, fp, **self._write_kwds)
 
     def create(self):
         &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
@@ -1301,35 +1481,20 @@ where it will be a <code>configparser.SafeConfigParser</code>.</p></section>
 <dl>
 <dt id="cfgs.Format.name"><code class="name">var <span class="ident">name</span></code></dt>
 <dd>
-<section class="desc"><p>The name of this format</p></section>
+<div class="desc"><p>The name of this format</p></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="cfgs.Format.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self, format, read_kwds, write_kwds)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Initialize self.
-See help(type(self)) for accurate signature.</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self, format, read_kwds, write_kwds):
-    self.name = format
-    &#34;&#34;&#34;The name of this format&#34;&#34;&#34;
-
-    self._parser = __import__(format)
-    self._read_kwds = read_kwds or {}
-    self._write_kwds = write_kwds or {}</code></pre>
-</details>
-</dd>
 <dt id="cfgs.Format.as_dict"><code class="name flex">
 <span>def <span class="ident">as_dict</span></span>(<span>self, contents)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Convert the contents to a dict</p></section>
+<div class="desc"><p>Convert the contents to a dict</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def as_dict(self, contents):
     &#34;&#34;&#34;Convert the contents to a dict&#34;&#34;&#34;
     return copy.deepcopy(contents)</code></pre>
@@ -1339,9 +1504,11 @@ See help(type(self)) for accurate signature.</p></section>
 <span>def <span class="ident">create</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Return new, empty contents</p></section>
+<div class="desc"><p>Return new, empty contents</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def create(self):
     &#34;&#34;&#34;Return new, empty contents&#34;&#34;&#34;
     return {}</code></pre>
@@ -1351,24 +1518,30 @@ See help(type(self)) for accurate signature.</p></section>
 <span>def <span class="ident">read</span></span>(<span>self, fp)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Read contents from an open file in this format</p></section>
+<div class="desc"><p>Read contents from an open file in this format</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def read(self, fp):
     &#34;&#34;&#34;Read contents from an open file in this format&#34;&#34;&#34;
-    return self._parser.load(fp, **self._read_kwds)</code></pre>
+    load = getattr(self._parser, &#39;safe_load&#39;, self._parser.load)
+    return load(fp, **self._read_kwds)</code></pre>
 </details>
 </dd>
 <dt id="cfgs.Format.write"><code class="name flex">
 <span>def <span class="ident">write</span></span>(<span>self, contents, fp)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Write contents in this format to an open file</p></section>
+<div class="desc"><p>Write contents in this format to an open file</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def write(self, contents, fp):
     &#34;&#34;&#34;Write contents in this format to an open file&#34;&#34;&#34;
-    return self._parser.dump(contents, fp, **self._write_kwds)</code></pre>
+    dump = getattr(self._parser, &#39;safe_dump&#39;, self._parser.dump)
+    return dump(contents, fp, **self._write_kwds)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1377,13 +1550,16 @@ See help(type(self)) for accurate signature.</p></section>
 <span>class <span class="ident">XDG</span></span>
 </code></dt>
 <dd>
-<section class="desc"><p>The XDG Base Directory Spec mandates six directories for config and data
+<div class="desc"><p>The XDG Base Directory Spec mandates six directories for config and data
 files, caches and runtime files, with default values that can be overridden
 through environment variables.
 This class takes a snapshot of these six
-directories using the current environment.</p></section>
+directories using the current environment.</p>
+<p>Construct the class with a snapshot of the six XDG base directories</p></div>
 <details class="source">
-<summary>Source code</summary>
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">class XDG:
     &#34;&#34;&#34;
     The XDG Base Directory Spec mandates six directories for config and data
@@ -1416,7 +1592,8 @@ directories using the current environment.</p></section>
         &#34;&#34;&#34;
 
         self.XDG_DATA_DIRS = get(
-            &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;)
+            &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;
+        )
         &#34;&#34;&#34;A set of preference ordered base directories relative to which
            data files should be searched
         &#34;&#34;&#34;
@@ -1435,83 +1612,33 @@ directories using the current environment.</p></section>
 <dl>
 <dt id="cfgs.XDG.XDG_CACHE_HOME"><code class="name">var <span class="ident">XDG_CACHE_HOME</span></code></dt>
 <dd>
-<section class="desc"><p>Base directory relative to which
-user-specific non-essential (cached) data should be written</p></section>
+<div class="desc"><p>Base directory relative to which
+user-specific non-essential (cached) data should be written</p></div>
 </dd>
 <dt id="cfgs.XDG.XDG_CONFIG_DIRS"><code class="name">var <span class="ident">XDG_CONFIG_DIRS</span></code></dt>
 <dd>
-<section class="desc"><p>A set of preference ordered base directories relative to which
-configuration files should be searched</p></section>
+<div class="desc"><p>A set of preference ordered base directories relative to which
+configuration files should be searched</p></div>
 </dd>
 <dt id="cfgs.XDG.XDG_CONFIG_HOME"><code class="name">var <span class="ident">XDG_CONFIG_HOME</span></code></dt>
 <dd>
-<section class="desc"><p>Base directory relative to which user-specific
-configuration files should be written</p></section>
+<div class="desc"><p>Base directory relative to which user-specific
+configuration files should be written</p></div>
 </dd>
 <dt id="cfgs.XDG.XDG_DATA_DIRS"><code class="name">var <span class="ident">XDG_DATA_DIRS</span></code></dt>
 <dd>
-<section class="desc"><p>A set of preference ordered base directories relative to which
-data files should be searched</p></section>
+<div class="desc"><p>A set of preference ordered base directories relative to which
+data files should be searched</p></div>
 </dd>
 <dt id="cfgs.XDG.XDG_DATA_HOME"><code class="name">var <span class="ident">XDG_DATA_HOME</span></code></dt>
 <dd>
-<section class="desc"><p>Base directory relative to which user-specific
-data files should be written</p></section>
+<div class="desc"><p>Base directory relative to which user-specific
+data files should be written</p></div>
 </dd>
 <dt id="cfgs.XDG.XDG_RUNTIME_DIR"><code class="name">var <span class="ident">XDG_RUNTIME_DIR</span></code></dt>
 <dd>
-<section class="desc"><p>Base directory relative to which
-user-specific runtime files and other file objects should be placed</p></section>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="cfgs.XDG.__init__"><code class="name flex">
-<span>def <span class="ident">__init__</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Construct the class with a snapshot of the six XDG base directories</p></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def __init__(self):
-    &#34;&#34;&#34;
-    Construct the class with a snapshot of the six XDG base directories
-    &#34;&#34;&#34;
-
-    def get(k, v):
-        return _getenv(k) or _expandvars(v)
-
-    self.XDG_CACHE_HOME = get(&#39;XDG_CACHE_HOME&#39;, &#39;$HOME/.cache&#39;)
-    &#34;&#34;&#34;Base directory relative to which
-       user-specific non-essential (cached) data should be written
-    &#34;&#34;&#34;
-
-    self.XDG_CONFIG_DIRS = get(&#39;XDG_CONFIG_DIRS&#39;, &#39;/etc/xdg&#39;)
-    &#34;&#34;&#34;A set of preference ordered base directories relative to which
-       configuration files should be searched
-    &#34;&#34;&#34;
-
-    self.XDG_CONFIG_HOME = get(&#39;XDG_CONFIG_HOME&#39;, &#39;$HOME/.config&#39;)
-    &#34;&#34;&#34;Base directory relative to which user-specific
-       configuration files should be written
-    &#34;&#34;&#34;
-
-    self.XDG_DATA_DIRS = get(
-        &#39;XDG_DATA_DIRS&#39;, &#39;/usr/local/share/:/usr/share/&#39;)
-    &#34;&#34;&#34;A set of preference ordered base directories relative to which
-       data files should be searched
-    &#34;&#34;&#34;
-
-    self.XDG_DATA_HOME = get(&#39;XDG_DATA_HOME&#39;, &#39;$HOME/.local/share&#39;)
-    &#34;&#34;&#34;Base directory relative to which user-specific
-       data files should be written
-    &#34;&#34;&#34;
-
-    self.XDG_RUNTIME_DIR = get(&#39;XDG_RUNTIME_DIR&#39;, &#39;&#39;)
-    &#34;&#34;&#34;Base directory relative to which
-       user-specific runtime files and other file objects should be placed
-    &#34;&#34;&#34;</code></pre>
-</details>
+<div class="desc"><p>Base directory relative to which
+user-specific runtime files and other file objects should be placed</p></div>
 </dd>
 </dl>
 </dd>
@@ -1537,7 +1664,6 @@ user-specific runtime files and other file objects should be placed</p></section
 <h4><code><a title="cfgs.App" href="#cfgs.App">App</a></code></h4>
 <ul class="two-column">
 <li><code><a title="cfgs.App.DEFAULT_FORMAT" href="#cfgs.App.DEFAULT_FORMAT">DEFAULT_FORMAT</a></code></li>
-<li><code><a title="cfgs.App.__init__" href="#cfgs.App.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.App.cache" href="#cfgs.App.cache">cache</a></code></li>
 <li><code><a title="cfgs.App.config" href="#cfgs.App.config">config</a></code></li>
 <li><code><a title="cfgs.App.data" href="#cfgs.App.data">data</a></code></li>
@@ -1548,7 +1674,6 @@ user-specific runtime files and other file objects should be placed</p></section
 <li>
 <h4><code><a title="cfgs.Cache" href="#cfgs.Cache">Cache</a></code></h4>
 <ul class="">
-<li><code><a title="cfgs.Cache.__init__" href="#cfgs.Cache.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.Cache.directory" href="#cfgs.Cache.directory">directory</a></code></li>
 <li><code><a title="cfgs.Cache.dirname" href="#cfgs.Cache.dirname">dirname</a></code></li>
 </ul>
@@ -1556,7 +1681,6 @@ user-specific runtime files and other file objects should be placed</p></section
 <li>
 <h4><code><a title="cfgs.CacheDirectory" href="#cfgs.CacheDirectory">CacheDirectory</a></code></h4>
 <ul class="">
-<li><code><a title="cfgs.CacheDirectory.__init__" href="#cfgs.CacheDirectory.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.cache_size" href="#cfgs.CacheDirectory.cache_size">cache_size</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.dirname" href="#cfgs.CacheDirectory.dirname">dirname</a></code></li>
 <li><code><a title="cfgs.CacheDirectory.open" href="#cfgs.CacheDirectory.open">open</a></code></li>
@@ -1567,9 +1691,17 @@ user-specific runtime files and other file objects should be placed</p></section
 <h4><code><a title="cfgs.ConfigparserFormat" href="#cfgs.ConfigparserFormat">ConfigparserFormat</a></code></h4>
 </li>
 <li>
+<h4><code><a title="cfgs.Configs" href="#cfgs.Configs">Configs</a></code></h4>
+<ul class="">
+<li><code><a title="cfgs.Configs.copy_from" href="#cfgs.Configs.copy_from">copy_from</a></code></li>
+<li><code><a title="cfgs.Configs.diff" href="#cfgs.Configs.diff">diff</a></code></li>
+<li><code><a title="cfgs.Configs.load" href="#cfgs.Configs.load">load</a></code></li>
+<li><code><a title="cfgs.Configs.load_from_environ" href="#cfgs.Configs.load_from_environ">load_from_environ</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="cfgs.Directory" href="#cfgs.Directory">Directory</a></code></h4>
 <ul class="">
-<li><code><a title="cfgs.Directory.__init__" href="#cfgs.Directory.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.Directory.all_files" href="#cfgs.Directory.all_files">all_files</a></code></li>
 <li><code><a title="cfgs.Directory.full_name" href="#cfgs.Directory.full_name">full_name</a></code></li>
 <li><code><a title="cfgs.Directory.open" href="#cfgs.Directory.open">open</a></code></li>
@@ -1578,7 +1710,6 @@ user-specific runtime files and other file objects should be placed</p></section
 <li>
 <h4><code><a title="cfgs.File" href="#cfgs.File">File</a></code></h4>
 <ul class="two-column">
-<li><code><a title="cfgs.File.__init__" href="#cfgs.File.__init__">__init__</a></code></li>
 <li><code><a title="cfgs.File.as_dict" href="#cfgs.File.as_dict">as_dict</a></code></li>
 <li><code><a title="cfgs.File.clear" href="#cfgs.File.clear">clear</a></code></li>
 <li><code><a title="cfgs.File.contents" href="#cfgs.File.contents">contents</a></code></li>
@@ -1589,8 +1720,7 @@ user-specific runtime files and other file objects should be placed</p></section
 </li>
 <li>
 <h4><code><a title="cfgs.Format" href="#cfgs.Format">Format</a></code></h4>
-<ul class="two-column">
-<li><code><a title="cfgs.Format.__init__" href="#cfgs.Format.__init__">__init__</a></code></li>
+<ul class="">
 <li><code><a title="cfgs.Format.as_dict" href="#cfgs.Format.as_dict">as_dict</a></code></li>
 <li><code><a title="cfgs.Format.create" href="#cfgs.Format.create">create</a></code></li>
 <li><code><a title="cfgs.Format.name" href="#cfgs.Format.name">name</a></code></li>
@@ -1607,7 +1737,6 @@ user-specific runtime files and other file objects should be placed</p></section
 <li><code><a title="cfgs.XDG.XDG_DATA_DIRS" href="#cfgs.XDG.XDG_DATA_DIRS">XDG_DATA_DIRS</a></code></li>
 <li><code><a title="cfgs.XDG.XDG_DATA_HOME" href="#cfgs.XDG.XDG_DATA_HOME">XDG_DATA_HOME</a></code></li>
 <li><code><a title="cfgs.XDG.XDG_RUNTIME_DIR" href="#cfgs.XDG.XDG_RUNTIME_DIR">XDG_RUNTIME_DIR</a></code></li>
-<li><code><a title="cfgs.XDG.__init__" href="#cfgs.XDG.__init__">__init__</a></code></li>
 </ul>
 </li>
 </ul>
@@ -1616,9 +1745,7 @@ user-specific runtime files and other file objects should be placed</p></section
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.5.3.dev4+ge9f9892</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>
