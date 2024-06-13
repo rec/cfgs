@@ -50,20 +50,20 @@ Usage examples
     import cfgs
     app = cfgs.App('my-project')
     print(app.xdg.XDG_CACHE_HOME)
-    #   /home/tom/.cache/my-project
+    #   /home/tom/.cache
 
     app.xdg.XDG_CONFIG_DIRS
     #   /etc/xdg
 
     with app.config.open() as f:
-        f.update(name='oliver', species='dog')
-        f['description'] = {'size': 'S', 'fur': 'brown'}
+        f.contents.update(name='oliver', species='dog')
+        f.contents['description'] = {'size': 'S', 'fur': 'brown'}
         print(f.filename)
-    #    /home/tom/.cache/my-project/my-project.json
+    #    /home/tom/.config/my-project/my-project.json
 
     # Later:
     with app.config.open() as f:
-        print(f['name'])
+        print(f.contents['name'])
     #    oliver
 
         print(f.as_dict())
@@ -80,6 +80,10 @@ Cache
     cache_size = 0x10000000
     app = cfgs.App('my-project')
     directory = app.cache.directory(cache_size=cache_size)
+
+    with directory.open('cache') as f:
+        f.write('cache data')
+
     # TODO: rewrite cache or add features.
 
 
