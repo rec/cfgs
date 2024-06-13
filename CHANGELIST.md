@@ -26,7 +26,7 @@
 ## v0.9.5 2019-02-16
 - Simplify File API
 - New cfgs.html
-- Perhaps fix https://github.com/timedata-org/cfgs/issues/6
+- Perhaps fix https://github.com/rec/cfgs/issues/6
 
 ## v0.9.4 2019-02-15
 - Customized read and write
