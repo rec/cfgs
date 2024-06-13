@@ -1,20 +1,21 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.14: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
 <title>cfgs</title>
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 7952 2016-07-26 18:15:59Z milde $
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
 
-See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
 customize this style sheet.
 */
 
@@ -275,7 +276,7 @@ pre.literal-block, pre.doctest-block, pre.math, pre.code {
   margin-left: 2em ;
   margin-right: 2em }
 
-pre.code .ln { color: grey; } /* line numbers */
+pre.code .ln { color: gray; } /* line numbers */
 pre.code, code { background-color: #eeeeee }
 pre.code .comment, code .comment { color: #5C6576 }
 pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
@@ -301,7 +302,7 @@ span.option {
 span.pre {
   white-space: pre }
 
-span.problematic {
+span.problematic, pre.problematic {
   color: red }
 
 span.section-subtitle {
@@ -371,7 +372,7 @@ everyone's home directory has dozens of these.</p>
 <p>Then I read
 <a class="reference external" href="https://0x46.net/thoughts/2019/02/01/dotfile-madness/">this article</a>.</p>
 <p>Great was my embarrasment to discover that there was a
-<a class="reference external" href="https://0x46.net/thoughts/2019/02/01/dotfile-madness/">neat little specification</a>
+<a class="reference external" href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">neat little specification</a>
 for data, config and cache directories in Linux that prevents this problem, and
 that I was not using it:</p>
 <p>So I implemented a small and simple Python API as a single file, <tt class="docutils literal">cfgs.py</tt>.</p>
@@ -388,47 +389,51 @@ managing your cache directories.</p>
 <h1>How to install</h1>
 <p>You can either use pip:</p>
 <pre class="code bash literal-block">
-pip install cfgs
+pip<span class="whitespace"> </span>install<span class="whitespace"> </span>cfgs
 </pre>
 <p>Or if you don't like dependencies (and who does?), you can drop the source file
-<a class="reference external" href="https://raw.githubusercontent.com/timedata-org/cfgs/master/cfgs.py">cgfs.py</a>
+<a class="reference external" href="https://raw.githubusercontent.com/rec/cfgs/master/cfgs.py">cgfs.py</a>
 right into your project.</p>
 </div>
 <div class="section" id="usage-examples">
 <h1>Usage examples</h1>
 <pre class="code python literal-block">
-<span class="keyword namespace">import</span> <span class="name namespace">cfgs</span>
-<span class="name">app</span> <span class="operator">=</span> <span class="name">cfgs</span><span class="operator">.</span><span class="name">App</span><span class="punctuation">(</span><span class="literal string">'my-project'</span><span class="punctuation">)</span>
-<span class="keyword">print</span><span class="punctuation">(</span><span class="name">app</span><span class="operator">.</span><span class="name">xdg</span><span class="operator">.</span><span class="name">XDG_CACHE_HOME</span><span class="punctuation">)</span>
-<span class="comment">#   /home/tom/.cache/my-project</span>
+<span class="keyword namespace">import</span> <span class="name namespace">cfgs</span><span class="whitespace">
+</span><span class="name">app</span> <span class="operator">=</span> <span class="name">cfgs</span><span class="operator">.</span><span class="name">App</span><span class="punctuation">(</span><span class="literal string single">'my-project'</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="name builtin">print</span><span class="punctuation">(</span><span class="name">app</span><span class="operator">.</span><span class="name">xdg</span><span class="operator">.</span><span class="name">XDG_CACHE_HOME</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="comment single">#   /home/tom/.cache</span><span class="whitespace">
 
-<span class="name">app</span><span class="operator">.</span><span class="name">xdg</span><span class="operator">.</span><span class="name">XDG_CONFIG_DIRS</span>
-<span class="comment">#   /etc/xdg</span>
+</span><span class="name">app</span><span class="operator">.</span><span class="name">xdg</span><span class="operator">.</span><span class="name">XDG_CONFIG_DIRS</span><span class="whitespace">
+</span><span class="comment single">#   /etc/xdg</span><span class="whitespace">
 
-<span class="keyword">with</span> <span class="name">app</span><span class="operator">.</span><span class="name">config</span><span class="operator">.</span><span class="name">open</span><span class="punctuation">()</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span>
-    <span class="name">f</span><span class="operator">.</span><span class="name">update</span><span class="punctuation">(</span><span class="name">name</span><span class="operator">=</span><span class="literal string">'oliver'</span><span class="punctuation">,</span> <span class="name">species</span><span class="operator">=</span><span class="literal string">'dog'</span><span class="punctuation">)</span>
-    <span class="name">f</span><span class="punctuation">[</span><span class="literal string">'description'</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span><span class="literal string">'size'</span><span class="punctuation">:</span> <span class="literal string">'S'</span><span class="punctuation">,</span> <span class="literal string">'fur'</span><span class="punctuation">:</span> <span class="literal string">'brown'</span><span class="punctuation">}</span>
-    <span class="keyword">print</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">filename</span><span class="punctuation">)</span>
-<span class="comment">#    /home/tom/.cache/my-project/my-project.json</span>
+</span><span class="keyword">with</span> <span class="name">app</span><span class="operator">.</span><span class="name">config</span><span class="operator">.</span><span class="name">open</span><span class="punctuation">()</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
+</span>    <span class="name">f</span><span class="operator">.</span><span class="name">contents</span><span class="operator">.</span><span class="name">update</span><span class="punctuation">(</span><span class="name">name</span><span class="operator">=</span><span class="literal string single">'oliver'</span><span class="punctuation">,</span> <span class="name">species</span><span class="operator">=</span><span class="literal string single">'dog'</span><span class="punctuation">)</span><span class="whitespace">
+</span>    <span class="name">f</span><span class="operator">.</span><span class="name">contents</span><span class="punctuation">[</span><span class="literal string single">'description'</span><span class="punctuation">]</span> <span class="operator">=</span> <span class="punctuation">{</span><span class="literal string single">'size'</span><span class="punctuation">:</span> <span class="literal string single">'S'</span><span class="punctuation">,</span> <span class="literal string single">'fur'</span><span class="punctuation">:</span> <span class="literal string single">'brown'</span><span class="punctuation">}</span><span class="whitespace">
+</span>    <span class="name builtin">print</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">filename</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="comment single">#    /home/tom/.config/my-project/my-project.json</span><span class="whitespace">
 
-<span class="comment"># Later:</span>
-<span class="keyword">with</span> <span class="name">app</span><span class="operator">.</span><span class="name">config</span><span class="operator">.</span><span class="name">open</span><span class="punctuation">()</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span>
-    <span class="keyword">print</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">[</span><span class="literal string">'name'</span><span class="punctuation">])</span>
-<span class="comment">#    oliver</span>
+</span><span class="comment single"># Later:</span><span class="whitespace">
+</span><span class="keyword">with</span> <span class="name">app</span><span class="operator">.</span><span class="name">config</span><span class="operator">.</span><span class="name">open</span><span class="punctuation">()</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
+</span>    <span class="name builtin">print</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">contents</span><span class="punctuation">[</span><span class="literal string single">'name'</span><span class="punctuation">])</span><span class="whitespace">
+</span><span class="comment single">#    oliver</span><span class="whitespace">
 
-    <span class="keyword">print</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">as_dict</span><span class="punctuation">())</span>
-<span class="comment">#     {'name': 'oliver', 'species': 'dog',</span>
-<span class="comment">#      'description': {'size': 'S', 'fur': 'brown'}</span>
+</span>    <span class="name builtin">print</span><span class="punctuation">(</span><span class="name">f</span><span class="operator">.</span><span class="name">as_dict</span><span class="punctuation">())</span><span class="whitespace">
+</span><span class="comment single">#     {'name': 'oliver', 'species': 'dog',</span><span class="whitespace">
+</span><span class="comment single">#      'description': {'size': 'S', 'fur': 'brown'}</span>
 </pre>
 </div>
 <div class="section" id="cache">
 <h1>Cache</h1>
 <pre class="code python literal-block">
-<span class="keyword namespace">import</span> <span class="name namespace">cfgs</span>
-<span class="name">cache_size</span> <span class="operator">=</span> <span class="literal number hex">0x10000000</span>
-<span class="name">app</span> <span class="operator">=</span> <span class="name">cfgs</span><span class="operator">.</span><span class="name">App</span><span class="punctuation">(</span><span class="literal string">'my-project'</span><span class="punctuation">)</span>
-<span class="name">directory</span> <span class="operator">=</span> <span class="name">app</span><span class="operator">.</span><span class="name">cache</span><span class="operator">.</span><span class="name">directory</span><span class="punctuation">(</span><span class="name">cache_size</span><span class="operator">=</span><span class="name">cache_size</span><span class="punctuation">)</span>
-<span class="comment"># TODO: rewrite cache or add features.</span>
+<span class="keyword namespace">import</span> <span class="name namespace">cfgs</span><span class="whitespace">
+</span><span class="name">cache_size</span> <span class="operator">=</span> <span class="literal number hex">0x10000000</span><span class="whitespace">
+</span><span class="name">app</span> <span class="operator">=</span> <span class="name">cfgs</span><span class="operator">.</span><span class="name">App</span><span class="punctuation">(</span><span class="literal string single">'my-project'</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="name">directory</span> <span class="operator">=</span> <span class="name">app</span><span class="operator">.</span><span class="name">cache</span><span class="operator">.</span><span class="name">directory</span><span class="punctuation">(</span><span class="name">cache_size</span><span class="operator">=</span><span class="name">cache_size</span><span class="punctuation">)</span><span class="whitespace">
+
+</span><span class="keyword">with</span> <span class="name">directory</span><span class="operator">.</span><span class="name">open</span><span class="punctuation">(</span><span class="literal string single">'cache'</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
+</span>    <span class="name">f</span><span class="operator">.</span><span class="name">write</span><span class="punctuation">(</span><span class="literal string single">'cache data'</span><span class="punctuation">)</span><span class="whitespace">
+
+</span><span class="comment single"># TODO: rewrite cache or add features.</span>
 </pre>
 </div>
 <div class="section" id="using-cfgs-in-legacy-code">
@@ -437,22 +442,22 @@ right into your project.</p>
 can just use <tt class="docutils literal">cgfs</tt> to get the
 <a class="reference external" href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG variables</a></p>
 <pre class="code python literal-block">
-<span class="keyword namespace">from</span> <span class="name namespace">cfgs</span> <span class="keyword namespace">import</span> <span class="name">XDG</span>
+<span class="keyword namespace">from</span> <span class="name namespace">cfgs</span> <span class="keyword namespace">import</span> <span class="name">XDG</span><span class="whitespace">
 
-<span class="name">xdg</span> <span class="operator">=</span> <span class="name">XDG</span><span class="punctuation">()</span>
-<span class="name">config_dir</span> <span class="operator">=</span> <span class="name">xdg</span><span class="operator">.</span><span class="name">XDG_CONFIG_HOME</span>
+</span><span class="name">xdg</span> <span class="operator">=</span> <span class="name">XDG</span><span class="punctuation">()</span><span class="whitespace">
+</span><span class="name">config_dir</span> <span class="operator">=</span> <span class="name">xdg</span><span class="operator">.</span><span class="name">XDG_CONFIG_HOME</span><span class="whitespace">
 
-<span class="comment"># Your code here - eg:</span>
-<span class="name">my_config_file</span> <span class="operator">=</span> <span class="name">os</span><span class="operator">.</span><span class="name">path</span><span class="operator">.</span><span class="name">join</span><span class="punctuation">(</span><span class="name">config_dir</span><span class="punctuation">,</span> <span class="literal string">'my-file.json'</span><span class="punctuation">)</span>
-<span class="keyword">with</span> <span class="name builtin">open</span><span class="punctuation">(</span><span class="name">my_config_file</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span>
-    <span class="name">legacy_write_my_file</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">)</span>
+</span><span class="comment single"># Your code here - eg:</span><span class="whitespace">
+</span><span class="name">my_config_file</span> <span class="operator">=</span> <span class="name">os</span><span class="operator">.</span><span class="name">path</span><span class="operator">.</span><span class="name">join</span><span class="punctuation">(</span><span class="name">config_dir</span><span class="punctuation">,</span> <span class="literal string single">'my-file.json'</span><span class="punctuation">)</span><span class="whitespace">
+</span><span class="keyword">with</span> <span class="name builtin">open</span><span class="punctuation">(</span><span class="name">my_config_file</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span><span class="whitespace">
+</span>    <span class="name">legacy_write_my_file</span><span class="punctuation">(</span><span class="name">f</span><span class="punctuation">)</span>
 </pre>
 <p><tt class="docutils literal">cfgs</tt> automatically handles data and config files, and independently, cache
 directories.</p>
 </div>
 <div class="section" id="api-documentation">
 <h1>API Documentation</h1>
-<p>API documentation is <a class="reference external" href="https://timedata-org.github.io/cfgs/cfgs.html">here</a>.</p>
+<p>API documentation is <a class="reference external" href="https://rec.github.io/cfgs/cfgs.html">here</a>.</p>
 <hr class="docutils" />
 <table border="1" class="docutils">
 <colgroup>
@@ -461,7 +466,7 @@ directories.</p>
 </colgroup>
 <tbody valign="top">
 <tr><td><img alt="pic1" src="https://img.shields.io/pypi/pyversions/cfgs.svg?style=flat" /></td>
-<td><img alt="pic2" src="https://img.shields.io/travis/timedata-org/cfgs/master.svg?style=flat" /></td>
+<td><img alt="pic2" src="https://img.shields.io/travis/rec/cfgs/master.svg?style=flat" /></td>
 </tr>
 </tbody>
 </table>
