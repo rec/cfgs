@@ -38,7 +38,7 @@ You can either use pip:
     pip install cfgs
 
 Or if you don't like dependencies (and who does?), you can drop the source file
-`cgfs.py <https://raw.githubusercontent.com/timedata-org/cfgs/master/cfgs.py>`_
+`cgfs.py <https://raw.githubusercontent.com/rec/cfgs/master/cfgs.py>`_
 right into your project.
 
 
@@ -110,7 +110,7 @@ directories.
 API Documentation
 ======================
 
-API documentation is `here <https://timedata-org.github.io/cfgs/cfgs.html>`_.
+API documentation is `here <https://rec.github.io/cfgs/cfgs.html>`_.
 
 --------------------------------------
 
@@ -120,6 +120,6 @@ API documentation is `here <https://timedata-org.github.io/cfgs/cfgs.html>`_.
 
 
 .. |pic2| image::
-          https://img.shields.io/travis/timedata-org/cfgs/master.svg?style=flat
+          https://img.shields.io/travis/rec/cfgs/master.svg?style=flat
 
 .. |pic1| image:: https://img.shields.io/pypi/pyversions/cfgs.svg?style=flat
