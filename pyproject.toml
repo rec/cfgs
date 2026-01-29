@@ -1,24 +1,35 @@
-[tool.poetry]
+[project]
 name = "cfgs"
 version = "0.13.0"
 description = "🍇 XDG standard config files 🍇"
-authors = ["Tom Ritchford <tom@swirly.com>"]
-license = "MIT"
+authors = [{ name = "Tom Ritchford", email = "tom@swirly.com" }]
+requires-python = ">=3.8"
 readme = "README.rst"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.8"
+[dependency-groups]
+dev = [
+    "coverage>=7.1.0,<8",
+    "flake8==5.0.4",
+    "import-all>=0.9.5,<0.10",
+    "pyfakefs>=5.1.0,<6",
+    "pytest>=7.2.1,<8",
+    "pyyaml>=6.0,<7",
+]
 
-[tool.poetry.group.dev.dependencies]
-coverage = "^7.1.0"
-flake8 = "5.0.4"
-import-all = "^0.9.5"
-pyfakefs = "^5.1.0"
-pytest = "^7.2.1"
-pyyaml = "^6.0"
-
-
-[tool.coverage]
+[build-system]
+requires = ["uv_build>=0.9.0,<0.10.0"]
+build-backend = "uv_build"
 [tool.coverage.run]
 branch = "True"
 include = "cfgs.py"
@@ -29,6 +40,3 @@ skip_covered = "True"
 
 [tool.mypy]
 strict = true
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
