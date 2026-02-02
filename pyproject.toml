@@ -24,7 +24,10 @@ dev = [
     "import-all>=0.9.5,<0.10",
     "pyfakefs>=5.1.0,<6",
     "pytest>=7.2.1,<8",
+    "pyupgrade>=3.21.2",
     "pyyaml>=6.0,<7",
+    "ruff>=0.14.14",
+    "ty>=0.0.14",
 ]
 
 [build-system]
@@ -32,12 +35,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.coverage.run]
-branch = "True"
+branch = true
 include = "cfgs.py"
 
 [tool.coverage.report]
 fail_under = "63"
-skip_covered = "True"
+skip_covered = true
+exclude_lines = ["pragma: no cover", "if False:", "if __name__ == .__main__.:", "raise NotImplementedError"]
 
 [tool.mypy]
 strict = true
