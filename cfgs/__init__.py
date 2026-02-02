@@ -60,7 +60,7 @@ class Configs:
         items = ((k, v) for k, v in items if k.startswith(pre))
 
         for k, v in items:
-            attr_name = k[len(pre):].lower()
+            attr_name = k[len(pre) :].lower()
             splits = list(_split_address(v, attr_name))
             if len(splits) == 1:
                 parent, attr = splits[0]
@@ -81,7 +81,7 @@ def _split_address(parent, key):
     else:
         for k in dir(parent):
             if k.startswith(key + '_'):
-                k = key[len(key) + 1:]
+                k = key[len(key) + 1 :]
                 new_parent = getattr(parent, k)
                 yield from _split_address(new_parent, k)
 
@@ -116,13 +116,16 @@ def _load(p):
     if p.suffix == '.toml':
         try:
             import tomllib
+
             return tomllib.loads(p.read_text())
         except ImportError:
             import tomlkit
+
             return tomlkit.loads(p.read_text())
 
     if p.suffix == '.yaml':
         import yaml
+
         return yaml.safe_load(p.read_text())
 
     raise ValueError('Do not understand suffix=' + p.suffix)
@@ -141,9 +144,7 @@ class App:
     DEFAULT_FORMAT = 'json'
     """The default, default file format for all Apps"""
 
-    def __init__(
-        self, name, format=DEFAULT_FORMAT, read_kwds=None, write_kwds=None
-    ):
+    def __init__(self, name, format=DEFAULT_FORMAT, read_kwds=None, write_kwds=None):
         """
         Arguments:
 
@@ -220,9 +221,7 @@ class XDG:
            configuration files should be written
         """
 
-        self.XDG_DATA_DIRS = get(
-            'XDG_DATA_DIRS', '/usr/local/share/:/usr/share/'
-        )
+        self.XDG_DATA_DIRS = get('XDG_DATA_DIRS', '/usr/local/share/:/usr/share/')
         """A set of preference ordered base directories relative to which
            data files should be searched
         """
@@ -353,7 +352,7 @@ class Cache:
     """
 
     def __init__(self, dirname):
-        """Do not call this constructor - instead use `cfgs.App.cache` """
+        """Do not call this constructor - instead use `cfgs.App.cache`"""
 
         self.dirname = dirname
         """The full path of the root directory for all cache directories"""
