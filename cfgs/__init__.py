@@ -7,17 +7,16 @@ Simple, correct handling of config, data and cache files.
 Fully compliant with the XDG Base Directory Specification.
 """
 
-from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
 import copy
 import dataclasses as dc
 import json
 import os
-import os
 import sys
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple, Union
 
-File = Tuple[Union[Path, str]]
+File = tuple[Union[Path, str]]
 _NONE = object()
 
 
@@ -50,7 +49,7 @@ class Configs:
     def load_from_environ(
         self,
         prefix: str,
-        environ: Optional[Dict] = None,
+        environ: dict | None = None,
         verbose: bool = True,
     ):
         if environ is None:
@@ -268,7 +267,7 @@ class Directory:
         if not filename:
             basename = os.path.basename(self.home)
             suffix = FORMAT_TO_SUFFIX[self.format.name]
-            filename = '%s%s' % (basename, suffix)
+            filename = '{}{}'.format(basename, suffix)
         elif filename.startswith('/'):
             filename = filename[1:]
 
@@ -283,7 +282,7 @@ class Directory:
             full_path = os.path.join(p, filename)
             try:
                 yield open(full_path) and full_path
-            except IOError:
+            except OSError:
                 pass
 
     def full_name(self, filename):
@@ -322,7 +321,7 @@ class File:
         try:
             with open(self.filename) as fp:
                 self.contents = self.format.read(fp)
-        except IOError:
+        except OSError:
             self.contents = self.format.create()
         return self.contents
 
@@ -510,7 +509,7 @@ class ConfigparserFormat(Format):
     def read(self, fp):
         """Read contents from an open file in this format"""
         contents = self.create()
-        contents.readfp(fp)
+        contents.read_file(fp)
         return contents
 
     def write(self, contents, fp):
@@ -519,7 +518,7 @@ class ConfigparserFormat(Format):
 
     def create(self):
         """Return new, empty contents"""
-        return self._parser.SafeConfigParser()
+        return self._parser.ConfigParser()
 
     def as_dict(self, contents):
         """Convert the contents to a dict"""

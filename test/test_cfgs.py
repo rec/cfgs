@@ -1,6 +1,7 @@
 import dataclasses as dc
-from cfgs import Configs
 from typing import List
+
+from cfgs import Configs
 
 
 def field(factory):
@@ -9,7 +10,7 @@ def field(factory):
 
 @dc.dataclass
 class Audio(Configs):
-    levels: List[float] = field(list)
+    levels: list[float] = field(list)
 
 
 @dc.dataclass

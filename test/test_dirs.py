@@ -1,7 +1,9 @@
-from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
-import cfgs
 import json
 import platform
+
+from pyfakefs.fake_filesystem_unittest import TestCase as FakeTestCase
+
+import cfgs
 
 
 class TestCase(FakeTestCase):
@@ -160,7 +162,7 @@ class CacheTest(TestCase):
         ('five', '55555'),
         ('six', '666666'),
     )
-    EXPECTED = set(f for (f, c) in FILE_CONTENTS)
+    EXPECTED = {f for (f, c) in FILE_CONTENTS}
 
     def test_cache1(self):
         cache, listdir = self._create_cache(0, False)
